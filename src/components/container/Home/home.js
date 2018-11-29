@@ -9,7 +9,7 @@ import {
   Row
 } from 'reactstrap';
 import { Icon } from 'components/common';
-import { ICONS } from 'variables/constants';
+import { Icons } from 'variables/constants';
 
 class Home extends PureComponent {
   render() {
@@ -18,7 +18,7 @@ class Home extends PureComponent {
         <Row className="align-items-center justify-content-center">
           <Col lg={3}>
             <Card body className="text-center">
-              <Icon color="#000000" size="100" icon={ICONS.BOOK} />
+              <Icon color="#000000" size="100" icon={Icons.BOOK} />
               <CardTitle>Buchung</CardTitle>
               <CardText>With supporting text below as a natural lead-in to additional content.</CardText>
               <Button color="primary">Go somewhere</Button>
