@@ -13,6 +13,13 @@ html, body {
   justify-content: center;
 }
 
+.bc-viewport {
+  min-height: 100vh;
+  width:100%;
+  display:flex;
+  flex-direction: column;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -33,4 +40,31 @@ html, body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Component Styling - Header */
+.bc-header {
+  background-color: #61dafb;
+  flex: 0 0 52px;
+}
+
+.bc-header__button {
+  background-color: darkcyan;
+  transition: background-color .5s;
+  cursor: pointer;
+}
+
+.bc-header__button:hover {
+  background-color: darkslategray;
+}
+
+/* Component Styling - Main-Content */
+.bc-content {
+  flex: 1 1 0;
+}
+
+/* Text styling */
+h2 {
+  margin-left: 12px;
+  padding: 6px 0;
 }

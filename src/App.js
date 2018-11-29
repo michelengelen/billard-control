@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
-import Home from './components/container/Home/home';
+import Home from 'components/container/Home/home';
+import Header from 'components/container/Header/header';
 import './App.css';
 
 class App extends Component {
   render() {
-    return <Home />;
+    return (
+      <div className="bc-viewport">
+        <Header />
+        <Home />
+      </div>
+    );
   }
 }
 
