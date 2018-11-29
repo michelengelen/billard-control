@@ -9,7 +9,7 @@ import {
   Row
 } from 'reactstrap';
 import { Icon } from 'components/common';
-import { ICONS } from 'testconstants';
+import { ICONS } from 'variables/constants';
 
 class Home extends PureComponent {
   render() {
