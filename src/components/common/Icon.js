@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Icon = props => {
+export const Icon = props => {
   const styles = {
     svg: {
       display: 'inline-block',
@@ -33,5 +33,3 @@ Icon.propTypes = {
 Icon.defaultProps = {
   size: 16,
 };
-
-export { Icon };
