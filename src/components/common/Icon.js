@@ -1,5 +1,5 @@
 import React from 'react';
-const { PropTypes } = React;
+import PropTypes from 'prop-types';
 
 const Icon = props => {
   const styles = {
@@ -17,9 +17,9 @@ const Icon = props => {
       style={styles.svg}
       width={`${props.size}px`}
       height={`${props.size}px`}
-      viewBox='0 0 1024 1024'
+      viewBox="0 0 1024 1024"
     >
-      <path style={styles.path} d={props.icon} />
+      {props.icon.map(icon => <path style={styles.path} d={icon} />)}
     </svg>
   );
 };

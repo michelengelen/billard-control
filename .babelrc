@@ -1,0 +1,37 @@
+{
+  "presets": [
+    "es2015",
+    "react",
+    "stage-2"
+  ],
+  "env": {
+    "development": {
+      "presets": [
+        "react-hmre"
+      ],
+      "plugins": [
+        "transform-object-assign",
+        "transform-async-to-generator"
+      ]
+    },
+    "production": {
+      "plugins": [
+        "transform-react-constant-elements",
+        "transform-react-remove-prop-types",
+        "transform-object-assign",
+        "transform-async-to-generator"
+      ]
+    },
+    "test": {
+      "plugins": [
+        ["istanbul", {
+          "exclude": [
+            "**/*.spec.js",
+            "**/*.spec.jsx",
+            "tools/testSetup.js"
+          ]
+        }]
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+parser: "babel-eslint"
+globals:
+  it: true
+  expect: true
+  jest: true
+  describe: true
+  window: true
+plugins:
+- react
+env:
+  node: true
+  es6: true
+  browser: true
+  mocha: true
+rules:
+  react/no-danger: off
+  react/jsx-filename-extension: off
+  react/require-default-props: off
+  react/destructuring-assignment: off
+  react/button-has-type: warn
+  react/no-access-state-in-setstate: warn
+  react/no-array-index-key: warn
+  react/default-props-match-prop-types: off
+  react/no-unused-state: warn
+  react/prefer-stateless-function: warn
+  react/sort-comp: warn
+  class-methods-use-this: off
+  import/no-unresolved: off
+  import/no-extraneous-dependencies: off
+  import/prefer-default-export: off
+  quotes:
+  - error
+  - single
+  - "avoid-escape"
+  arrow-parens:
+  - error
+  - "as-needed"
+  - requireForBlockBody: false
+  no-mixed-operators: off
+  no-underscore-dangle: off
+  no-confusing-arrow: off
+  no-plusplus: off
+  no-restricted-syntax:
+  - error
+  - ForInStatement
+  - LabeledStatement
+  - WithStatement
+  linebreak-style: off
+  prefer-destructuring: off
+  max-len: warn
