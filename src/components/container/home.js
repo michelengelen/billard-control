@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { withRouter } from 'react-router-dom';
 import {
   Card,
   CardTitle,
@@ -10,6 +11,7 @@ import {
 
 class Home extends PureComponent {
   render() {
+    const { history } = this.props;
     return (
       <Row className="bc-content align-items-center justify-content-center">
         <Col lg={3}>
@@ -19,7 +21,12 @@ class Home extends PureComponent {
               With supporting text below as a natural lead-in to additional
               content.
             </CardText>
-            <Button color="primary">Go somewhere</Button>
+              <Button
+                color="primary"
+                onClick={() => history.push('/purchase')}
+              >
+                Go somewhere
+              </Button>
           </Card>
         </Col>
         <Col lg={3}>
@@ -29,7 +36,12 @@ class Home extends PureComponent {
               With supporting text below as a natural lead-in to additional
               content.
             </CardText>
-            <Button color="success">Go somewhere</Button>
+              <Button
+                color="primary"
+                onClick={() => history.push('/admin')}
+              >
+                Go somewhere
+              </Button>
           </Card>
         </Col>
       </Row>
@@ -37,4 +49,4 @@ class Home extends PureComponent {
   }
 }
 
-export default Home;
+export default withRouter(Home);

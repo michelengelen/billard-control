@@ -20,19 +20,6 @@ html, body {
   flex-direction: column;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -64,7 +51,7 @@ html, body {
 }
 
 /* Text styling */
-h2 {
+h1, h2, h3, h4 {
   margin-left: 12px;
   padding: 6px 0;
 }

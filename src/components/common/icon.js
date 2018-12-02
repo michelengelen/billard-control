@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { generateUniqueKey } from 'helpers/helpers';
+
 export const Icon = props => {
   const styles = {
     wrapper: {
@@ -31,14 +33,24 @@ export const Icon = props => {
         viewBox="0 0 32 32"
         onClick={event => handleClick(event, props.onClick)}
       >
-        {props.icon.map(icon => <path style={styles.path} d={icon} />)}
+        {props.icon.map(
+          icon => (
+            <path
+              key={generateUniqueKey()}
+              style={styles.path}
+              d={icon}
+            />
+          )
+        )}
       </svg>
     </div>
   );
 };
 
 Icon.propTypes = {
-  icon: PropTypes.string.isRequired,
+  icon: PropTypes.arrayOf(
+    PropTypes.string
+  ).isRequired,
   size: PropTypes.number,
   color: PropTypes.string,
   className: PropTypes.string,
