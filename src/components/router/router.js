@@ -1,8 +1,12 @@
 import React, { PureComponent } from 'react';
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+
+// import of custom components
 import Home from 'components/container/home';
 import Header from 'components/container/header';
 import Admin from 'components/container/admin';
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import { NoMatch } from 'components/container/nomatch';
+
 import { UserContext } from 'contexts/userContext';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
@@ -59,10 +63,13 @@ class AppRouter extends PureComponent {
         <Router>
           <div className="bc-viewport">
             <Header />
-            <Route path="/" exact component={Home} />
-            <Route path="/settings/" component={Settings} />
-            <Route path="/purchase/" component={Purchase} />
-            <PrivateRoute path="/admin/" component={Admin} />;
+            <Switch>
+              <Route path="/" exact component={Home} />
+              <Route path="/settings/" component={Settings} />
+              <Route path="/purchase/" component={Purchase} />
+              <PrivateRoute path="/admin/" component={Admin} />
+              <Route component={NoMatch} />
+            </Switch>
           </div>
         </Router>
       </UserContext.Provider>
