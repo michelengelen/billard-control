@@ -1,51 +1,31 @@
-import React, { PureComponent } from 'react';
+import React  from 'react';
 import {
+  Route,
   withRouter,
 } from 'react-router-dom';
 import {
-  Card, CardText, CardTitle,
   Col,
   Row
 } from 'reactstrap';
-import { productsRef } from 'firebase-config/config';
 
-class Admin extends PureComponent {
-  constructor(props) {
-    super(props);
+// import of custom components
+import Navigation from 'components/common/navigation';
+import Dashboard from 'components/container/adminDashboard';
+import Products from 'components/container/adminProducts';
 
-    this.state = {
-      products: null,
-    };
-  }
+const Admin = withRouter(props => {
+  const { match } = props;
+  return (
+    <Row className="bc-content">
+      <Col xs={3} className="pr-0">
+        <Navigation />
+      </Col>
+      <Col xs={9}>
+        <Route path={`${match.path}`} exact component={Dashboard} />
+        <Route path={`${match.path}/consumables`} component={Products} />
+      </Col>
+    </Row>
+  );
+});
 
-  componentDidMount() {
-    productsRef.get().then(querySnapshot => {
-      const products = [];
-      querySnapshot.forEach(doc => {
-        products.push(doc.data());
-        console.log(`${doc.id} => ${doc.data()}`);
-      });
-      this.setState({
-        products,
-      })
-    });
-  }
-
-  render() {
-    return (
-      <Row className="bc-content">
-        <Col lg={3}>
-          <Card body className="text-center">
-            <CardTitle>ADMIN</CardTitle>
-            <CardText>
-              With supporting text below as a natural lead-in to additional
-              content.
-            </CardText>
-          </Card>
-        </Col>
-      </Row>
-    );
-  }
-}
-
-export default withRouter(Admin);
+export { Admin };

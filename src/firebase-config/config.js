@@ -6,5 +6,6 @@ const dbRef = firebase.firestore();
 
 export const membersRef = dbRef.collection('members');
 export const productsRef = dbRef.collection('products');
+export const categoriesRef = dbRef.collection('categories');
 
 export const authRef = firebase.auth();

@@ -8,7 +8,7 @@ export const Icon = props => {
     wrapper: {
       width: `${props.size}px`,
       height: `${props.size}px`,
-      padding: '10px',
+      padding: props.padding ? '10px' : '0px',
     },
     svg: {
       display: 'inline-block',
@@ -24,19 +24,21 @@ export const Icon = props => {
     if (callback) callback();
   };
 
+  const svgSize = props.padding ? `${props.size - 20}px` : `${props.size}px`;
+
   return (
     <div style={styles.wrapper} className={props.className || ''}>
       <svg
         style={styles.svg}
-        width={`${props.size - 20}px`}
-        height={`${props.size - 20}px`}
+        width={svgSize}
+        height={svgSize}
         viewBox="0 0 32 32"
         onClick={event => handleClick(event, props.onClick)}
       >
         {props.icon.map(
-          icon => (
+          (icon, index) => (
             <path
-              key={generateUniqueKey()}
+              key={`${generateUniqueKey()}_${index}`}
               style={styles.path}
               d={icon}
             />
@@ -55,8 +57,10 @@ Icon.propTypes = {
   color: PropTypes.string,
   className: PropTypes.string,
   onClick: PropTypes.func,
+  padding: PropTypes.bool,
 };
 
 Icon.defaultProps = {
   size: 16,
+  padding: false,
 };

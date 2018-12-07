@@ -39,6 +39,25 @@ class Home extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    const ctxt = this.context;
+    authRef.onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in.
+        const refinedUserData = {
+          name: user.displayName || 'Admin',
+          email: user.email,
+          isAuthenticated: true,
+          hasAdminRights: user.isAdmin || true
+        };
+        ctxt.signInUser(refinedUserData);
+      } else {
+        // No user is signed in.
+        console.log('No user is signed in at the moment!');
+      }
+    });
+  }
+
   handleOnChange(e, fieldType) {
     e.preventDefault();
     this.setState({
@@ -47,6 +66,10 @@ class Home extends PureComponent {
   }
 
   toggleModal() {
+    const { isAuthenticated, hasAdminRights } = this.context;
+    if (isAuthenticated && hasAdminRights) {
+      this.props.history.push('/admin');
+    }
     this.setState(prevState => ({modalOpen: !prevState.modalOpen}));
   }
 
@@ -72,12 +95,11 @@ class Home extends PureComponent {
   }
 
   render() {
-    console.log(this.state);
     const emailValid = validateEmail(this.state.adminEmail);
     const { history } = this.props;
     return (
       <Row className="bc-content align-items-center justify-content-center">
-        <Col lg={3}>
+        <Col xs={3}>
           <Card body className="text-center">
             <CardTitle>Buchung</CardTitle>
             <CardText>
@@ -88,11 +110,11 @@ class Home extends PureComponent {
                 color="primary"
                 onClick={() => history.push('/purchase')}
               >
-                Go somewhere
+                Zur Buchungsseite
               </Button>
           </Card>
         </Col>
-        <Col lg={3}>
+        <Col xs={3}>
           <Card body className="text-center">
             <CardTitle>Admin</CardTitle>
             <CardText>
@@ -102,7 +124,7 @@ class Home extends PureComponent {
                 color="primary"
                 onClick={this.toggleModal}
               >
-                Go somewhere
+                Zum Admin-Bereich
               </Button>
           </Card>
         </Col>
@@ -165,5 +187,7 @@ class Home extends PureComponent {
     );
   }
 }
+
+Home.contextType = UserContext;
 
 export default withRouter(Home);

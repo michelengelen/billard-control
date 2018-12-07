@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 // import of custom components
 import Home from 'components/container/home';
 import Header from 'components/container/header';
-import Admin from 'components/container/admin';
+import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
 
 import { UserContext } from 'contexts/userContext';
@@ -47,6 +47,7 @@ class AppRouter extends PureComponent {
   }
 
   async signInUser(userData) {
+    console.log('onmount?');
     await this.setState({
       user: {
         name: userData.name,
@@ -65,9 +66,9 @@ class AppRouter extends PureComponent {
             <Header />
             <Switch>
               <Route path="/" exact component={Home} />
-              <Route path="/settings/" component={Settings} />
-              <Route path="/purchase/" component={Purchase} />
-              <PrivateRoute path="/admin/" component={Admin} />
+              <Route path="/settings" component={Settings} />
+              <Route path="/purchase" component={Purchase} />
+              <PrivateRoute path="/admin" component={Admin} />
               <Route component={NoMatch} />
             </Switch>
           </div>

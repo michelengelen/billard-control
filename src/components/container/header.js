@@ -32,6 +32,7 @@ class Header extends PureComponent {
         </Col>
         <Col xs="auto">
           <Icon
+            padding
             color="#EEEEEE"
             size={52}
             icon={Icons.SETTINGS}
