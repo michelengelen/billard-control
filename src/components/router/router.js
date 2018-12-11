@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 // import of custom components
 import Home from 'components/container/home';
 import Header from 'components/container/header';
+import Purchase from 'components/container/purchase';
 import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
 
@@ -13,8 +14,8 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
   return (
     <Route {...rest} render={props => (
       <UserContext.Consumer>
-        {user => (
-          user.isAuthenticated
+        {ctxt => (
+          ctxt.user.isAuthenticated
             ? <Component {...props} />
             : <Redirect to={{
               pathname: '/',
@@ -27,13 +28,13 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 };
 
 const Settings = () => <h2>Settings</h2>;
-const Purchase = () => <h2>Purchase</h2>;
 
 class AppRouter extends PureComponent {
   constructor(props) {
     super(props);
 
     this.signInUser = this.signInUser.bind(this);
+    this.logoutUser = this.logoutUser.bind(this);
 
     this.state = {
       user: {
@@ -41,13 +42,13 @@ class AppRouter extends PureComponent {
         email: '',
         isAuthenticated: false,
         hasAdminRights: false,
-        signInUser: this.signInUser,
-      }
+      },
+      signInUser: this.signInUser,
+      logoutUser: this.logoutUser,
     }
   }
 
   async signInUser(userData) {
-    console.log('onmount?');
     await this.setState({
       user: {
         name: userData.name,
@@ -58,9 +59,20 @@ class AppRouter extends PureComponent {
     })
   }
 
+  async logoutUser() {
+    await this.setState({
+      user: {
+        name: '',
+        email: '',
+        isAuthenticated: false,
+        hasAdminRights: false,
+      }
+    })
+  }
+
   render() {
     return (
-      <UserContext.Provider value={this.state.user}>
+      <UserContext.Provider value={this.state}>
         <Router>
           <div className="bc-viewport">
             <Header />

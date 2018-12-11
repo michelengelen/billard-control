@@ -4,30 +4,8 @@ import {
   Row,
   Jumbotron,
 } from 'reactstrap';
-import { productsRef } from 'firebase-config/config';
 
 class Dashboard extends PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      products: null,
-    };
-  }
-
-  componentDidMount() {
-    productsRef.get().then(querySnapshot => {
-      const products = [];
-      querySnapshot.forEach(doc => {
-        products.push(doc.data());
-        console.log(`${doc.id} => ${doc.data()}`);
-      });
-      this.setState({
-        products,
-      })
-    });
-  }
-
   render() {
     return (
       <Row className="bc-content mr-0 pt-3">

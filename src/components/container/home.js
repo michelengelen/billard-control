@@ -41,7 +41,7 @@ class Home extends PureComponent {
 
   componentDidMount() {
     const ctxt = this.context;
-    authRef.onAuthStateChanged(function(user) {
+    authRef.onAuthStateChanged(user => {
       if (user) {
         // User is signed in.
         const refinedUserData = {
@@ -66,8 +66,10 @@ class Home extends PureComponent {
   }
 
   toggleModal() {
-    const { isAuthenticated, hasAdminRights } = this.context;
+    console.log('toggle', this.context);
+    const { isAuthenticated, hasAdminRights } = this.context.user;
     if (isAuthenticated && hasAdminRights) {
+      console.log('admin?');
       this.props.history.push('/admin');
     }
     this.setState(prevState => ({modalOpen: !prevState.modalOpen}));
@@ -170,10 +172,10 @@ class Home extends PureComponent {
           </ModalBody>
           <ModalFooter>
             <UserContext.Consumer>
-              {user => (
+              {ctxt => (
                 <Button
                   color="primary"
-                  onClick={() => this.signInAdmin(user.signInUser)}
+                  onClick={() => this.signInAdmin(ctxt.signInUser)}
                 >
                   Log In
                 </Button>
