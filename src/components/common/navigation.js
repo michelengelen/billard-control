@@ -57,12 +57,12 @@ class Navigation extends PureComponent {
         </NavItem>
         <NavItem active={location.pathname === '/admin/consumables'}>
           <NavLink onClick={() => history.push('/admin/consumables')}>
-            Bier/Snacks
+            Produkte
           </NavLink>
         </NavItem>
-        <NavItem active={location.pathname === '/admin/tables'}>
-          <NavLink onClick={() => history.push('/admin/tables')}>
-            Tische
+        <NavItem active={location.pathname === '/admin/settlement'}>
+          <NavLink onClick={() => history.push('/admin/settlement')}>
+            Abrechnung
           </NavLink>
         </NavItem>
       </Nav>

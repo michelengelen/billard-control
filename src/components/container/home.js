@@ -69,6 +69,7 @@ class Home extends PureComponent {
     const { isAuthenticated, hasAdminRights } = this.context.user;
     if (isAuthenticated && hasAdminRights) {
       this.props.history.push('/admin');
+      return;
     }
     this.setState(prevState => ({modalOpen: !prevState.modalOpen}));
   }
