@@ -1,17 +1,12 @@
 import React, {PureComponent}  from 'react';
 import {
-  Route,
   withRouter,
 } from 'react-router-dom';
 import {
-  Col,
   Row
 } from 'reactstrap';
 
 // import of custom components
-import Navigation from 'components/common/navigation';
-import Dashboard from 'components/container/adminDashboard';
-import Products from 'components/container/adminProducts';
 import {
   Modal,
   ModalHeader,
@@ -21,7 +16,6 @@ import {
   FormGroup,
   Label,
   Input,
-  FormFeedback,
   ModalFooter,
   Button,
 } from 'reactstrap';

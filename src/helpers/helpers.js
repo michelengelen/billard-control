@@ -1,4 +1,4 @@
-export const generateUniqueKey = () => (+new Date).toString(36);
+export const generateUniqueKey = () => (+new Date()).toString(36);
 
 const emailRegEx =
   /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -18,15 +18,4 @@ export const sortByProperty = (arr, prop) => {
     }
     return 0;
   })
-};
-
-export const getPriceString = price => {
-  let priceString = '0,00 €';
-  if (price && !isNaN(price)) {
-    priceString = price.toLocaleString('de', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }) + ' €';
-  }
-  return priceString;
 };

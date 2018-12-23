@@ -66,16 +66,15 @@ class Home extends PureComponent {
   }
 
   toggleModal() {
-    console.log('toggle', this.context);
     const { isAuthenticated, hasAdminRights } = this.context.user;
     if (isAuthenticated && hasAdminRights) {
-      console.log('admin?');
       this.props.history.push('/admin');
     }
     this.setState(prevState => ({modalOpen: !prevState.modalOpen}));
   }
 
-  signInAdmin(callback) {
+  signInAdmin(event, callback) {
+    event.preventDefault();
     const { history } = this.props;
     const { adminEmail, adminPass } = this.state;
     authRef.signInWithEmailAndPassword(adminEmail, adminPass)
@@ -134,56 +133,51 @@ class Home extends PureComponent {
           isOpen={this.state.modalOpen}
           toggle={this.toggleModal}
         >
-          <ModalHeader toggle={this.toggleModal}>Modal title</ModalHeader>
-          <ModalBody>
-            <Alert
-              color="danger"
-              isOpen={!!this.state.error}
-              toggle={() => this.setState({error: ''})}
-            >
-              {this.state.error}
-            </Alert>
-            <Form>
-              <FormGroup>
-                <Label for="adminEmail">Email</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  id="adminEmail"
-                  invalid={!emailValid}
-                  onChange={e => this.handleOnChange(e, 'adminEmail')}
-                  placeholder="E-mail Adresse"
-                />
-                  <FormFeedback>
-                    Die Email-Adresse ist nicht im korrekten Format
-                  </FormFeedback>
-              </FormGroup>
-              <FormGroup>
-                <Label for="adminPass">Password</Label>
-                <Input
-                  type="password"
-                  name="password"
-                  id="adminPass"
-                  onChange={e => this.handleOnChange(e, 'adminPass')}
-                  placeholder="Passwort"
-                />
-              </FormGroup>
-            </Form>
-          </ModalBody>
-          <ModalFooter>
-            <UserContext.Consumer>
-              {ctxt => (
-                <Button
-                  color="primary"
-                  onClick={() => this.signInAdmin(ctxt.signInUser)}
-                >
-                  Log In
-                </Button>
-              )}
-            </UserContext.Consumer>
-            {' '}
-            <Button color="secondary" onClick={this.toggleModal}>Cancel</Button>
-          </ModalFooter>
+          <UserContext.Consumer>
+            {ctxt => (
+              <Form onSubmit={e => this.signInAdmin(e, ctxt.signInUser)}>
+                <ModalHeader toggle={this.toggleModal}>Modal title</ModalHeader>
+                <ModalBody>
+                  <Alert
+                    color="danger"
+                    isOpen={!!this.state.error}
+                    toggle={() => this.setState({error: ''})}
+                  >
+                    {this.state.error}
+                  </Alert>
+                    <FormGroup>
+                      <Label for="adminEmail">Email</Label>
+                      <Input
+                        type="email"
+                        name="email"
+                        id="adminEmail"
+                        invalid={!emailValid}
+                        onChange={e => this.handleOnChange(e, 'adminEmail')}
+                        placeholder="E-mail Adresse"
+                      />
+                        <FormFeedback>
+                          Die Email-Adresse ist nicht im korrekten Format
+                        </FormFeedback>
+                    </FormGroup>
+                    <FormGroup>
+                      <Label for="adminPass">Password</Label>
+                      <Input
+                        type="password"
+                        name="password"
+                        id="adminPass"
+                        onChange={e => this.handleOnChange(e, 'adminPass')}
+                        placeholder="Passwort"
+                      />
+                    </FormGroup>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="primary" type="submit">Log In</Button>
+                  {' '}
+                  <Button color="secondary" onClick={this.toggleModal}>Cancel</Button>
+                </ModalFooter>
+              </Form>
+            )}
+          </UserContext.Consumer>
         </Modal>
       </Row>
     );

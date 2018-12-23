@@ -13,7 +13,6 @@ class Navigation extends PureComponent {
   }
 
   logoutUser(callback) {
-    console.log(callback);
     const { history } = this.props;
     authRef.signOut().then(() => {
       callback().then(() => history.push('/'));
@@ -27,9 +26,7 @@ class Navigation extends PureComponent {
     return (
       <Nav vertical>
         <UserContext.Consumer>
-          {ctxt => {
-            console.log(ctxt);
-            return (
+          {ctxt => (
               <div>
                 <h3>Logged in as <strong>{ctxt.user.name}</strong></h3>
                 <Button
@@ -41,15 +38,15 @@ class Navigation extends PureComponent {
                 </Button>
               </div>
             )
-          }}
+          }
         </UserContext.Consumer>
         <NavItem active={location.pathname === '/admin'}>
           <NavLink onClick={() => history.push('/admin')}>
             Admin-Dashboard
           </NavLink>
         </NavItem>
-        <NavItem active={location.pathname === '/admin/member'}>
-          <NavLink onClick={() => history.push('/admin/member')}>
+        <NavItem active={location.pathname === '/admin/members'}>
+          <NavLink onClick={() => history.push('/admin/members')}>
             Mitglieder
           </NavLink>
         </NavItem>

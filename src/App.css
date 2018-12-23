@@ -46,6 +46,31 @@ html, body {
   flex: 0 0 52px;
 }
 
+.bc-loader {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background-color: #1d2124;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:100;
+  opacity: 1;
+  transition: all .3s ease-in-out;
+}
+
+.bc-loader.hidden {
+  opacity: 0;
+  z-index: -1;
+}
+
+.bc-loader svg {
+  flex: 0 1 auto;
+}
+
 .bc-header h2 {
   margin: 0 0 0 10px;
   font-size: 1.4rem;
@@ -118,4 +143,16 @@ svg {
 .mx-neg-3 {
   margin-left: -1.25rem;
   margin-right: -1.25rem;
+}
+
+/* ADMIN -- Header */
+.admin__member--header {
+  background-color: #5a6268;
+  color: white;
+}
+
+/* overrides */
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  display:block;
 }
