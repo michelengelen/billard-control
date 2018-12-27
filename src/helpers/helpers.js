@@ -19,3 +19,14 @@ export const sortByProperty = (arr, prop) => {
     return 0;
   })
 };
+
+export const getPriceString = price => {
+  let priceString = '0,00 €';
+  if (price && !isNaN(price)) {
+    priceString = price.toLocaleString('de', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }) + ' €';
+  }
+  return priceString;
+};

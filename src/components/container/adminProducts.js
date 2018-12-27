@@ -31,7 +31,7 @@ class Products extends Component {
   constructor(props) {
     super(props);
 
-    this.editMember = this.editProduct.bind(this);
+    this.editProduct = this.editProduct.bind(this);
     this.deleteDoc = this.deleteDoc.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.validateAndSave = this.validateAndSave.bind(this);
@@ -40,7 +40,7 @@ class Products extends Component {
     this.state = {
       categories: [],
       products: [],
-      editID: '',
+      editId: '',
       openCategory: '',
       editValues: {},
       openModal: false,

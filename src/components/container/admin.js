@@ -13,6 +13,7 @@ import Navigation from 'components/common/navigation';
 import Dashboard from 'components/container/adminDashboard';
 import Products from 'components/container/adminProducts';
 import Members from 'components/container/adminMembers';
+import Tarifs from 'components/container/adminTarifs';
 
 const Admin = withRouter(props => {
   const { match } = props;
@@ -25,6 +26,7 @@ const Admin = withRouter(props => {
         <Route path={`${match.path}`} exact component={Dashboard} />
         <Route path={`${match.path}/consumables`} component={Products} />
         <Route path={`${match.path}/members`} component={Members} />
+        <Route path={`${match.path}/tarifs`} component={Tarifs} />
       </Col>
     </Row>
   );
