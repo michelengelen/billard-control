@@ -156,3 +156,7 @@ svg {
 .react-datepicker__input-container {
   display:block;
 }
+
+.form-check-label {
+  margin-left: 1.25rem;
+}

@@ -16,33 +16,29 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 class MemberEdit extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       editId,
       errors,
       handleOnChange,
       member,
-      membernumber,
       tarifs,
     } = this.props;
 
     if (!member.adress) member.adress = {};
+    if (!member.bank) member.bank = {};
 
     return (
       <Form>
-        <Row className="bc-content mr-0 pt-3">
+        <Row className="bc-content mr-0 pt-0">
           <Col xs={12}>
-            <Row className="admin__member--header">
-              <Col xs={9} className="align-middle">
+            <Row className="admin__member--header mb-3 mt-0">
+              <Col xs={8} className="align-middle">
                 <h3 className="my-0">
                   {editId ? 'Mitglied bearbeiten' : 'Mitglied anlegen'}
                 </h3>
               </Col>
-              <Col xs={3} className="py-3 text-right">
+              <Col xs={4} className="py-3 text-right">
                 <Button
                   color="success"
                   onClick={this.props.handleSave}
@@ -186,7 +182,7 @@ class MemberEdit extends Component {
           </Col>
           <Col xs={6}>
             <Card body>
-              <CardTitle>Vertrag, etc.</CardTitle>
+              <CardTitle>Vereinsdaten</CardTitle>
               <CardBody>
                 <Row form>
                   <Col xs={6}>
@@ -267,6 +263,72 @@ class MemberEdit extends Component {
                           </option>
                         ))}
                       </Input>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col xs={12}>
+                      <Label check for="active">
+                        <Input
+                          type="checkbox"
+                          checked={member.active}
+                          name="active"
+                          id="active"
+                          onChange={() => handleOnChange(null, 'active', !member.active)}
+                        />{' '}
+                        aktives Mitglied
+                      </Label>
+                  </Col>
+                </Row>
+              </CardBody>
+            </Card>
+          </Col>
+          <Col xs={6}>
+            <Card body>
+              <CardTitle>Kontodaten</CardTitle>
+              <CardBody>
+                <Row form>
+                  <Col xs={12}>
+                    <FormGroup>
+                      <Label for="bank.name">Bank</Label>
+                      <Input
+                        type="text"
+                        name="bank.name"
+                        id="bank.name"
+                        value={member.bank.name || ''}
+                        onChange={value => handleOnChange(null, 'bank.name', value)}
+                        placeholder=""
+                      />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col xs={12}>
+                    <FormGroup>
+                      <Label for="bank.iban">IBAN</Label>
+                      <Input
+                        type="text"
+                        name="bank.iban"
+                        id="bank.iban"
+                        value={member.bank.iban || ''}
+                        onChange={value => handleOnChange(null, 'bank.iban', value)}
+                        placeholder=""
+                      />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row form>
+                  <Col xs={12}>
+                    <FormGroup>
+                      <Label for="bank.holder">Kontoinhaber</Label>
+                      <Input
+                        type="text"
+                        name="bank.holder"
+                        id="bank.holder"
+                        value={member.bank.holder || ''}
+                        onChange={value => handleOnChange(null, 'bank.holder', value)}
+                        placeholder=""
+                      />
                     </FormGroup>
                   </Col>
                 </Row>

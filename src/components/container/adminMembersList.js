@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  Alert,
   Badge,
   Button,
   Card,
@@ -8,25 +7,14 @@ import {
   CardFooter,
   Col,
   Collapse,
-  Form,
-  FormGroup,
-  Label,
-  Input,
   ListGroup,
   ListGroupItem,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
   Row,
   Table,
 } from 'reactstrap';
-import { membersRef, tarifsRef } from 'firebase-config/config';
-import { sortByProperty } from 'helpers/helpers';
+import { membersRef } from 'firebase-config/config';
 import { Icon } from 'components/common';
 import { Icons } from 'variables/constants';
-
-import MemberEdit from 'components/container/adminMemberEdit';
 
 class MembersList extends Component {
   constructor(props) {

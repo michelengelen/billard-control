@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Fade } from 'reactstrap';
 import { membersRef, tarifsRef } from 'firebase-config/config';
 import { sortByProperty } from 'helpers/helpers';
 
@@ -42,9 +41,9 @@ class Members extends Component {
       response.members = [];
       querySnapshot.forEach(doc => {
         const memberData = doc.data();
-        response.newMembernumber =
-          response.newMembernumber <= memberData.membernumber
-            && memberData.membernumber + 1;
+        if (response.newMembernumber <= memberData.membernumber) {
+          response.newMembernumber = memberData.membernumber + 1;
+        }
         response.members.push({id: doc.id, ...memberData});
       });
       tarifsRef.onSnapshot(querySnapshot => {
@@ -74,6 +73,7 @@ class Members extends Component {
 
     if (!member.membernumber) {
       member.membernumber = this.state.newMembernumber;
+      member.active = true;
     }
 
     this.setState({
@@ -143,6 +143,8 @@ class Members extends Component {
         [fieldKey]: newValue
       },
     }));
+
+    console.log(this.state.editMember);
   }
 
   validateAndSave() {

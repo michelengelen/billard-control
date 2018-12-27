@@ -1,8 +1,12 @@
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
 import { FIREBASECONFIG } from 'variables/constants';
 firebase.initializeApp(FIREBASECONFIG);
 
 const dbRef = firebase.firestore();
+const settings = { timestampsInSnapshots: true };
+dbRef.settings(settings);
 
 export const tarifsRef = dbRef.collection('tarifs');
 export const membersRef = dbRef.collection('members');

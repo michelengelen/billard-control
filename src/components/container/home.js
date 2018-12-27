@@ -172,9 +172,13 @@ class Home extends PureComponent {
                     </FormGroup>
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="primary" type="submit">Log In</Button>
+                  <Button color="primary" type="submit">
+                    Log In
+                  </Button>
                   {' '}
-                  <Button color="secondary" onClick={this.toggleModal}>Cancel</Button>
+                  <Button color="secondary" onClick={this.toggleModal}>
+                    Cancel
+                  </Button>
                 </ModalFooter>
               </Form>
             )}
@@ -185,6 +189,5 @@ class Home extends PureComponent {
   }
 }
 
-Home.contextType = UserContext;
-
 export default withRouter(Home);
+Home.contextType = UserContext;
