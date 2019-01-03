@@ -20,8 +20,10 @@ import {
 import CurrencyInput from 'react-currency-input';
 import { tarifsRef } from 'firebase-config/config';
 import { sortByProperty, getPriceString } from 'helpers/helpers';
-import { Icon } from '../common';
-import { Icons } from '../../variables/constants';
+import { Icon } from 'components/common';
+import { Icons } from 'variables/constants';
+
+const requiredFields = ['name', 'monthlyFee', 'tableRent', 'entryFee'];
 
 class Tarifs extends Component {
   constructor(props) {
@@ -30,7 +32,8 @@ class Tarifs extends Component {
     this.editTarif = this.editTarif.bind(this);
     this.deleteDoc = this.deleteDoc.bind(this);
     this.closeModal = this.closeModal.bind(this);
-    this.validateAndSave = this.validateAndSave.bind(this);
+    this.validateForm = this.validateForm.bind(this);
+    this.saveData = this.saveData.bind(this);
     this.openCategory = this.openCategory.bind(this);
 
     this.state = {
@@ -38,6 +41,8 @@ class Tarifs extends Component {
       editId: '',
       editValues: {},
       openModal: false,
+      error: '',
+      requiredFields: requiredFields,
     };
   }
 
@@ -46,21 +51,18 @@ class Tarifs extends Component {
     tarifsRef.onSnapshot(querySnapshot => {
       response.tarifs = [];
       querySnapshot.forEach(doc => {
-        response.tarifs.push({id: doc.id, ...doc.data()});
+        response.tarifs.push({ id: doc.id, ...doc.data() });
       });
       this.setState({
         tarifs: sortByProperty(response.tarifs, 'name'),
-      })
+      });
     });
   }
 
   editTarif(id) {
-    const tarif =
-      JSON.parse(
-        JSON.stringify(
-          this.state.tarifs.filter(tarif => tarif.id === id)[0]
-        )
-      );
+    const tarif = JSON.parse(
+      JSON.stringify(this.state.tarifs.filter(tarif => tarif.id === id)[0]),
+    );
 
     delete tarif.id;
 
@@ -74,19 +76,26 @@ class Tarifs extends Component {
   }
 
   deleteDoc(id) {
-    tarifsRef.doc(id).delete().then(() => {
-      console.log('Document successfully deleted!');
-      this.closeModal();
-    }).catch(function(error) {
-      console.error('Error removing document: ', error);
-    });
+    tarifsRef
+      .doc(id)
+      .delete()
+      .then(() => {
+        console.log('Document successfully deleted!');
+        this.closeModal();
+      })
+      .catch(function(error) {
+        console.error('Error removing document: ', error);
+      });
   }
 
   closeModal() {
     this.setState({
       editId: '',
+      error: '',
       editValues: {},
       openModal: false,
+      requiredFields: requiredFields,
+      validated: false,
     });
   }
 
@@ -99,7 +108,7 @@ class Tarifs extends Component {
             <th className="text-center">Monatsbeitrag</th>
             <th className="text-center">Tischmiete (pro Std.)</th>
             <th className="text-center">Aufnahmegebühr</th>
-            <th className="text-center">{' '}</th>
+            <th className="text-center"> </th>
           </tr>
         </thead>
         <tbody>
@@ -109,18 +118,13 @@ class Tarifs extends Component {
               <td className="text-center">
                 {tarif.monthlyFee >= 0
                   ? getPriceString(tarif.monthlyFee)
-                  : '---'
-                }
-              </td>
-              <td className="text-center">
-                {tarif.tableRent >= 0
-                  ? getPriceString(tarif.tableRent)
                   : '---'}
               </td>
               <td className="text-center">
-                {tarif.entryFee >= 0
-                  ? getPriceString(tarif.entryFee)
-                  : '---'}
+                {tarif.tableRent >= 0 ? getPriceString(tarif.tableRent) : '---'}
+              </td>
+              <td className="text-center">
+                {tarif.entryFee >= 0 ? getPriceString(tarif.entryFee) : '---'}
               </td>
               <td className="text-right">
                 <Button color="primary" size="sm">
@@ -130,8 +134,7 @@ class Tarifs extends Component {
                     icon={Icons.PENCIL}
                     onClick={() => this.editTarif(tarif.id)}
                   />
-                </Button>
-                {' '}
+                </Button>{' '}
                 <Button color="danger" size="sm">
                   <Icon
                     color="#EEEEEE"
@@ -145,55 +148,92 @@ class Tarifs extends Component {
           ))}
         </tbody>
       </Table>
-    )
+    );
   }
 
   handleOnChange(e, fieldKey, maskedValue, floatValue) {
     e.preventDefault();
+
+    const { editValues } = this.state;
+    const newRequiredFields = [];
+
     let newValue = 0;
     if (floatValue || floatValue === 0) {
       newValue = floatValue;
     } else {
       newValue = e.currentTarget.value;
     }
+
+    for (let i = 0; i < requiredFields.length; i++) {
+      if (
+        (requiredFields[i] !== fieldKey && !editValues[requiredFields[i]]) ||
+        (requiredFields[i] === fieldKey && !newValue)
+      ) {
+        newRequiredFields.push(requiredFields[i]);
+      }
+    }
+
     this.setState(prevState => ({
       editValues: {
         ...prevState.editValues,
-        [fieldKey]: newValue
+        [fieldKey]: newValue,
       },
+      requiredFields: newRequiredFields,
     }));
   }
 
-  validateAndSave() {
-    if (this.state.editId) {
-      tarifsRef.doc(this.state.editId).set(this.state.editValues)
-        .then(this.closeModal);
-    } else {
-      tarifsRef.add({ ...this.state.editValues }).then(this.closeModal);
-    }
+  validateForm() {
+    const { requiredFields } = this.state;
+    return new Promise((resolve, reject) => {
+      if (requiredFields.length > 0) {
+        reject();
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  saveData() {
+    const { editId, editValues } = this.state;
+    this.validateForm()
+      .then(() => {
+        if (editId) {
+          tarifsRef
+            .doc(editId)
+            .set(editValues)
+            .then(this.closeModal);
+        } else {
+          tarifsRef.add(editValues).then(this.closeModal);
+        }
+      })
+      .catch(() => {
+        this.setState({
+          validated: true,
+          error: 'Bitte die Fehler in der Eingabe beheben.',
+        });
+      });
   }
 
   openCategory(id) {
     this.setState(prevState => ({
-      openCategory: prevState.openCategory === id ? '' : id
+      openCategory: prevState.openCategory === id ? '' : id,
     }));
   }
 
   render() {
-    const { tarifs } = this.state;
+    const { tarifs, validated, requiredFields } = this.state;
+    console.log('#### requiredFields: ', requiredFields);
     return (
       <Row className="bc-content mr-0 pt-3">
         <Col xs={12}>
           <Card body>
             <CardTitle>Produkte</CardTitle>
-            {tarifs.length > 0 &&
-              this.renderTable(tarifs)
-            }
+            {tarifs.length > 0 && this.renderTable(tarifs)}
             <CardFooter className="align-items-end">
               <Button
                 color="primary"
-                onClick={
-                  () => this.setState({
+                onClick={() =>
+                  this.setState({
                     openModal: true,
                   })
                 }
@@ -203,10 +243,7 @@ class Tarifs extends Component {
             </CardFooter>
           </Card>
         </Col>
-        <Modal
-          isOpen={this.state.openModal}
-          toggle={this.closeModal}
-        >
+        <Modal isOpen={this.state.openModal} toggle={this.closeModal}>
           <ModalHeader toggle={this.closeModal}>
             Tarif anlegen/editieren
           </ModalHeader>
@@ -214,7 +251,7 @@ class Tarifs extends Component {
             <Alert
               color="danger"
               isOpen={!!this.state.error}
-              toggle={() => this.setState({error: ''})}
+              toggle={() => this.setState({ error: '' })}
             >
               {this.state.error}
             </Alert>
@@ -239,6 +276,7 @@ class Tarifs extends Component {
                       type="text"
                       name="name"
                       id="name"
+                      invalid={validated && requiredFields.indexOf('name') > -1}
                       value={this.state.editValues.name || ''}
                       onChange={e => this.handleOnChange(e, 'name')}
                       placeholder=""
@@ -251,7 +289,11 @@ class Tarifs extends Component {
                   <FormGroup>
                     <Label for="monthlyFee">Monatsbeitrag</Label>
                     <CurrencyInput
-                      className="form-control"
+                      className={`form-control ${
+                        validated && requiredFields.indexOf('monthlyFee') > -1
+                          ? 'is-invalid'
+                          : ''
+                      }`}
                       decimalSeparator=","
                       precision="2"
                       suffix=" €"
@@ -265,7 +307,7 @@ class Tarifs extends Component {
                           'monthlyFee',
                           maskedValue,
                           floatValue,
-                        )
+                        );
                       }}
                       placeholder="0,00 €"
                     />
@@ -275,7 +317,11 @@ class Tarifs extends Component {
                   <FormGroup>
                     <Label for="tableRent">Tischmiete (pro Std.)</Label>
                     <CurrencyInput
-                      className="form-control"
+                      className={`form-control ${
+                        validated && requiredFields.indexOf('tableRent') > -1
+                          ? 'is-invalid'
+                          : ''
+                      }`}
                       decimalSeparator=","
                       precision="2"
                       suffix=" €"
@@ -289,7 +335,7 @@ class Tarifs extends Component {
                           'tableRent',
                           maskedValue,
                           floatValue,
-                        )
+                        );
                       }}
                       placeholder="0,00 €"
                     />
@@ -299,7 +345,11 @@ class Tarifs extends Component {
                   <FormGroup>
                     <Label for="entryFee">Aufnahmegebühr</Label>
                     <CurrencyInput
-                      className="form-control"
+                      className={`form-control ${
+                        validated && requiredFields.indexOf('entryFee') > -1
+                          ? 'is-invalid'
+                          : ''
+                      }`}
                       decimalSeparator=","
                       precision="2"
                       suffix=" €"
@@ -313,7 +363,7 @@ class Tarifs extends Component {
                           'entryFee',
                           maskedValue,
                           floatValue,
-                        )
+                        );
                       }}
                       placeholder="0,00 €"
                     />
@@ -323,17 +373,10 @@ class Tarifs extends Component {
             </Form>
           </ModalBody>
           <ModalFooter>
-            <Button
-              color="primary"
-              onClick={this.validateAndSave}
-            >
+            <Button color="primary" onClick={this.saveData}>
               Speichern
-            </Button>
-            {' '}
-            <Button
-              color="secondary"
-              onClick={this.closeModal}
-            >
+            </Button>{' '}
+            <Button color="secondary" onClick={this.closeModal}>
               Abbrechen
             </Button>
           </ModalFooter>

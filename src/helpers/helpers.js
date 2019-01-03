@@ -30,3 +30,54 @@ export const getPriceString = price => {
   }
   return priceString;
 };
+
+export const getDateString = date => {
+  const d = new Date(date);
+  const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+  return `${days[d.getDay()]}, ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
+};
+
+/**
+ *
+ * @param {object}     data
+ * @param {boolean}    data.active
+ * @param {number}     data.membernumber
+ * @param {timestamp}  data.entryDate
+ * @param {string}     data.firstname
+ * @param {string}     data.lastname
+ * @param {string}     data.tarifId
+ * @param {object}     data.bank
+ * @param {string}     data.bank.iban
+ * @param {string}     data.bank.holder
+ * @param {string}     data.bank.name
+ * @param {object}     data.adress
+ * @param {string}     data.adress.street
+ * @param {string}     data.adress.number
+ * @param {string}     data.adress.plz
+ * @param {string}     data.adress.city
+ */
+export const validateMemberData = data => {
+  const errors = [];
+  mapObjectKeys(data, (key, value) => {
+    debugger;
+    if (value) return;
+    errors.push(key);
+  });
+  return errors;
+};
+
+const mapObjectKeys = (obj, callback) => {
+  Object.keys(obj).map(key => {
+    if (typeof obj[key] === 'object') {
+      mapObjectKeys(obj[key], callback)
+    } else {
+      callback(key, obj[key]);
+    }
+  });
+};
+
+export const refineMemberData = data => ({
+  memberId: data.id,
+  membernumber: data.membernumber,
+  purchases: data.purchases,
+});

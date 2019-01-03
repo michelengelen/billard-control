@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { membersRef, tarifsRef } from 'firebase-config/config';
+import { membersRef, purchasesRef, tarifsRef } from 'firebase-config/config';
 import { sortByProperty } from 'helpers/helpers';
 
 import MembersList from 'components/container/adminMembersList';
@@ -13,7 +13,6 @@ class Members extends Component {
 
     this.editMember = this.editMember.bind(this);
     this.deleteDoc = this.deleteDoc.bind(this);
-    this.closeModal = this.closeModal.bind(this);
     this.validateAndSave = this.validateAndSave.bind(this);
     this.openCategory = this.openCategory.bind(this);
     this.setErrors = this.setErrors.bind(this);
@@ -21,8 +20,8 @@ class Members extends Component {
     this.handleOnChange = this.handleOnChange.bind(this);
 
     this.state = {
-      newMembernumber: 0,
-      tarifs: [],
+      newMembernumber: 100000,
+      tarifs: {},
       members: [],
       editId: '',
       openCategory: '',
@@ -35,7 +34,7 @@ class Members extends Component {
 
   componentDidMount() {
     const response = {
-      newMembernumber: 0,
+      newMembernumber: this.state.newMembernumber,
     };
     membersRef.onSnapshot(querySnapshot => {
       response.members = [];
@@ -44,7 +43,7 @@ class Members extends Component {
         if (response.newMembernumber <= memberData.membernumber) {
           response.newMembernumber = memberData.membernumber + 1;
         }
-        response.members.push({id: doc.id, ...memberData});
+        response.members.push({ id: doc.id, ...memberData });
       });
       tarifsRef.onSnapshot(querySnapshot => {
         response.tarifs = {};
@@ -56,7 +55,7 @@ class Members extends Component {
           tarifs: response.tarifs,
           members: sortByProperty(response.members, 'lastname'),
           loading: false,
-        })
+        });
       });
     });
   }
@@ -64,9 +63,11 @@ class Members extends Component {
   editMember(id = '') {
     let member = {};
     if (id) {
-      member = JSON.parse(JSON.stringify(
-        this.state.members.filter(member => member.id === id)[0]
-      ));
+      member = JSON.parse(
+        JSON.stringify(
+          this.state.members.filter(member => member.id === id)[0],
+        ),
+      );
 
       delete member.id;
     }
@@ -86,17 +87,15 @@ class Members extends Component {
   }
 
   deleteDoc(id) {
-    membersRef.doc(id).delete().then(() => {
-      console.log('Document successfully deleted!');
-    }).catch(function(error) {
-      console.error('Error removing document: ', error);
-    });
-  }
-
-  closeModal() {
-    this.setState({
-      openModal: false,
-    });
+    membersRef
+      .doc(id)
+      .delete()
+      .then(() => {
+        console.log('Document successfully deleted!');
+      })
+      .catch(function(error) {
+        console.error('Error removing document: ', error);
+      });
   }
 
   cancelEdit() {
@@ -140,25 +139,41 @@ class Members extends Component {
     this.setState(prevState => ({
       editMember: {
         ...prevState.editMember,
-        [fieldKey]: newValue
+        [fieldKey]: newValue,
       },
     }));
-
-    console.log(this.state.editMember);
   }
 
   validateAndSave() {
     if (this.state.editId) {
-      membersRef.doc(this.state.editId).set(this.state.editMember)
+      membersRef
+        .doc(this.state.editId)
+        .set(this.state.editMember)
         .then(this.cancelEdit);
     } else {
-      membersRef.add(this.state.editMember).then(this.cancelEdit);
+      const tarif = this.state.tarifs[this.state.editMember.tarifId];
+      const entryFeePurchase = {
+        name: `Aufnahmegebühr (${tarif.name})`,
+        date: new Date(),
+        price: tarif.entryFee,
+        amount: 1,
+      };
+      membersRef.add(this.state.editMember).then(docRef => {
+        purchasesRef.add({ userId: docRef.id }).then(doc => {
+          purchasesRef
+            .doc(doc.id)
+            .collection('journal')
+            .add(entryFeePurchase)
+            .then(() => console.log('### Aufnahmegebühr im Journal gebucht.'));
+        });
+        this.cancelEdit();
+      });
     }
   }
 
   openCategory(id) {
     this.setState(prevState => ({
-      openCategory: prevState.openCategory === id ? '' : id
+      openCategory: prevState.openCategory === id ? '' : id,
     }));
   }
 
@@ -172,31 +187,31 @@ class Members extends Component {
       tarifs,
     } = this.state;
 
+    console.log('#### editMember: ', editMember);
+    console.log('#### tarifs: ', tarifs);
+
     return (
       <div className="bc-content__wrapper">
         <ActivityIndicator loading={this.state.loading} />
-        {showEditForm
-          ? (
-            <MemberEdit
-              member={editMember}
-              editId={editId}
-              errors={errors}
-              tarifs={tarifs}
-              handleSave={this.validateAndSave}
-              handleOnChange={this.handleOnChange}
-              clearErrors={() => this.setErrors([])}
-              cancelEdit={() => this.cancelEdit()}
-            />
-          )
-          : (
-            <MembersList
-              members={members}
-              tarifs={tarifs}
-              editMember={this.editMember}
-              deleteMember={this.deleteDoc}
-            />
-          )
-        }
+        {showEditForm ? (
+          <MemberEdit
+            member={editMember}
+            editId={editId}
+            errors={errors}
+            tarifs={tarifs}
+            handleSave={this.validateAndSave}
+            handleOnChange={this.handleOnChange}
+            clearErrors={() => this.setErrors([])}
+            cancelEdit={() => this.cancelEdit()}
+          />
+        ) : (
+          <MembersList
+            members={members}
+            tarifs={tarifs}
+            editMember={this.editMember}
+            deleteMember={this.deleteDoc}
+          />
+        )}
       </div>
     );
   }

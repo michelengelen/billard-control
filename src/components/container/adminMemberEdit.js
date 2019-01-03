@@ -2,34 +2,29 @@ import React, { Component } from 'react';
 import {
   Alert,
   Button,
-  Form,
   FormGroup,
   Label,
   Input,
   Card,
   CardBody,
-  CardTitle,
+  CardHeader,
   Col,
   Row,
 } from 'reactstrap';
-import DatePicker from 'react-datepicker';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
 import 'react-datepicker/dist/react-datepicker.css';
+
+const now = new Date().toJSON().split('T')[0];
 
 class MemberEdit extends Component {
   render() {
-    const {
-      editId,
-      errors,
-      handleOnChange,
-      member,
-      tarifs,
-    } = this.props;
+    const { editId, errors, handleOnChange, member, tarifs } = this.props;
 
     if (!member.adress) member.adress = {};
     if (!member.bank) member.bank = {};
 
     return (
-      <Form>
+      <AvForm onValidSubmit={this.props.handleSave}>
         <Row className="bc-content mr-0 pt-0">
           <Col xs={12}>
             <Row className="admin__member--header mb-3 mt-0">
@@ -39,17 +34,10 @@ class MemberEdit extends Component {
                 </h3>
               </Col>
               <Col xs={4} className="py-3 text-right">
-                <Button
-                  color="success"
-                  onClick={this.props.handleSave}
-                >
+                <Button type="submit" color="success">
                   Speichern
-                </Button>
-                {' '}
-                <Button
-                  color="danger"
-                  onClick={this.props.cancelEdit}
-                >
+                </Button>{' '}
+                <Button color="danger" onClick={this.props.cancelEdit}>
                   Abbrechen
                 </Button>
               </Col>
@@ -65,76 +53,138 @@ class MemberEdit extends Component {
             ))}
           </Alert>
           <Col xs={6}>
-            <Card body>
-              <CardTitle>Stammdaten</CardTitle>
+            <Card>
+              <CardHeader>
+                <h5 className="m-0">Stammdaten</h5>
+              </CardHeader>
               <CardBody>
                 <Row form>
                   <Col xs={6}>
                     <FormGroup>
-                      <Label for="firstname">
-                        Vorname <span className="text-danger"> *</span>
-                      </Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="firstname"
                         id="firstname"
-                        invalid={!member.firstname && (member.firstname === '')}
+                        label={
+                          <span>
+                            Vorname <span className="text-danger"> *</span>
+                          </span>
+                        }
                         value={member.firstname || ''}
                         onChange={e => handleOnChange(e, 'firstname')}
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z-\\s]+$',
+                            errorMessage:
+                              'Bitte nur Buchstaben und "-" verwenden',
+                          },
+                          minLength: {
+                            value: 2,
+                            errorMessage:
+                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
                   <Col xs={6}>
                     <FormGroup>
-                      <Label for="lastname">
-                        Nachname <span className="text-danger"> *</span>
-                      </Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="lastname"
                         id="lastname"
-                        invalid={!member.lastname && (member.lastname === '')}
+                        label={
+                          <span>
+                            Nachname <span className="text-danger"> *</span>
+                          </span>
+                        }
                         value={member.lastname || ''}
                         onChange={e => handleOnChange(e, 'lastname')}
-                        placeholder=""
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z-\\s]+$',
+                            errorMessage:
+                              'Bitte nur Buchstaben und "-" verwenden',
+                          },
+                          minLength: {
+                            value: 2,
+                            errorMessage:
+                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
                 </Row>
                 <Row form>
-                  <Col xs={10}>
+                  <Col xs={9}>
                     <FormGroup>
-                      <Label for="adress.street">
-                        Strasse <span className="text-danger"> *</span>
-                      </Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="adress.street"
                         id="adress.street"
-                        invalid={
-                          !member.adress.street && member.adress.street === ''
+                        label={
+                          <span>
+                            Strasse <span className="text-danger"> *</span>
+                          </span>
                         }
                         value={member.adress.street || ''}
                         onChange={e => handleOnChange(e, 'adress.street')}
-                        placeholder=""
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z.-\\s]+$',
+                            errorMessage:
+                              'Bitte nur Buchstaben, "." und  "-" verwenden',
+                          },
+                          minLength: {
+                            value: 2,
+                            errorMessage:
+                              'Strassennamen mit weniger als 2 Zeichen sind nicht zulässig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
-                  <Col xs={2}>
+                  <Col xs={3}>
                     <FormGroup>
-                      <Label for="adress.number">
-                        Nr. <span className="text-danger"> *</span>
-                      </Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="adress.number"
                         id="adress.number"
-                        invalid={
-                          !member.adress.number && member.adress.number === ''
+                        label={
+                          <span>
+                            Nummer <span className="text-danger"> *</span>
+                          </span>
                         }
                         value={member.adress.number || ''}
                         onChange={e => handleOnChange(e, 'adress.number')}
-                        placeholder=""
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z0-9]+$',
+                            errorMessage:
+                              'Bitte nur Buchstaben und Zahlen verwenden',
+                          },
+                          minLength: {
+                            value: 1,
+                            errorMessage: 'Eingabe ungültig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
@@ -142,37 +192,67 @@ class MemberEdit extends Component {
                 <Row form>
                   <Col xs={3}>
                     <FormGroup>
-                      <Label for="adress.zip">
-                        PLZ <span className="text-danger"> *</span>
-                      </Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="adress.zip"
                         id="adress.zip"
-                        invalid={
-                          !member.adress.zip && member.adress.zip === ''
+                        label={
+                          <span>
+                            PLZ <span className="text-danger"> *</span>
+                          </span>
                         }
                         value={member.adress.zip || ''}
                         onChange={e => handleOnChange(e, 'adress.zip')}
-                        placeholder=""
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[0-9]+$',
+                            errorMessage: 'Bitte nur Zahlen verwenden',
+                          },
+                          minLength: {
+                            value: 5,
+                            errorMessage: 'Eingabe ungültig',
+                          },
+                          maxLength: {
+                            value: 5,
+                            errorMessage: 'Eingabe ungültig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
                   <Col xs={9}>
                     <FormGroup>
-                      <Label for="adress.city">
-                        Ort <span className="text-danger"> *</span>
-                      </Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="adress.city"
                         id="adress.city"
-                        invalid={
-                          !member.adress.city && member.adress.city === ''
+                        label={
+                          <span>
+                            Ort <span className="text-danger"> *</span>
+                          </span>
                         }
                         value={member.adress.city || ''}
                         onChange={e => handleOnChange(e, 'adress.city')}
-                        placeholder=""
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z.-\\s]+$',
+                            errorMessage:
+                              'Bitte nur Buchstaben, "." und  "-" verwenden',
+                          },
+                          minLength: {
+                            value: 2,
+                            errorMessage:
+                              'Städtenamen mit weniger als 2 Zeichen sind nicht zulässig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
@@ -181,8 +261,10 @@ class MemberEdit extends Component {
             </Card>
           </Col>
           <Col xs={6}>
-            <Card body>
-              <CardTitle>Vereinsdaten</CardTitle>
+            <Card>
+              <CardHeader>
+                <h5 className="m-0">Vereinsdaten</h5>
+              </CardHeader>
               <CardBody>
                 <Row form>
                   <Col xs={6}>
@@ -217,31 +299,70 @@ class MemberEdit extends Component {
                 <Row form>
                   <Col xs={6}>
                     <FormGroup>
-                      <Label for="entryDate">
-                        Eintrittsdatum
-                        {!editId && <span className="text-danger"> *</span> }
-                      </Label>
-                      <DatePicker
+                      <AvField
+                        name="entryDate"
+                        type="date"
+                        id="entryDate"
+                        label={
+                          <span>
+                            Eintrittsdatum
+                            {!editId && <span className="text-danger"> *</span>}
+                          </span>
+                        }
+                        validate={{
+                          required: {
+                            value: !editId,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          dateRange: {
+                            start: { value: 0, units: 'days' },
+                            end: { value: 20, units: 'years' },
+                            errorMessage: 'Datum muss in der Zukunft liegen',
+                          },
+                        }}
+                        min={now}
                         disabled={!!editId}
-                        selected={member.entryDate}
-                        minDate={new Date()}
-                        onChange={value => handleOnChange(null, 'entryDate', value)}
-                        todayButton="Heute"
-                        dateFormat="dd.MM.yyyy"
+                        value={member.entryDate || ''}
                         className="form-control"
+                        onChange={(e, value) =>
+                          handleOnChange(e, 'entryDate', value)
+                        }
                       />
                     </FormGroup>
                   </Col>
                   <Col xs={6}>
                     <FormGroup>
-                      <Label for="exitDate">Austrittsdatum</Label>
-                      <DatePicker
-                        disabled={!editId || !member.active}
-                        selected={member.exitDate}
-                        minDate={new Date()}
-                        onChange={value => handleOnChange(null, 'exitDate', value)}
-                        todayButton="Heute"
+                      <AvField
+                        name="exitDate"
+                        type="date"
+                        id="exitDate"
+                        label={
+                          <span>
+                            Austrittsdatum
+                            {!member.active && (
+                              <span className="text-danger"> *</span>
+                            )}
+                          </span>
+                        }
+                        required={!member.active}
+                        validate={{
+                          required: {
+                            value: !member.active,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          dateRange: {
+                            start: { value: 0, units: 'days' },
+                            end: { value: 20, units: 'years' },
+                            errorMessage: 'Datum muss in der Zukunft liegen',
+                          },
+                        }}
+                        min={now}
+                        disabled={!editId || member.active}
+                        value={member.exitDate || ''}
                         className="form-control"
+                        onChange={(e, value) =>
+                          handleOnChange(e, 'exitDate', value)
+                        }
                       />
                     </FormGroup>
                   </Col>
@@ -249,55 +370,85 @@ class MemberEdit extends Component {
                 <Row form>
                   <Col xs={12}>
                     <FormGroup>
-                      <Label for="tarifId">Tarif</Label>
-                      <Input
+                      <AvField
+                        required
                         type="select"
-                        value={member.tarifId || ''}
                         name="select"
                         id="tarifId"
+                        errorMessage="Bitte einen Tarif auswählen"
+                        label={
+                          <span>
+                            Tarif<span className="text-danger"> *</span>
+                          </span>
+                        }
+                        value={member.tarifId || ''}
                         onChange={e => handleOnChange(e, 'tarifId')}
                       >
+                        <option value={null}>Bitte einen Tarif wählen</option>
                         {Object.keys(tarifs).map(tarifKey => (
                           <option key={`select_${tarifKey}`} value={tarifKey}>
                             {tarifs[tarifKey].name}
                           </option>
                         ))}
-                      </Input>
+                      </AvField>
                     </FormGroup>
                   </Col>
                 </Row>
                 <Row form>
                   <Col xs={12}>
-                      <Label check for="active">
-                        <Input
-                          type="checkbox"
-                          checked={member.active}
-                          name="active"
-                          id="active"
-                          onChange={() => handleOnChange(null, 'active', !member.active)}
-                        />{' '}
-                        aktives Mitglied
-                      </Label>
+                    <AvField
+                      name="active"
+                      id="active"
+                      type="checkbox"
+                      label={<span> aktives Mitglied</span>}
+                      disabled={!editId}
+                      value={member.active}
+                      onChange={() =>
+                        handleOnChange(null, 'active', !member.active)
+                      }
+                    />
                   </Col>
                 </Row>
               </CardBody>
             </Card>
           </Col>
           <Col xs={6}>
-            <Card body>
-              <CardTitle>Kontodaten</CardTitle>
+            <Card>
+              <CardHeader>
+                <h5 className="m-0">Kontodaten</h5>
+              </CardHeader>
               <CardBody>
                 <Row form>
                   <Col xs={12}>
                     <FormGroup>
-                      <Label for="bank.name">Bank</Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="bank.name"
                         id="bank.name"
+                        label={
+                          <span>
+                            Name der Bank{' '}
+                            <span className="text-danger"> *</span>
+                          </span>
+                        }
                         value={member.bank.name || ''}
-                        onChange={value => handleOnChange(null, 'bank.name', value)}
-                        placeholder=""
+                        onChange={e => handleOnChange(e, 'bank.name')}
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z0-9.-\\s]+$',
+                            errorMessage:
+                              'Bitte nur Buchstaben, Zahlen, "." und  "-" verwenden',
+                          },
+                          minLength: {
+                            value: 2,
+                            errorMessage:
+                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
@@ -305,14 +456,33 @@ class MemberEdit extends Component {
                 <Row form>
                   <Col xs={12}>
                     <FormGroup>
-                      <Label for="bank.iban">IBAN</Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="bank.iban"
                         id="bank.iban"
+                        label={
+                          <span>
+                            IBAN <span className="text-danger"> *</span>
+                          </span>
+                        }
                         value={member.bank.iban || ''}
-                        onChange={value => handleOnChange(null, 'bank.iban', value)}
-                        placeholder=""
+                        onChange={e => handleOnChange(e, 'bank.iban')}
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Z0-9]+$',
+                            errorMessage:
+                              'Bitte nur Grossbuchstaben und Zahlen verwenden (ohne Leerzeichen)',
+                          },
+                          minLength: {
+                            value: 15,
+                            errorMessage:
+                              'Die IBAN muss mindestens 15 Zeichen haben',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
@@ -320,14 +490,33 @@ class MemberEdit extends Component {
                 <Row form>
                   <Col xs={12}>
                     <FormGroup>
-                      <Label for="bank.holder">Kontoinhaber</Label>
-                      <Input
+                      <AvField
                         type="text"
                         name="bank.holder"
                         id="bank.holder"
+                        label={
+                          <span>
+                            Kontoinhaber <span className="text-danger"> *</span>
+                          </span>
+                        }
                         value={member.bank.holder || ''}
-                        onChange={value => handleOnChange(null, 'bank.holder', value)}
-                        placeholder=""
+                        onChange={e => handleOnChange(e, 'bank.holder')}
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z0-9.-\\s]+$',
+                            errorMessage:
+                              'Bitte nur Buchstaben und  "-" verwenden',
+                          },
+                          minLength: {
+                            value: 2,
+                            errorMessage:
+                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          },
+                        }}
                       />
                     </FormGroup>
                   </Col>
@@ -336,7 +525,7 @@ class MemberEdit extends Component {
             </Card>
           </Col>
         </Row>
-      </Form>
+      </AvForm>
     );
   }
 }
