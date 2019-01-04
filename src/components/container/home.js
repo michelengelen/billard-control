@@ -5,21 +5,15 @@ import {
   Card,
   CardTitle,
   CardText,
-  Form,
-  FormGroup,
-  FormFeedback,
-  Input,
-  Label,
   Button,
   Modal,
   ModalBody,
   ModalHeader,
-  ModalFooter,
   Col,
   Row,
 } from 'reactstrap';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
 
-import { validateEmail } from 'helpers/helpers';
 import { authRef } from 'firebase-config/config';
 import { UserContext } from 'contexts/userContext';
 
@@ -48,7 +42,7 @@ class Home extends PureComponent {
           name: user.displayName || 'Admin',
           email: user.email,
           isAuthenticated: true,
-          hasAdminRights: user.isAdmin || true
+          hasAdminRights: user.isAdmin || true,
         };
         ctxt.signInUser(refinedUserData);
       } else {
@@ -62,7 +56,7 @@ class Home extends PureComponent {
     e.preventDefault();
     this.setState({
       [fieldType]: e.target.value,
-    })
+    });
   }
 
   toggleModal() {
@@ -71,23 +65,25 @@ class Home extends PureComponent {
       this.props.history.push('/admin');
       return;
     }
-    this.setState(prevState => ({modalOpen: !prevState.modalOpen}));
+    this.setState(prevState => ({ modalOpen: !prevState.modalOpen }));
   }
 
-  signInAdmin(event, callback) {
-    event.preventDefault();
+  signInAdmin(callback) {
     const { history } = this.props;
     const { adminEmail, adminPass } = this.state;
-    authRef.signInWithEmailAndPassword(adminEmail, adminPass)
+    authRef
+      .signInWithEmailAndPassword(adminEmail, adminPass)
       .then(success => {
         const { user } = success;
         const refinedUserData = {
           name: user.displayName || 'Admin',
           email: user.email,
           isAuthenticated: true,
-          hasAdminRights: user.isAdmin || true
+          hasAdminRights: user.isAdmin || true,
         };
-        callback(refinedUserData).then(() => { history.push('/admin') });
+        callback(refinedUserData).then(() => {
+          history.push('/admin');
+        });
       })
       .catch(error => {
         this.setState({
@@ -97,7 +93,6 @@ class Home extends PureComponent {
   }
 
   render() {
-    const emailValid = validateEmail(this.state.adminEmail);
     const { history } = this.props;
     return (
       <Row className="bc-content align-items-center justify-content-center">
@@ -108,12 +103,9 @@ class Home extends PureComponent {
               With supporting text below as a natural lead-in to additional
               content.
             </CardText>
-              <Button
-                color="primary"
-                onClick={() => history.push('/purchase')}
-              >
-                Zur Buchungsseite
-              </Button>
+            <Button color="primary" onClick={() => history.push('/purchase')}>
+              Zur Buchungsseite
+            </Button>
           </Card>
         </Col>
         <Col xs={3}>
@@ -122,65 +114,73 @@ class Home extends PureComponent {
             <CardText>
               Hier geht es zum Verwaltungsbereich der Billard-Control Software.
             </CardText>
-              <Button
-                color="primary"
-                onClick={this.toggleModal}
-              >
-                Zum Admin-Bereich
-              </Button>
+            <Button color="primary" onClick={this.toggleModal}>
+              Zum Admin-Bereich
+            </Button>
           </Card>
         </Col>
-        <Modal
-          isOpen={this.state.modalOpen}
-          toggle={this.toggleModal}
-        >
+        <Modal isOpen={this.state.modalOpen} toggle={this.toggleModal}>
           <UserContext.Consumer>
             {ctxt => (
-              <Form onSubmit={e => this.signInAdmin(e, ctxt.signInUser)}>
-                <ModalHeader toggle={this.toggleModal}>Modal title</ModalHeader>
+              <AvForm onValidSubmit={() => this.signInAdmin(ctxt.signInUser)}>
+                <ModalHeader toggle={this.toggleModal}>Anmeldung</ModalHeader>
                 <ModalBody>
                   <Alert
                     color="danger"
                     isOpen={!!this.state.error}
-                    toggle={() => this.setState({error: ''})}
+                    toggle={() => this.setState({ error: '' })}
                   >
                     {this.state.error}
                   </Alert>
-                    <FormGroup>
-                      <Label for="adminEmail">Email</Label>
-                      <Input
-                        type="email"
-                        name="email"
+                  <Row form>
+                    <Col xs={5}>
+                      <AvField
+                        type="text"
+                        name="adminEmail"
                         id="adminEmail"
-                        invalid={!emailValid}
                         onChange={e => this.handleOnChange(e, 'adminEmail')}
-                        placeholder="E-mail Adresse"
+                        placeholder="E-Mail"
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Bitte eine E-Mail Adresse eintragen',
+                          },
+                          email: {
+                            value: true,
+                            errorMessage:
+                              'Die E-Mail Adresse ist nicht im korrekten Format',
+                          },
+                        }}
                       />
-                        <FormFeedback>
-                          Die Email-Adresse ist nicht im korrekten Format
-                        </FormFeedback>
-                    </FormGroup>
-                    <FormGroup>
-                      <Label for="adminPass">Password</Label>
-                      <Input
-                        type="password"
-                        name="password"
+                    </Col>
+                    <Col xs={5}>
+                      <AvField
+                        type="text"
+                        name="adminPass"
                         id="adminPass"
                         onChange={e => this.handleOnChange(e, 'adminPass')}
                         placeholder="Passwort"
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Bitte ein Passwort eintragen',
+                          },
+                          minLength: {
+                            value: 6,
+                            errorMessage:
+                              'Das Passwort muss 6 Zeichen oder mehr haben',
+                          },
+                        }}
                       />
-                    </FormGroup>
+                    </Col>
+                    <Col xs={2}>
+                      <Button color="primary" type="submit" className="w-100">
+                        Log In
+                      </Button>
+                    </Col>
+                  </Row>
                 </ModalBody>
-                <ModalFooter>
-                  <Button color="primary" type="submit">
-                    Log In
-                  </Button>
-                  {' '}
-                  <Button color="secondary" onClick={this.toggleModal}>
-                    Cancel
-                  </Button>
-                </ModalFooter>
-              </Form>
+              </AvForm>
             )}
           </UserContext.Consumer>
         </Modal>

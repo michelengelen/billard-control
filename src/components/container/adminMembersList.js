@@ -171,7 +171,7 @@ class MembersList extends Component {
                       isOpen={openCategory === 'activeMembers'}
                       className="bg-light text-dark"
                     >
-                      <Row className="pt-3">
+                      <Row className="p-0">
                         <Col xs={12}>{this.renderTable(activeMembers)}</Col>
                       </Row>
                     </Collapse>
@@ -212,7 +212,7 @@ class MembersList extends Component {
                       isOpen={openCategory === 'inactiveMembers'}
                       className="bg-light text-dark"
                     >
-                      <Row className="pt-3">
+                      <Row className="p-0">
                         <Col xs={12}>{this.renderTable(inactiveMembers)}</Col>
                       </Row>
                     </Collapse>

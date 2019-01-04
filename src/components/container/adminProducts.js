@@ -23,11 +23,8 @@ import {
 } from 'reactstrap';
 import CurrencyInput from 'react-currency-input';
 import { categoriesRef, productsRef } from 'firebase-config/config';
-import { sortByProperty } from 'helpers/helpers';
-import {
-  ActivityIndicator,
-  Icon,
-} from '../common';
+import { getPriceString, sortByProperty } from 'helpers/helpers';
+import { ActivityIndicator, Icon } from '../common';
 import { Icons } from '../../variables/constants';
 
 const requiredFields = {
@@ -87,8 +84,8 @@ class Products extends Component {
       JSON.stringify(this.state[docType].filter(item => item.id === id)[0]),
     );
 
-    delete doc.id;
-    doc.public = true;
+    if (doc.hasOwnProperty('id')) delete doc.id;
+    if (docType === 'products' && !doc.public) doc.public = true;
 
     this.setState({
       editValues: {
@@ -150,8 +147,16 @@ class Products extends Component {
             <tr key={`productTable_${index}_${product.id}`}>
               <td>{product.name || '---'}</td>
               <td>{product.ean || '---'}</td>
-              <td className="text-center">{product.priceInt || '---'}</td>
-              <td className="text-center">{product.priceExt || '---'}</td>
+              <td className="text-center">
+                {product.priceInt >= 0
+                  ? getPriceString(product.priceInt)
+                  : '---'}
+              </td>
+              <td className="text-center">
+                {product.priceExt >= 0
+                  ? getPriceString(product.priceExt)
+                  : '---'}
+              </td>
               <td className="text-center">{product.amount || 0}</td>
               <td className="text-right">
                 <Button color="primary" size="sm">
@@ -335,7 +340,7 @@ class Products extends Component {
                         isOpen={openCategory === category.id}
                         className="bg-light text-dark"
                       >
-                        <Row className="pt-3">
+                        <Row className="p-0">
                           <Col xs={12}>
                             {this.renderTable(productsInCategory)}
                           </Col>
@@ -487,10 +492,6 @@ class Products extends Component {
                       />
                     </FormGroup>
                   </Col>
-                </Row>
-              )}
-              {this.state.modalType === 'products' && (
-                <Row form>
                   <Col xs={12}>
                     <FormGroup>
                       <Label for="category">Kategorie</Label>
@@ -516,6 +517,20 @@ class Products extends Component {
                           </option>
                         ))}
                       </Input>
+                    </FormGroup>
+                  </Col>
+                  <Col xs={12}>
+                    <FormGroup>
+                      <Label check for="public">
+                        <Input
+                          type="checkbox"
+                          checked={this.state.editValues.public}
+                          name="public"
+                          id="public"
+                          onChange={() => this.handleOnChange(null, 'public', !this.state.editValues.public)}
+                        />{' '}
+                        öffentlich buchbar
+                      </Label>
                     </FormGroup>
                   </Col>
                 </Row>

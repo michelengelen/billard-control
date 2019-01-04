@@ -148,7 +148,10 @@ class Purchase extends PureComponent {
     e.preventDefault();
     this.setState(prevState => ({
       currentProduct: '',
-      currentPurchase: [...prevState.currentPurchase, prevState.product],
+      currentPurchase: [
+        ...prevState.currentPurchase,
+        { ...prevState.product, date: new Date() },
+      ],
       product: {},
     }));
   }

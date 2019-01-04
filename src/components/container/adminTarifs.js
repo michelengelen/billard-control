@@ -234,7 +234,7 @@ class Tarifs extends Component {
         <Col xs={12}>
           <Card>
             <CardHeader>
-              <h5 className="m-0">Produkte</h5>
+              <h5 className="m-0">Tarife</h5>
             </CardHeader>
             {tarifs.length > 0 && this.renderTable(tarifs)}
             <CardFooter className="align-items-end">
