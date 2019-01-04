@@ -3,8 +3,9 @@ import { withRouter } from 'react-router-dom';
 import {
   Alert,
   Card,
-  CardTitle,
-  CardText,
+  CardHeader,
+  CardBody,
+  CardFooter,
   Button,
   Modal,
   ModalBody,
@@ -97,26 +98,34 @@ class Home extends PureComponent {
     return (
       <Row className="bc-content align-items-center justify-content-center">
         <Col xs={3}>
-          <Card body className="text-center">
-            <CardTitle>Buchung</CardTitle>
-            <CardText>
+          <Card className="text-center">
+            <CardHeader>
+              <h5 className="m-0">Buchung</h5>
+            </CardHeader>
+            <CardBody>
               With supporting text below as a natural lead-in to additional
               content.
-            </CardText>
-            <Button color="primary" onClick={() => history.push('/purchase')}>
-              Zur Buchungsseite
-            </Button>
+            </CardBody>
+            <CardFooter>
+              <Button color="primary" onClick={() => history.push('/purchase')}>
+                Zur Buchungsseite
+              </Button>
+            </CardFooter>
           </Card>
         </Col>
         <Col xs={3}>
-          <Card body className="text-center">
-            <CardTitle>Admin</CardTitle>
-            <CardText>
+          <Card className="text-center">
+            <CardHeader>
+              <h5 className="m-0">Admin-Bereich</h5>
+            </CardHeader>
+            <CardBody>
               Hier geht es zum Verwaltungsbereich der Billard-Control Software.
-            </CardText>
-            <Button color="primary" onClick={this.toggleModal}>
-              Zum Admin-Bereich
-            </Button>
+            </CardBody>
+            <CardFooter>
+              <Button color="primary" onClick={this.toggleModal}>
+                Zum Admin-Bereich
+              </Button>
+            </CardFooter>
           </Card>
         </Col>
         <Modal isOpen={this.state.modalOpen} toggle={this.toggleModal}>
@@ -130,7 +139,10 @@ class Home extends PureComponent {
                     isOpen={!!this.state.error}
                     toggle={() => this.setState({ error: '' })}
                   >
-                    {this.state.error}
+
+                    <h4 className="alert-heading">Oops!</h4>
+                    <hr />
+                    <p>{this.state.error}</p>
                   </Alert>
                   <Row form>
                     <Col xs={5}>
@@ -155,7 +167,7 @@ class Home extends PureComponent {
                     </Col>
                     <Col xs={5}>
                       <AvField
-                        type="text"
+                        type="password"
                         name="adminPass"
                         id="adminPass"
                         onChange={e => this.handleOnChange(e, 'adminPass')}
