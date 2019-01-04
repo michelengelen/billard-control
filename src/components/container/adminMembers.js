@@ -187,9 +187,6 @@ class Members extends Component {
       tarifs,
     } = this.state;
 
-    console.log('#### editMember: ', editMember);
-    console.log('#### tarifs: ', tarifs);
-
     return (
       <div className="bc-content__wrapper">
         <ActivityIndicator loading={this.state.loading} />

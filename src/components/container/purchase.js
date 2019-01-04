@@ -154,18 +154,17 @@ class Purchase extends PureComponent {
   }
 
   submitPurchase() {
-    debugger;
-
-    if (this.state.currentPurchase.length > 0) {
+    const { currentPurchase } = this.state;
+    if (currentPurchase.length > 0) {
       this.setState({ loading: true });
-      this.state.currentPurchase.map(item => {
+      for (let i = 0; i > currentPurchase.length; i++) {
         this.state.currentPurchaseRef
           .collection('journal')
-          .add(item)
+          .add(currentPurchase[i])
           .then(doc => {
             console.log('#### submitPurchase: ', doc.id);
           });
-      });
+      }
       this.setState({ loading: false, currentPurchase: [] });
     } else {
       this.setError('Keine Produkte in der aktuellen Buchung.');

@@ -4,7 +4,7 @@ import {
   Badge,
   Button,
   Card,
-  CardTitle,
+  CardHeader,
   CardFooter,
   Col,
   Collapse,
@@ -24,18 +24,27 @@ import {
 import CurrencyInput from 'react-currency-input';
 import { categoriesRef, productsRef } from 'firebase-config/config';
 import { sortByProperty } from 'helpers/helpers';
-import { Icon } from '../common';
+import {
+  ActivityIndicator,
+  Icon,
+} from '../common';
 import { Icons } from '../../variables/constants';
+
+const requiredFields = {
+  products: ['name', 'ean', 'priceInt', 'priceExt', 'categoryId'],
+  categories: ['name'],
+};
 
 class Products extends Component {
   constructor(props) {
     super(props);
 
-    this.editProduct = this.editProduct.bind(this);
+    this.editDoc = this.editDoc.bind(this);
     this.deleteDoc = this.deleteDoc.bind(this);
     this.closeModal = this.closeModal.bind(this);
-    this.validateAndSave = this.validateAndSave.bind(this);
+    this.saveData = this.saveData.bind(this);
     this.openCategory = this.openCategory.bind(this);
+    this.checkFormValidity = this.checkFormValidity.bind(this);
 
     this.state = {
       categories: [],
@@ -44,7 +53,11 @@ class Products extends Component {
       openCategory: '',
       editValues: {},
       openModal: false,
-      modalType: 'product',
+      modalType: 'products',
+      requiredFields: requiredFields['products'],
+      validated: false,
+      error: '',
+      loading: true,
     };
   }
 
@@ -53,55 +66,58 @@ class Products extends Component {
     productsRef.onSnapshot(querySnapshot => {
       response.products = [];
       querySnapshot.forEach(doc => {
-        response.products.push({id: doc.id, ...doc.data()});
+        response.products.push({ id: doc.id, ...doc.data() });
       });
       categoriesRef.onSnapshot(querySnapshot => {
         response.categories = [];
         querySnapshot.forEach(doc => {
-          response.categories.push({id: doc.id, ...doc.data()});
+          response.categories.push({ id: doc.id, ...doc.data() });
         });
         this.setState({
+          loading: false,
           categories: sortByProperty(response.categories, 'name'),
           products: sortByProperty(response.products, 'name'),
-        })
+        });
       });
     });
   }
 
-  editProduct(id) {
-    const product =
-      JSON.parse(
-        JSON.stringify(
-          this.state.products.filter(product => product.id === id)[0]
-        )
-      );
+  editDoc(id, docType) {
+    const doc = JSON.parse(
+      JSON.stringify(this.state[docType].filter(item => item.id === id)[0]),
+    );
 
-    delete product.id;
+    delete doc.id;
+    doc.public = true;
 
     this.setState({
       editValues: {
-        ...product,
+        ...doc,
       },
       editId: id,
       openModal: true,
-      modalType: 'product',
+      modalType: docType,
     });
   }
 
   deleteDoc(id, docType) {
     let deleteRef;
-    if (docType === 'product') {
+    if (docType === 'products') {
       deleteRef = productsRef;
     } else {
       deleteRef = categoriesRef;
     }
 
-    deleteRef.doc(id).delete().then(() => {
-      console.log('Document successfully deleted!');
-      this.closeModal();
-    }).catch(function(error) {
-      console.error('Error removing document: ', error);
-    });
+    deleteRef
+      .doc(id)
+      .delete()
+      .then(() => {
+        console.log('Document successfully deleted!');
+        this.closeModal();
+      })
+      .catch(function(error) {
+        console.error('Error removing document: ', error);
+      });
   }
 
   closeModal() {
@@ -109,7 +125,10 @@ class Products extends Component {
       editId: '',
       editValues: {},
       openModal: false,
-      modalType: 'product',
+      modalType: 'products',
+      requiredFields: requiredFields['products'],
+      validated: false,
+      error: '',
     });
   }
 
@@ -123,7 +142,7 @@ class Products extends Component {
             <th className="text-center">€ (int.)</th>
             <th className="text-center">€ (ext.)</th>
             <th className="text-center">Bestand</th>
-            <th className="text-center">{' '}</th>
+            <th className="text-center"> </th>
           </tr>
         </thead>
         <tbody>
@@ -140,16 +159,15 @@ class Products extends Component {
                     color="#EEEEEE"
                     size={16}
                     icon={Icons.PENCIL}
-                    onClick={() => this.editProduct(product.id)}
+                    onClick={() => this.editDoc(product.id, 'products')}
                   />
-                </Button>
-                {' '}
+                </Button>{' '}
                 <Button color="danger" size="sm">
                   <Icon
                     color="#EEEEEE"
                     size={16}
                     icon={Icons.DELETE}
-                    onClick={() => this.deleteDoc(product.id, 'product')}
+                    onClick={() => this.deleteDoc(product.id, 'products')}
                   />
                 </Button>
               </td>
@@ -157,147 +175,195 @@ class Products extends Component {
           ))}
         </tbody>
       </Table>
-    )
+    );
   }
 
   handleOnChange(e, fieldKey, maskedValue, floatValue) {
     e.preventDefault();
+
+    const { editValues, modalType } = this.state;
+    const oldRequiredFields = requiredFields[modalType];
+    console.log('#### modalType: ', modalType);
+    const newRequiredFields = [];
+
     let newValue = 0;
     if (floatValue || floatValue === 0) {
       newValue = floatValue;
     } else {
       newValue = e.currentTarget.value;
     }
+
+    for (let i = 0; i < oldRequiredFields.length; i++) {
+      if (
+        (oldRequiredFields[i] !== fieldKey &&
+          !editValues[oldRequiredFields[i]]) ||
+        (oldRequiredFields[i] === fieldKey && !newValue)
+      ) {
+        newRequiredFields.push(oldRequiredFields[i]);
+      }
+    }
+
     this.setState(prevState => ({
       editValues: {
         ...prevState.editValues,
-        [fieldKey]: newValue
+        [fieldKey]: newValue,
       },
+      requiredFields: newRequiredFields,
     }));
   }
 
-  validateAndSave() {
-    if (this.state.modalType === 'product') {
-      if (this.state.editId) {
-        productsRef.doc(this.state.editId).set(this.state.editValues)
-          .then(this.closeModal);
+  checkFormValidity() {
+    const { requiredFields } = this.state;
+    return new Promise((resolve, reject) => {
+      if (requiredFields.length > 0) {
+        reject();
       } else {
-        productsRef.add({ ...this.state.editValues }).then(this.closeModal);
+        resolve();
       }
-    } else if (this.state.modalType === 'category') {
-      if (this.state.editId) {
-        categoriesRef.doc(this.state.editId).set(this.state.editValues)
-          .then(this.closeModal);
-      } else {
-        categoriesRef.add({ ...this.state.editValues }).then(this.closeModal);
-      }
-    }
+    });
+  }
+
+  saveData() {
+    const { editId, editValues, modalType } = this.state;
+    this.checkFormValidity()
+      .then(() => {
+        let saveRef;
+        if (modalType === 'products') {
+          saveRef = productsRef;
+        } else if (modalType === 'categories') {
+          saveRef = categoriesRef;
+        }
+        if (editId) {
+          saveRef
+            .doc(editId)
+            .set(editValues)
+            .then(this.closeModal);
+        } else {
+          saveRef.add(editValues).then(this.closeModal);
+        }
+      })
+      .catch(() => {
+        this.setState({
+          validated: true,
+          error: 'Bitte die Fehler in der Eingabe beheben.',
+        });
+      });
   }
 
   openCategory(id) {
     this.setState(prevState => ({
-      openCategory: prevState.openCategory === id ? '' : id
+      openCategory: prevState.openCategory === id ? '' : id,
     }));
   }
 
   render() {
-    const { categories, products, openCategory } = this.state;
+    const {
+      categories,
+      products,
+      openCategory,
+      validated,
+      requiredFields,
+    } = this.state;
+
     return (
       <Row className="bc-content mr-0 pt-3">
+        <ActivityIndicator loading={this.state.loading} />
         <Col xs={12}>
-          <Card body>
-            <CardTitle>Produkte</CardTitle>
-            <ListGroup flush className="mx-neg-3">
+          <Card>
+            <CardHeader>
+              <h5 className="m-0">Produkte</h5>
+            </CardHeader>
+            <ListGroup flush>
               {categories.map(category => {
                 const productsInCategory = products.filter(
-                  product => product.categoryID === category.id,
+                  product => product.categoryId === category.id,
                 );
+                console.log(productsInCategory);
                 return (
-                  <div key={category.id}>
-                    <ListGroupItem
-                      action
-                      active={category.id === openCategory}
-                    >
-                      <Row>
-                        <Col xs={9} className="align-top">
-                          {category.name}
-                          {' '}
-                          <Badge color="success">
-                            {productsInCategory.length}
-                          </Badge>
-                        </Col>
-                        <Col xs={3} className="text-right">
-                          <Button
-                            color="secondary"
-                            size="sm"
-                            onClick={() => this.openCategory(category.id)}
-                          >
-                            <Icon
-                              color="#EEEEEE"
-                              size={16}
-                              icon={
-                                this.state.openCategory === category.id
-                                  ? Icons.CHEVRON.UP
-                                  : Icons.CHEVRON.DOWN
-                              }
-                            />
-                          </Button>
-                          {' '}
-                          <Button
-                            color="primary"
-                            size="sm"
-                            onClick={() => this.editProduct(category.id)}
-                          >
-                            <Icon
-                              color="#EEEEEE"
-                              size={16}
-                              icon={Icons.PENCIL}
-                            />
-                          </Button>
-                          {' '}
-                          <Button
-                            color="danger"
-                            size="sm"
-                            disabled={productsInCategory.length > 0}
-                            onClick={() => this.deleteDoc(category.id, 'category')}
-                          >
-                            <Icon
-                              color="#EEEEEE"
-                              size={16}
-                              icon={Icons.DELETE}
-                            />
-                          </Button>
-                        </Col>
-                      </Row>
-                    </ListGroupItem>
-                    {productsInCategory.length > 0 &&
-                      <Collapse isOpen={openCategory === category.id}>
-                        {this.renderTable(productsInCategory)}
+                  <ListGroupItem
+                    key={category.id}
+                    active={category.id === openCategory}
+                    className="p-0"
+                  >
+                    <Row className="p-3">
+                      <Col xs={9} className="align-top">
+                        {category.name}{' '}
+                        <Badge color="success">
+                          {productsInCategory.length}
+                        </Badge>
+                      </Col>
+                      <Col xs={3} className="text-right">
+                        <Button
+                          color="secondary"
+                          size="sm"
+                          disabled={productsInCategory.length < 1}
+                          onClick={() => this.openCategory(category.id)}
+                        >
+                          <Icon
+                            color="#EEEEEE"
+                            size={16}
+                            icon={
+                              this.state.openCategory === category.id
+                                ? Icons.CHEVRON.UP
+                                : Icons.CHEVRON.DOWN
+                            }
+                          />
+                        </Button>{' '}
+                        <Button
+                          color="primary"
+                          size="sm"
+                          onClick={() =>
+                            this.editDoc(category.id, 'categories')
+                          }
+                        >
+                          <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
+                        </Button>{' '}
+                        <Button
+                          color="danger"
+                          size="sm"
+                          disabled={productsInCategory.length > 0}
+                          onClick={() =>
+                            this.deleteDoc(category.id, 'categories')
+                          }
+                        >
+                          <Icon color="#EEEEEE" size={16} icon={Icons.DELETE} />
+                        </Button>
+                      </Col>
+                    </Row>
+                    {productsInCategory.length > 0 && (
+                      <Collapse
+                        isOpen={openCategory === category.id}
+                        className="bg-light text-dark"
+                      >
+                        <Row className="pt-3">
+                          <Col xs={12}>
+                            {this.renderTable(productsInCategory)}
+                          </Col>
+                        </Row>
                       </Collapse>
-                    }
-                  </div>
+                    )}
+                  </ListGroupItem>
                 );
               })}
             </ListGroup>
             <CardFooter className="align-items-end">
               <Button
                 color="primary"
-                onClick={
-                  () => this.setState({
+                onClick={() =>
+                  this.setState({
                     openModal: true,
-                    modalType: 'category',
+                    modalType: 'categories',
                   })
                 }
               >
                 Neue Kategorie
-              </Button>
-              {' '}
+              </Button>{' '}
               <Button
                 color="success"
-                onClick={
-                  () => this.setState({
+                onClick={() =>
+                  this.setState({
                     openModal: true,
-                    modalType: 'product',
+                    modalType: 'products',
                   })
                 }
               >
@@ -306,10 +372,7 @@ class Products extends Component {
             </CardFooter>
           </Card>
         </Col>
-        <Modal
-          isOpen={this.state.openModal}
-          toggle={this.closeModal}
-        >
+        <Modal isOpen={this.state.openModal} toggle={this.closeModal}>
           <ModalHeader toggle={this.closeModal}>
             Produkt anlegen/editieren
           </ModalHeader>
@@ -317,7 +380,7 @@ class Products extends Component {
             <Alert
               color="danger"
               isOpen={!!this.state.error}
-              toggle={() => this.setState({error: ''})}
+              toggle={() => this.setState({ error: '' })}
             >
               {this.state.error}
             </Alert>
@@ -336,25 +399,29 @@ class Products extends Component {
                       placeholder=""
                     />
                   </FormGroup>
-                  {this.state.modalType === 'product' &&
+                  {this.state.modalType === 'products' && (
                     <FormGroup>
                       <Label for="ean">EAN</Label>
                       <Input
                         type="text"
                         name="ean"
                         id="ean"
+                        invalid={
+                          validated && requiredFields.indexOf('ean') > -1
+                        }
                         value={this.state.editValues.ean || ''}
                         onChange={e => this.handleOnChange(e, 'ean')}
                         placeholder=""
                       />
                     </FormGroup>
-                  }
+                  )}
                   <FormGroup>
                     <Label for="name">Bezeichnung</Label>
                     <Input
                       type="text"
                       name="name"
                       id="name"
+                      invalid={validated && requiredFields.indexOf('name') > -1}
                       value={this.state.editValues.name || ''}
                       onChange={e => this.handleOnChange(e, 'name')}
                       placeholder=""
@@ -362,15 +429,17 @@ class Products extends Component {
                   </FormGroup>
                 </Col>
               </Row>
-              {this.state.modalType === 'product' &&
+              {this.state.modalType === 'products' && (
                 <Row form>
-                  <Col
-                    xs={6}>
+                  <Col xs={6}>
                     <FormGroup>
-                      <Label
-                        for="priceInt">Mitglieder-Preis</Label>
+                      <Label for="priceInt">Mitglieder-Preis</Label>
                       <CurrencyInput
-                        className="form-control"
+                        className={`form-control ${
+                          validated && requiredFields.indexOf('priceInt') > -1
+                            ? 'is-invalid'
+                            : ''
+                        }`}
                         decimalSeparator=","
                         precision="2"
                         suffix=" €"
@@ -384,19 +453,21 @@ class Products extends Component {
                             'priceInt',
                             maskedValue,
                             floatValue,
-                          )
+                          );
                         }}
                         placeholder="0,00 €"
                       />
                     </FormGroup>
                   </Col>
-                  <Col
-                    xs={6}>
+                  <Col xs={6}>
                     <FormGroup>
-                      <Label
-                        for="priceExt">Gäste-Preis</Label>
+                      <Label for="priceExt">Gäste-Preis</Label>
                       <CurrencyInput
-                        className="form-control"
+                        className={`form-control ${
+                          validated && requiredFields.indexOf('priceExt') > -1
+                            ? 'is-invalid'
+                            : ''
+                        }`}
                         decimalSeparator=","
                         precision="2"
                         suffix=" €"
@@ -410,26 +481,32 @@ class Products extends Component {
                             'priceExt',
                             maskedValue,
                             floatValue,
-                          )
+                          );
                         }}
                         placeholder="0,00 €"
                       />
                     </FormGroup>
                   </Col>
                 </Row>
-              }
-              {this.state.modalType === 'product' &&
+              )}
+              {this.state.modalType === 'products' && (
                 <Row form>
                   <Col xs={12}>
                     <FormGroup>
                       <Label for="category">Kategorie</Label>
                       <Input
                         type="select"
-                        value={this.state.editValues.categoryID || ''}
+                        value={this.state.editValues.categoryId || ''}
                         name="select"
                         id="category"
-                        onChange={e => this.handleOnChange(e, 'categoryID')}
+                        invalid={
+                          validated && requiredFields.indexOf('categoryId') > -1
+                        }
+                        onChange={e => this.handleOnChange(e, 'categoryId')}
                       >
+                        <option value={null}>
+                          Bitte eine Kategorie wählen
+                        </option>
                         {categories.map(category => (
                           <option
                             key={`select_${category.id}`}
@@ -442,21 +519,14 @@ class Products extends Component {
                     </FormGroup>
                   </Col>
                 </Row>
-              }
+              )}
             </Form>
           </ModalBody>
           <ModalFooter>
-            <Button
-              color="primary"
-              onClick={this.validateAndSave}
-            >
+            <Button color="primary" onClick={this.saveData}>
               Speichern
-            </Button>
-            {' '}
-            <Button
-              color="secondary"
-              onClick={this.closeModal}
-            >
+            </Button>{' '}
+            <Button color="secondary" onClick={this.closeModal}>
               Abbrechen
             </Button>
           </ModalFooter>

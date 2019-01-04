@@ -172,3 +172,12 @@ svg {
 .modal-dialog {
   max-width: 800px !important;
 }
+
+.table {
+  margin-bottom: 0 !important;
+}
+
+.list-item-wrapper {
+  border-top: 1px solid rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(0,0,0,0.2);
+}

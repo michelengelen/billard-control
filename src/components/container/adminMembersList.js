@@ -3,7 +3,7 @@ import {
   Badge,
   Button,
   Card,
-  CardTitle,
+  CardHeader,
   CardFooter,
   Col,
   Collapse,
@@ -32,12 +32,16 @@ class MembersList extends Component {
   }
 
   deleteDoc(id) {
-    membersRef.doc(id).delete().then(() => {
-      console.log('Document successfully deleted!');
-      this.closeModal();
-    }).catch(function(error) {
-      console.error('Error removing document: ', error);
-    });
+    membersRef
+      .doc(id)
+      .delete()
+      .then(() => {
+        console.log('Document successfully deleted!');
+        this.closeModal();
+      })
+      .catch(function(error) {
+        console.error('Error removing document: ', error);
+      });
   }
 
   closeModal() {
@@ -58,7 +62,7 @@ class MembersList extends Component {
             <th className="text-center">aktueller Deckel</th>
             <th className="text-center">Eintritt</th>
             <th className="text-center">Austritt</th>
-            <th className="text-center">{' '}</th>
+            <th className="text-center"> </th>
           </tr>
         </thead>
         <tbody>
@@ -84,7 +88,7 @@ class MembersList extends Component {
           ))}
         </tbody>
       </Table>
-    )
+    );
   }
 
   handleOnChange(e, fieldKey, maskedValue, floatValue) {
@@ -98,14 +102,16 @@ class MembersList extends Component {
     this.setState(prevState => ({
       editValues: {
         ...prevState.editValues,
-        [fieldKey]: newValue
+        [fieldKey]: newValue,
       },
     }));
   }
 
   validateAndSave() {
     if (this.state.editId) {
-      membersRef.doc(this.state.editId).set(this.state.editValues)
+      membersRef
+        .doc(this.state.editId)
+        .set(this.state.editValues)
         .then(this.closeModal);
     } else {
       membersRef.add({ ...this.state.editValues }).then(this.closeModal);
@@ -114,43 +120,39 @@ class MembersList extends Component {
 
   openCategory(id) {
     this.setState(prevState => ({
-      openCategory: prevState.openCategory === id ? '' : id
+      openCategory: prevState.openCategory === id ? '' : id,
     }));
   }
 
   render() {
     const { openCategory } = this.state;
     const { members } = this.props;
-    const activeMembers = members.filter(
-      member => member.active,
-    );
-    const inactiveMembers = members.filter(
-      member => !member.active,
-    );
+    const activeMembers = members.filter(member => member.active);
+    const inactiveMembers = members.filter(member => !member.active);
     return (
       <Row className="bc-content mr-0 pt-3">
         <Col xs={12}>
-          <Card body>
-            <CardTitle>Mitglieder</CardTitle>
-            <ListGroup flush className="mx-neg-3">
+          <Card>
+            <CardHeader>
+              <h5 className="m-0">Mitglieder</h5>
+            </CardHeader>
+            <ListGroup flush>
               <div>
                 <ListGroupItem
-                  action
                   active={openCategory === 'activeMembers'}
+                  className="p-0"
                 >
-                  <Row>
+                  <Row className="p-3">
                     <Col xs={9} className="align-top">
-                      {'aktive Mitglieder'}
-                      {' '}
-                      <Badge color="success">
-                        {activeMembers.length}
-                      </Badge>
+                      {'aktive Mitglieder'}{' '}
+                      <Badge color="success">{activeMembers.length}</Badge>
                     </Col>
                     <Col xs={3} className="text-right">
                       <Button
                         color="secondary"
                         size="sm"
                         onClick={() => this.openCategory('activeMembers')}
+                        disabled={activeMembers.length < 1}
                       >
                         <Icon
                           color="#EEEEEE"
@@ -164,31 +166,34 @@ class MembersList extends Component {
                       </Button>
                     </Col>
                   </Row>
+                  {activeMembers.length > 0 && (
+                    <Collapse
+                      isOpen={openCategory === 'activeMembers'}
+                      className="bg-light text-dark"
+                    >
+                      <Row className="pt-3">
+                        <Col xs={12}>{this.renderTable(activeMembers)}</Col>
+                      </Row>
+                    </Collapse>
+                  )}
                 </ListGroupItem>
-                {activeMembers.length > 0 &&
-                  <Collapse isOpen={openCategory === 'activeMembers'}>
-                    {this.renderTable(activeMembers)}
-                  </Collapse>
-                }
               </div>
               <div>
                 <ListGroupItem
-                  action
                   active={openCategory === 'inactiveMembers'}
+                  className="p-0"
                 >
-                  <Row>
+                  <Row className="p-3">
                     <Col xs={9} className="align-top">
-                      {'inaktive Mitglieder'}
-                      {' '}
-                      <Badge color="success">
-                        {inactiveMembers.length}
-                      </Badge>
+                      {'inaktive Mitglieder'}{' '}
+                      <Badge color="success">{inactiveMembers.length}</Badge>
                     </Col>
                     <Col xs={3} className="text-right">
                       <Button
                         color="secondary"
                         size="sm"
                         onClick={() => this.openCategory('inactiveMembers')}
+                        disabled={activeMembers.length < 1}
                       >
                         <Icon
                           color="#EEEEEE"
@@ -202,19 +207,21 @@ class MembersList extends Component {
                       </Button>
                     </Col>
                   </Row>
+                  {inactiveMembers.length > 0 && (
+                    <Collapse
+                      isOpen={openCategory === 'inactiveMembers'}
+                      className="bg-light text-dark"
+                    >
+                      <Row className="pt-3">
+                        <Col xs={12}>{this.renderTable(inactiveMembers)}</Col>
+                      </Row>
+                    </Collapse>
+                  )}
                 </ListGroupItem>
-                {inactiveMembers.length > 0 &&
-                  <Collapse isOpen={openCategory === 'inactiveMembers'}>
-                    {this.renderTable(inactiveMembers)}
-                  </Collapse>
-                }
               </div>
             </ListGroup>
             <CardFooter className="align-items-end">
-              <Button
-                color="success"
-                onClick={() => this.props.editMember('')}
-              >
+              <Button color="success" onClick={() => this.props.editMember('')}>
                 Neues Mitglied anlegen
               </Button>
             </CardFooter>

@@ -3,7 +3,7 @@ import {
   Alert,
   Button,
   Card,
-  CardTitle,
+  CardHeader,
   CardFooter,
   Col,
   Form,
@@ -20,7 +20,10 @@ import {
 import CurrencyInput from 'react-currency-input';
 import { tarifsRef } from 'firebase-config/config';
 import { sortByProperty, getPriceString } from 'helpers/helpers';
-import { Icon } from 'components/common';
+import {
+  ActivityIndicator,
+  Icon,
+} from 'components/common';
 import { Icons } from 'variables/constants';
 
 const requiredFields = ['name', 'monthlyFee', 'tableRent', 'entryFee'];
@@ -43,6 +46,7 @@ class Tarifs extends Component {
       openModal: false,
       error: '',
       requiredFields: requiredFields,
+      loading: true,
     };
   }
 
@@ -54,6 +58,7 @@ class Tarifs extends Component {
         response.tarifs.push({ id: doc.id, ...doc.data() });
       });
       this.setState({
+        loading: false,
         tarifs: sortByProperty(response.tarifs, 'name'),
       });
     });
@@ -222,12 +227,15 @@ class Tarifs extends Component {
 
   render() {
     const { tarifs, validated, requiredFields } = this.state;
-    console.log('#### requiredFields: ', requiredFields);
+
     return (
       <Row className="bc-content mr-0 pt-3">
+        <ActivityIndicator loading={this.state.loading} />
         <Col xs={12}>
-          <Card body>
-            <CardTitle>Produkte</CardTitle>
+          <Card>
+            <CardHeader>
+              <h5 className="m-0">Produkte</h5>
+            </CardHeader>
             {tarifs.length > 0 && this.renderTable(tarifs)}
             <CardFooter className="align-items-end">
               <Button
