@@ -140,6 +140,7 @@ class Members extends Component {
       editMember: {
         ...prevState.editMember,
         [fieldKey]: newValue,
+        lastChange: new Date(),
       },
     }));
   }

@@ -60,70 +60,97 @@ class MemberEdit extends Component {
               <CardBody>
                 <Row form>
                   <Col xs={6}>
-                    <FormGroup>
-                      <AvField
-                        type="text"
-                        name="firstname"
-                        id="firstname"
-                        label={
-                          <span>
-                            Vorname <span className="text-danger"> *</span>
-                          </span>
-                        }
-                        value={member.firstname || ''}
-                        onChange={e => handleOnChange(e, 'firstname')}
-                        validate={{
-                          required: {
-                            value: true,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          pattern: {
-                            value: '^[A-Za-z-\\s]+$',
-                            errorMessage:
-                              'Bitte nur Buchstaben und "-" verwenden',
-                          },
-                          minLength: {
-                            value: 2,
-                            errorMessage:
-                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
-                          },
-                        }}
-                      />
-                    </FormGroup>
+                    <AvField
+                      type="text"
+                      name="firstname"
+                      id="firstname"
+                      label={
+                        <span>
+                          Vorname <span className="text-danger"> *</span>
+                        </span>
+                      }
+                      value={member.firstname || ''}
+                      onChange={e => handleOnChange(e, 'firstname')}
+                      validate={{
+                        required: {
+                          value: true,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        pattern: {
+                          value: '^[A-Za-z-\\s]+$',
+                          errorMessage:
+                            'Bitte nur Buchstaben und "-" verwenden',
+                        },
+                        minLength: {
+                          value: 2,
+                          errorMessage:
+                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                        },
+                      }}
+                    />
                   </Col>
                   <Col xs={6}>
-                    <FormGroup>
-                      <AvField
-                        type="text"
-                        name="lastname"
-                        id="lastname"
-                        label={
-                          <span>
-                            Nachname <span className="text-danger"> *</span>
-                          </span>
-                        }
-                        value={member.lastname || ''}
-                        onChange={e => handleOnChange(e, 'lastname')}
-                        validate={{
-                          required: {
-                            value: true,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          pattern: {
-                            value: '^[A-Za-z-\\s]+$',
-                            errorMessage:
-                              'Bitte nur Buchstaben und "-" verwenden',
-                          },
-                          minLength: {
-                            value: 2,
-                            errorMessage:
-                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
-                          },
-                        }}
-                      />
-                    </FormGroup>
+                    <AvField
+                      type="text"
+                      name="lastname"
+                      id="lastname"
+                      label={
+                        <span>
+                          Nachname <span className="text-danger"> *</span>
+                        </span>
+                      }
+                      value={member.lastname || ''}
+                      onChange={e => handleOnChange(e, 'lastname')}
+                      validate={{
+                        required: {
+                          value: true,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        pattern: {
+                          value: '^[A-Za-z-\\s]+$',
+                          errorMessage:
+                            'Bitte nur Buchstaben und "-" verwenden',
+                        },
+                        minLength: {
+                          value: 2,
+                          errorMessage:
+                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                        },
+                      }}
+                    />
                   </Col>
                 </Row>
+                <hr />
+                <Row form>
+                  <Col xs={12}>
+                    <AvField
+                      name="birthday"
+                      type="date"
+                      id="birthday"
+                      label={<span>Geburtstag</span>}
+                      validate={{
+                        required: {
+                          value: false,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        dateRange: {
+                          start: { value: -150, units: 'days' },
+                          end: { value: 0, units: 'days' },
+                          errorMessage:
+                            'Datum muss in der Vergangenheit liegen',
+                        },
+                      }}
+                      min={now}
+                      disabled={!!editId}
+                      value={member.birthday || ''}
+                      className="form-control"
+                      onChange={(e, value) =>
+                        handleOnChange(e, 'birthday', value)
+                      }
+                    />
+                  </Col>
+                </Row>
+                <hr />
                 <Row form>
                   <Col xs={9}>
                     <FormGroup>
@@ -225,36 +252,34 @@ class MemberEdit extends Component {
                     </FormGroup>
                   </Col>
                   <Col xs={9}>
-                    <FormGroup>
-                      <AvField
-                        type="text"
-                        name="adress.city"
-                        id="adress.city"
-                        label={
-                          <span>
-                            Ort <span className="text-danger"> *</span>
-                          </span>
-                        }
-                        value={member.adress.city || ''}
-                        onChange={e => handleOnChange(e, 'adress.city')}
-                        validate={{
-                          required: {
-                            value: true,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          pattern: {
-                            value: '^[A-Za-z.-\\s]+$',
-                            errorMessage:
-                              'Bitte nur Buchstaben, "." und  "-" verwenden',
-                          },
-                          minLength: {
-                            value: 2,
-                            errorMessage:
-                              'Städtenamen mit weniger als 2 Zeichen sind nicht zulässig',
-                          },
-                        }}
-                      />
-                    </FormGroup>
+                    <AvField
+                      type="text"
+                      name="adress.city"
+                      id="adress.city"
+                      label={
+                        <span>
+                          Ort <span className="text-danger"> *</span>
+                        </span>
+                      }
+                      value={member.adress.city || ''}
+                      onChange={e => handleOnChange(e, 'adress.city')}
+                      validate={{
+                        required: {
+                          value: true,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        pattern: {
+                          value: '^[A-Za-z.-\\s]+$',
+                          errorMessage:
+                            'Bitte nur Buchstaben, "." und  "-" verwenden',
+                        },
+                        minLength: {
+                          value: 2,
+                          errorMessage:
+                            'Städtenamen mit weniger als 2 Zeichen sind nicht zulässig',
+                        },
+                      }}
+                    />
                   </Col>
                 </Row>
               </CardBody>
@@ -295,106 +320,94 @@ class MemberEdit extends Component {
                       />
                     </FormGroup>
                   </Col>
-                </Row>
-                <Row form>
                   <Col xs={6}>
-                    <FormGroup>
-                      <AvField
-                        name="entryDate"
-                        type="date"
-                        id="entryDate"
-                        label={
-                          <span>
-                            Eintrittsdatum
-                            {!editId && <span className="text-danger"> *</span>}
-                          </span>
-                        }
-                        validate={{
-                          required: {
-                            value: !editId,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          dateRange: {
-                            start: { value: 0, units: 'days' },
-                            end: { value: 20, units: 'years' },
-                            errorMessage: 'Datum muss in der Zukunft liegen',
-                          },
-                        }}
-                        min={now}
-                        disabled={!!editId}
-                        value={member.entryDate || ''}
-                        className="form-control"
-                        onChange={(e, value) =>
-                          handleOnChange(e, 'entryDate', value)
-                        }
-                      />
-                    </FormGroup>
+                    <AvField
+                      name="entryDate"
+                      type="date"
+                      id="entryDate"
+                      label={
+                        <span>
+                          Eintrittsdatum
+                          {!editId && <span className="text-danger"> *</span>}
+                        </span>
+                      }
+                      validate={{
+                        required: {
+                          value: !editId,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        dateRange: {
+                          start: { value: 0, units: 'days' },
+                          end: { value: 20, units: 'years' },
+                          errorMessage: 'Datum muss in der Zukunft liegen',
+                        },
+                      }}
+                      min={now}
+                      disabled={!!editId}
+                      value={member.entryDate || ''}
+                      className="form-control"
+                      onChange={(e, value) =>
+                        handleOnChange(e, 'entryDate', value)
+                      }
+                    />
                   </Col>
                   <Col xs={6}>
-                    <FormGroup>
-                      <AvField
-                        name="exitDate"
-                        type="date"
-                        id="exitDate"
-                        label={
-                          <span>
-                            Austrittsdatum
-                            {!member.active && (
-                              <span className="text-danger"> *</span>
-                            )}
-                          </span>
-                        }
-                        required={!member.active}
-                        validate={{
-                          required: {
-                            value: !member.active,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          dateRange: {
-                            start: { value: 0, units: 'days' },
-                            end: { value: 20, units: 'years' },
-                            errorMessage: 'Datum muss in der Zukunft liegen',
-                          },
-                        }}
-                        min={now}
-                        disabled={!editId || member.active}
-                        value={member.exitDate || ''}
-                        className="form-control"
-                        onChange={(e, value) =>
-                          handleOnChange(e, 'exitDate', value)
-                        }
-                      />
-                    </FormGroup>
+                    <AvField
+                      name="exitDate"
+                      type="date"
+                      id="exitDate"
+                      label={
+                        <span>
+                          Austrittsdatum
+                          {!member.active && (
+                            <span className="text-danger"> *</span>
+                          )}
+                        </span>
+                      }
+                      required={!member.active}
+                      validate={{
+                        required: {
+                          value: !member.active,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        dateRange: {
+                          start: { value: 0, units: 'days' },
+                          end: { value: 20, units: 'years' },
+                          errorMessage: 'Datum muss in der Zukunft liegen',
+                        },
+                      }}
+                      min={now}
+                      disabled={!editId || member.active}
+                      value={member.exitDate || ''}
+                      className="form-control"
+                      onChange={(e, value) =>
+                        handleOnChange(e, 'exitDate', value)
+                      }
+                    />
                   </Col>
-                </Row>
-                <Row form>
                   <Col xs={12}>
-                    <FormGroup>
-                      <AvField
-                        required
-                        type="select"
-                        name="select"
-                        id="tarifId"
-                        errorMessage="Bitte einen Tarif auswählen"
-                        label={
-                          <span>
-                            Tarif<span className="text-danger"> *</span>
-                          </span>
-                        }
-                        value={member.tarifId || ''}
-                        onChange={e => handleOnChange(e, 'tarifId')}
-                      >
-                        <option value={null}>Bitte einen Tarif wählen</option>
-                        {Object.keys(tarifs).map(tarifKey => (
-                          <option key={`select_${tarifKey}`} value={tarifKey}>
-                            {tarifs[tarifKey].name}
-                          </option>
-                        ))}
-                      </AvField>
-                    </FormGroup>
+                    <AvField
+                      required
+                      type="select"
+                      name="select"
+                      id="tarifId"
+                      errorMessage="Bitte einen Tarif auswählen"
+                      label={
+                        <span>
+                          Tarif<span className="text-danger"> *</span>
+                        </span>
+                      }
+                      value={member.tarifId || ''}
+                      onChange={e => handleOnChange(e, 'tarifId')}
+                    >
+                      <option value={null}>Bitte einen Tarif wählen</option>
+                      {Object.keys(tarifs).map(tarifKey => (
+                        <option key={`select_${tarifKey}`} value={tarifKey}>
+                          {tarifs[tarifKey].name}
+                        </option>
+                      ))}
+                    </AvField>
                   </Col>
-                </Row>
-                <Row form>
                   <Col xs={12}>
                     <AvField
                       name="active"
@@ -420,105 +433,94 @@ class MemberEdit extends Component {
               <CardBody>
                 <Row form>
                   <Col xs={12}>
-                    <FormGroup>
-                      <AvField
-                        type="text"
-                        name="bank.name"
-                        id="bank.name"
-                        label={
-                          <span>
-                            Name der Bank{' '}
-                            <span className="text-danger"> *</span>
-                          </span>
-                        }
-                        value={member.bank.name || ''}
-                        onChange={e => handleOnChange(e, 'bank.name')}
-                        validate={{
-                          required: {
-                            value: true,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          pattern: {
-                            value: '^[A-Za-z0-9.-\\s]+$',
-                            errorMessage:
-                              'Bitte nur Buchstaben, Zahlen, "." und  "-" verwenden',
-                          },
-                          minLength: {
-                            value: 2,
-                            errorMessage:
-                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
-                          },
-                        }}
-                      />
-                    </FormGroup>
+                    <AvField
+                      type="text"
+                      name="bank.name"
+                      id="bank.name"
+                      label={
+                        <span>
+                          Name der Bank <span className="text-danger"> *</span>
+                        </span>
+                      }
+                      value={member.bank.name || ''}
+                      onChange={e => handleOnChange(e, 'bank.name')}
+                      validate={{
+                        required: {
+                          value: true,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        pattern: {
+                          value: '^[A-Za-z0-9.-\\s]+$',
+                          errorMessage:
+                            'Bitte nur Buchstaben, Zahlen, "." und  "-" verwenden',
+                        },
+                        minLength: {
+                          value: 2,
+                          errorMessage:
+                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                        },
+                      }}
+                    />
                   </Col>
-                </Row>
-                <Row form>
                   <Col xs={12}>
-                    <FormGroup>
-                      <AvField
-                        type="text"
-                        name="bank.iban"
-                        id="bank.iban"
-                        label={
-                          <span>
-                            IBAN <span className="text-danger"> *</span>
-                          </span>
-                        }
-                        value={member.bank.iban || ''}
-                        onChange={e => handleOnChange(e, 'bank.iban')}
-                        validate={{
-                          required: {
-                            value: true,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          pattern: {
-                            value: '^[A-Z0-9]+$',
-                            errorMessage:
-                              'Bitte nur Grossbuchstaben und Zahlen verwenden (ohne Leerzeichen)',
-                          },
-                          minLength: {
-                            value: 15,
-                            errorMessage:
-                              'Die IBAN muss mindestens 15 Zeichen haben',
-                          },
-                        }}
-                      />
-                    </FormGroup>
+                    <AvField
+                      type="text"
+                      name="bank.iban"
+                      id="bank.iban"
+                      label={
+                        <span>
+                          IBAN <span className="text-danger"> *</span>
+                        </span>
+                      }
+                      value={member.bank.iban || ''}
+                      onChange={e => handleOnChange(e, 'bank.iban')}
+                      validate={{
+                        required: {
+                          value: true,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        pattern: {
+                          value: '^[A-Z0-9]+$',
+                          errorMessage:
+                            'Bitte nur Grossbuchstaben und Zahlen verwenden (ohne Leerzeichen)',
+                        },
+                        minLength: {
+                          value: 15,
+                          errorMessage:
+                            'Die IBAN muss mindestens 15 Zeichen haben',
+                        },
+                      }}
+                    />
                   </Col>
-                </Row>
-                <Row form>
                   <Col xs={12}>
-                    <FormGroup>
-                      <AvField
-                        type="text"
-                        name="bank.holder"
-                        id="bank.holder"
-                        label={
-                          <span>
-                            Kontoinhaber <span className="text-danger"> *</span>
-                          </span>
-                        }
-                        value={member.bank.holder || ''}
-                        onChange={e => handleOnChange(e, 'bank.holder')}
-                        validate={{
-                          required: {
-                            value: true,
-                            errorMessage: 'Eingabe fehlt',
-                          },
-                          pattern: {
-                            value: '^[A-Za-z0-9.-\\s]+$',
-                            errorMessage:
-                              'Bitte nur Buchstaben und  "-" verwenden',
-                          },
-                          minLength: {
-                            value: 2,
-                            errorMessage:
-                              'Namen mit weniger als 2 Zeichen sind nicht zulässig',
-                          },
-                        }}
-                      />
-                    </FormGroup>
+                    <AvField
+                      type="text"
+                      name="bank.holder"
+                      id="bank.holder"
+                      label={
+                        <span>
+                          Kontoinhaber <span className="text-danger"> *</span>
+                        </span>
+                      }
+                      value={member.bank.holder || ''}
+                      onChange={e => handleOnChange(e, 'bank.holder')}
+                      validate={{
+                        required: {
+                          value: true,
+                          errorMessage: 'Eingabe fehlt',
+                        },
+                        pattern: {
+                          value: '^[A-Za-z0-9.-\\s]+$',
+                          errorMessage:
+                            'Bitte nur Buchstaben und  "-" verwenden',
+                        },
+                        minLength: {
+                          value: 2,
+                          errorMessage:
+                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                        },
+                      }}
+                    />
                   </Col>
                 </Row>
               </CardBody>
