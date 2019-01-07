@@ -15,6 +15,7 @@ import {
 import { membersRef } from 'firebase-config/config';
 import { Icon } from 'components/common';
 import { Icons } from 'variables/constants';
+import { getDateString } from 'helpers/helpers';
 
 class MembersList extends Component {
   constructor(props) {
@@ -69,11 +70,17 @@ class MembersList extends Component {
           {members.map((member, index) => (
             <tr key={`memberTable_${index}_${member.id}`}>
               <td>{`${member.lastname}, ${member.firstname}`}</td>
-              <td>{member.number}</td>
+              <td>{member.membernumber}</td>
               <td className="text-center">{tarifs[member.tarifId].name}</td>
               <td className="text-center">{member.currentbill || '---'}</td>
-              <td className="text-center">{member.entry}</td>
-              <td className="text-center">{member.exit || '---'}</td>
+              <td className="text-center">
+                {getDateString(member.entryDate.timestamp, true)}
+              </td>
+              <td className="text-center">
+                {member.exitDate
+                  ? getDateString(member.exitDate.timestamp, true)
+                  : '---'}
+              </td>
               <td className="text-right">
                 <Button color="primary" size="sm">
                   <Icon

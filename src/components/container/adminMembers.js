@@ -122,6 +122,15 @@ class Members extends Component {
       newValue = value;
     }
 
+    if (e.currentTarget.type === 'date') {
+      newValue = {
+        timestamp: new Date(value),
+        dateString: value,
+      }
+    }
+
+    console.log('#### newValue: ', newValue);
+
     if (fieldKey.indexOf('.') > 0) {
       const splitFieldKey = fieldKey.split('.');
       this.setState(prevState => ({

@@ -249,6 +249,7 @@ class Purchase extends PureComponent {
                             <strong>Mitglied seit</strong>{' '}
                             {getDateString(
                               ctxt.memberData.entryDate.seconds * 1000,
+                              false
                             )}
                           </p>
                         </CardBody>

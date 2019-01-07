@@ -1,9 +1,8 @@
 export const generateUniqueKey = () => (+new Date()).toString(36);
 
-const emailRegEx =
-  /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-export const validateEmail =
-  email => !email || emailRegEx.test(String(email).toLowerCase());
+const emailRegEx = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+export const validateEmail = email =>
+  !email || emailRegEx.test(String(email).toLowerCase());
 
 export const sortByProperty = (arr, prop) => {
   return arr.sort((a, b) => {
@@ -17,24 +16,40 @@ export const sortByProperty = (arr, prop) => {
       return 1;
     }
     return 0;
-  })
+  });
 };
 
 export const getPriceString = price => {
   let priceString = '0,00 €';
   if (price && !isNaN(price)) {
-    priceString = price.toLocaleString('de', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }) + ' €';
+    priceString =
+      price.toLocaleString('de', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }) + ' €';
   }
   return priceString;
 };
 
-export const getDateString = date => {
-  const d = new Date(date);
-  const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
-  return `${days[d.getDay()]}, ${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
+export const getDateString = (date, short) => {
+  let d;
+  if (typeof date === 'object' && date.seconds) {
+    d = new Date(date.seconds * 1000);
+  } else {
+    d = new Date(date);
+  }
+  const days = [
+    'Sonntag',
+    'Montag',
+    'Dienstag',
+    'Mittwoch',
+    'Donnerstag',
+    'Freitag',
+    'Samstag',
+  ];
+  const day = `${days[d.getDay()]}, `;
+  return `${short ? '' : day}${d.getDate()}. ${d.getMonth() +
+    1}. ${d.getFullYear()}`;
 };
 
 /**
@@ -69,7 +84,7 @@ export const validateMemberData = data => {
 const mapObjectKeys = (obj, callback) => {
   Object.keys(obj).map(key => {
     if (typeof obj[key] === 'object') {
-      mapObjectKeys(obj[key], callback)
+      mapObjectKeys(obj[key], callback);
     } else {
       callback(key, obj[key]);
     }

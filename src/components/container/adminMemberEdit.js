@@ -13,6 +13,7 @@ import {
 } from 'reactstrap';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
 import 'react-datepicker/dist/react-datepicker.css';
+import { getDateString } from 'helpers/helpers';
 
 const now = new Date().toJSON().split('T')[0];
 
@@ -30,9 +31,26 @@ class MemberEdit extends Component {
           <Col xs={12}>
             <Row className="admin__member--header mb-3 mt-0">
               <Col xs={8} className="align-middle">
-                <h3 className="my-0">
-                  {editId ? 'Mitglied bearbeiten' : 'Mitglied anlegen'}
-                </h3>
+                {editId ? (
+                  <blockquote className="blockquote">
+                    <p className="mb-0 mt-3">Mitglied bearbeiten</p>
+                    <footer className="blockquote-footer">
+                      {`${member.firstname} ${
+                        member.lastname
+                      } // letzte Änderung: ${getDateString(
+                        member.lastChange,
+                        false,
+                      )}`}
+                    </footer>
+                  </blockquote>
+                ) : (
+                  <blockquote className="blockquote">
+                    <p className="mb-0 mt-3">Mitglied anlegen</p>
+                    <footer className="blockquote-footer">
+                      {`${member.firstname || ''} ${member.lastname || ''}`}
+                    </footer>
+                  </blockquote>
+                )}
               </Col>
               <Col xs={4} className="py-3 text-right">
                 <Button type="submit" color="success">
@@ -130,20 +148,16 @@ class MemberEdit extends Component {
                       id="birthday"
                       label={<span>Geburtstag</span>}
                       validate={{
-                        required: {
-                          value: false,
-                          errorMessage: 'Eingabe fehlt',
-                        },
                         dateRange: {
-                          start: { value: -150, units: 'days' },
+                          start: { value: -150, units: 'years' },
                           end: { value: 0, units: 'days' },
                           errorMessage:
                             'Datum muss in der Vergangenheit liegen',
                         },
                       }}
-                      min={now}
+                      max={now}
                       disabled={!!editId}
-                      value={member.birthday || ''}
+                      value={member.birthday ? member.birthday.dateString : ''}
                       className="form-control"
                       onChange={(e, value) =>
                         handleOnChange(e, 'birthday', value)
@@ -285,6 +299,7 @@ class MemberEdit extends Component {
                 </Row>
               </CardBody>
             </Card>
+            <hr />
             <Card>
               <CardHeader>
                 <h5 className="m-0">Kontakte</h5>
@@ -322,8 +337,8 @@ class MemberEdit extends Component {
                         required: {
                           value: false,
                         },
-                        tel: {
-                          value: true,
+                        pattern: {
+                          value: /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/g,
                           errorMessage:
                             'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 4281 1234567',
                         },
@@ -413,7 +428,9 @@ class MemberEdit extends Component {
                       }}
                       min={now}
                       disabled={!!editId}
-                      value={member.entryDate || ''}
+                      value={
+                        member.entryDate ? member.entryDate.dateString : ''
+                      }
                       className="form-control"
                       onChange={(e, value) =>
                         handleOnChange(e, 'entryDate', value)
@@ -447,7 +464,7 @@ class MemberEdit extends Component {
                       }}
                       min={now}
                       disabled={!editId || member.active}
-                      value={member.exitDate || ''}
+                      value={member.exitDate ? member.exitDate.dateString : ''}
                       className="form-control"
                       onChange={(e, value) =>
                         handleOnChange(e, 'exitDate', value)
@@ -493,6 +510,7 @@ class MemberEdit extends Component {
                 </Row>
               </CardBody>
             </Card>
+            <hr />
             <Card>
               <CardHeader>
                 <h5 className="m-0">Kontodaten</h5>
