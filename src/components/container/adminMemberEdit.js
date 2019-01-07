@@ -20,6 +20,7 @@ class MemberEdit extends Component {
   render() {
     const { editId, errors, handleOnChange, member, tarifs } = this.props;
 
+    if (!member.contact) member.contact = {};
     if (!member.adress) member.adress = {};
     if (!member.bank) member.bank = {};
 
@@ -284,6 +285,74 @@ class MemberEdit extends Component {
                 </Row>
               </CardBody>
             </Card>
+            <Card>
+              <CardHeader>
+                <h5 className="m-0">Kontakte</h5>
+              </CardHeader>
+              <CardBody>
+                <Row form>
+                  <Col xs={12}>
+                    <AvField
+                      type="email"
+                      name="contact.email"
+                      id="contact.email"
+                      label={<span>E-Mail</span>}
+                      value={member.contact.email || ''}
+                      onChange={e => handleOnChange(e, 'contact.email')}
+                      validate={{
+                        required: {
+                          value: false,
+                        },
+                        email: {
+                          value: true,
+                          errorMessage: 'E-Mail nicht im korrekten Format',
+                        },
+                      }}
+                    />
+                  </Col>
+                  <Col xs={12}>
+                    <AvField
+                      type="text"
+                      name="contact.telephone"
+                      id="contact.telephone"
+                      label={<span>Telefon</span>}
+                      value={member.contact.telephone || ''}
+                      onChange={e => handleOnChange(e, 'contact.telephone')}
+                      validate={{
+                        required: {
+                          value: false,
+                        },
+                        tel: {
+                          value: true,
+                          errorMessage:
+                            'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 4281 1234567',
+                        },
+                      }}
+                    />
+                  </Col>
+                  <Col xs={12}>
+                    <AvField
+                      type="text"
+                      name="contact.mobile"
+                      id="contact.mobile"
+                      label={<span>Mobil</span>}
+                      value={member.contact.mobile || ''}
+                      onChange={e => handleOnChange(e, 'contact.mobile')}
+                      validate={{
+                        required: {
+                          value: false,
+                        },
+                        pattern: {
+                          value: /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/g,
+                          errorMessage:
+                            'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 151 12345678',
+                        },
+                      }}
+                    />
+                  </Col>
+                </Row>
+              </CardBody>
+            </Card>
           </Col>
           <Col xs={6}>
             <Card>
@@ -424,8 +493,6 @@ class MemberEdit extends Component {
                 </Row>
               </CardBody>
             </Card>
-          </Col>
-          <Col xs={6}>
             <Card>
               <CardHeader>
                 <h5 className="m-0">Kontodaten</h5>
