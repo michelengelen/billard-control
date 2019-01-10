@@ -14,6 +14,9 @@ import {
   FormGroup,
   Label,
   Input,
+  InputGroup,
+  ListGroup,
+  ListGroupItem,
   Button,
   Table,
 } from 'reactstrap';
@@ -38,6 +41,8 @@ class Purchase extends PureComponent {
     this.setError = this.setError.bind(this);
     this.addProduct = this.addProduct.bind(this);
     this.submitPurchase = this.submitPurchase.bind(this);
+    this.changeAmount = this.changeAmount.bind(this);
+    this.removeProduct = this.removeProduct.bind(this);
 
     this.state = {
       loading: true,
@@ -97,6 +102,8 @@ class Purchase extends PureComponent {
       if (foundProduct) {
         const product = refineProductForPurchase(foundProduct, this.context.memberData.isGuest);
         this.setState({ product });
+      } else {
+        this.setState({ product: {} });
       }
     }
   }
@@ -157,17 +164,40 @@ class Purchase extends PureComponent {
 
   addProduct(e) {
     e.preventDefault();
-    this.setState(prevState => ({
-      currentProduct: '',
-      currentPurchase: [...prevState.currentPurchase, { ...prevState.product, date: new Date() }],
-      product: {},
-    }));
+    const productIndex = this.state.currentPurchase.findIndex(
+      element => element.id === this.state.product.id,
+    );
+    if (productIndex > -1) {
+      this.setState(prevState => ({
+        currentProduct: '',
+        currentPurchase: [
+          ...prevState.currentPurchase.slice(0, productIndex),
+          {
+            ...prevState.currentPurchase[productIndex],
+            amount: prevState.currentPurchase[productIndex].amount + prevState.product.amount,
+          },
+          ...prevState.currentPurchase.slice(productIndex + 1),
+        ],
+        product: {},
+      }));
+    } else {
+      this.setState(prevState => ({
+        currentProduct: '',
+        currentPurchase: [
+          ...prevState.currentPurchase,
+          {
+            ...prevState.product,
+            date: new Date(),
+          },
+        ],
+        product: {},
+      }));
+    }
   }
 
   directlyAddProduct(e, productId) {
     e.preventDefault();
     const productIndex = this.state.currentPurchase.findIndex(element => element.id === productId);
-    debugger;
     if (productIndex > -1) {
       this.setState(prevState => ({
         currentPurchase: [
@@ -212,12 +242,46 @@ class Purchase extends PureComponent {
     }
   }
 
+  changeAmount(e, number, index = null) {
+    e.preventDefault();
+
+    if (index === null) {
+      this.setState(prevState => ({
+        product: {
+          ...prevState.product,
+          amount: prevState.product.amount + number,
+        },
+      }));
+    } else {
+      this.setState(prevState => ({
+        currentPurchase: [
+          ...prevState.currentPurchase.slice(0, index),
+          {
+            ...prevState.currentPurchase[index],
+            amount: prevState.currentPurchase[index].amount + number,
+          },
+          ...prevState.currentPurchase.slice(index + 1),
+        ],
+      }));
+    }
+  }
+
+  removeProduct(index) {
+    console.log('remove', index);
+    this.setState(prevState => ({
+      currentPurchase: [
+        ...prevState.currentPurchase.slice(0, index),
+        ...prevState.currentPurchase.slice(index + 1),
+      ],
+    }));
+  }
+
   setError(error) {
     this.setState({ error, loading: false });
   }
 
   render() {
-    console.log('#### state: ', this.state.currentPurchase);
+    console.log('#### product: ', this.state.product);
     return (
       <Row className="bc-content">
         <ActivityIndicator loading={this.state.loading} />
@@ -296,15 +360,6 @@ class Purchase extends PureComponent {
                         <CardBody className="py-0">
                           <Row className="mx-neg-3">
                             <Table striped hover>
-                              <thead>
-                                <tr>
-                                  <th>Artikel</th>
-                                  <th className="text-center">Preis</th>
-                                  <th className="text-center">Menge</th>
-                                  <th className="text-center">Gesamt</th>
-                                  <th> </th>
-                                </tr>
-                              </thead>
                               <tbody>
                                 {ctxt.journal.map((item, index) => {
                                   if (item.public) {
@@ -322,7 +377,7 @@ class Purchase extends PureComponent {
                                           <Button
                                             color="success"
                                             size="sm"
-                                            className="border-radius-50 p-2"
+                                            className="p-1"
                                             onClick={e => this.directlyAddProduct(e, item.id)}
                                           >
                                             <Icon
@@ -348,34 +403,166 @@ class Purchase extends PureComponent {
                         <CardHeader>
                           <h5 className="m-0">aktuelle Buchung</h5>
                         </CardHeader>
-                        <CardBody>
+                        <CardBody className="p-0">
                           <Alert
                             color="danger"
+                            className="m-3"
                             isOpen={!!this.state.error}
                             toggle={() => this.setState({ error: '' })}
                           >
                             {this.state.error}
                           </Alert>
-                          {this.state.currentPurchase.map((item, index) => (
-                            <p key={`${item.productId}_${index}`}>{item.name}</p>
-                          ))}
-                          <Form onSubmit={this.addProduct}>
-                            <FormGroup>
-                              <Label for="currentProduct">Produkt</Label>
-                              <Input
-                                className="text-center"
-                                type="text"
-                                name="currentProduct"
-                                id="currentProduct"
-                                value={this.state.currentProduct}
-                                innerRef={input => (this.focussedInput = input)}
-                                onChange={e => this.handleOnChange(e, 'currentProduct')}
-                                placeholder="******"
-                              />
-                              {this.state.product.name && <p>{this.state.product.name}</p>}
-                            </FormGroup>
-                          </Form>
+                          <ListGroup className="mb-3" flush>
+                            {this.state.currentPurchase.map((item, index) => {
+                              console.log(item);
+                              console.log(index);
+                              return (
+                                <ListGroupItem
+                                  color="light"
+                                  key={`purchaseTable_${item.id}_${index}`}
+                                >
+                                  <Row className="align-items-center">
+                                    <Col xs={4}>
+                                      <span className="align-self-center">
+                                        {item.name || '---'}
+                                      </span>
+                                    </Col>
+                                    <Col xs={2} className="text-center">
+                                      {`á ${getPriceString(item.price)}`}
+                                    </Col>
+                                    <Col xs={2} className="text-center">
+                                      {getPriceString(item.amount * item.price)}
+                                    </Col>
+                                    <Col xs={2} className="text-center">
+                                      <InputGroup className="input-group-sm">
+                                        <div className="input-group-prepend">
+                                          <Button
+                                            disabled={item.amount < 2}
+                                            className="btn btn-sm btn-secondary"
+                                            type="button"
+                                            onClick={e => this.changeAmount(e, -1, index)}
+                                          >
+                                            -
+                                          </Button>
+                                        </div>
+                                        <Input
+                                          disabled
+                                          className="text-center w-25"
+                                          type="text"
+                                          name="currentProduct"
+                                          id="currentProduct"
+                                          value={item.amount}
+                                          onChange={() => {}}
+                                          placeholder=""
+                                        />
+                                        <div className="input-group-append">
+                                          <Button
+                                            disabled={item.amount > 29}
+                                            className="btn btn-sm btn-secondary"
+                                            type="button"
+                                            onClick={e => this.changeAmount(e, 1, index)}
+                                          >
+                                            +
+                                          </Button>
+                                        </div>
+                                      </InputGroup>
+                                    </Col>
+                                    <Col xs={2} className="text-right">
+                                      <Button
+                                        color="danger"
+                                        size="sm"
+                                        className="p-1"
+                                        onClick={() => this.removeProduct(index)}
+                                      >
+                                        <Icon color="#EEEEEE" size={20} icon={Icons.DELETE} />
+                                      </Button>
+                                    </Col>
+                                  </Row>
+                                </ListGroupItem>
+                              );
+                            })}
+                          </ListGroup>
                         </CardBody>
+                        <CardFooter>
+                          <Form onSubmit={this.addProduct}>
+                            <Row>
+                              {this.state.product.name && (
+                                <Col xs={12}>
+                                  <ListGroup className="mb-3" flush>
+                                    <ListGroupItem color="light">
+                                      <Row className="align-items-center">
+                                        <Col xs={4}>
+                                          <span className="align-self-center">
+                                            {this.state.product.name || '---'}
+                                          </span>
+                                        </Col>
+                                        <Col xs={2} className="text-center">
+                                          {`á ${getPriceString(this.state.product.price)}`}
+                                        </Col>
+                                        <Col xs={2} className="text-center">
+                                          {getPriceString(
+                                            this.state.product.amount * this.state.product.price,
+                                          )}
+                                        </Col>
+                                        <Col xs={2} className="text-center">
+                                          <InputGroup className="input-group-sm">
+                                            <div className="input-group-prepend">
+                                              <Button
+                                                disabled={this.state.product.amount < 2}
+                                                className="btn btn-sm btn-secondary"
+                                                type="button"
+                                                onClick={e => this.changeAmount(e, -1)}
+                                              >
+                                                -
+                                              </Button>
+                                            </div>
+                                            <Input
+                                              disabled
+                                              className="text-center w-25"
+                                              type="text"
+                                              name="currentProduct"
+                                              id="currentProduct"
+                                              value={this.state.product.amount}
+                                              onChange={() => {}}
+                                              placeholder=""
+                                            />
+                                            <div className="input-group-append">
+                                              <Button
+                                                disabled={this.state.product.amount > 29}
+                                                className="btn btn-sm btn-secondary"
+                                                type="button"
+                                                onClick={e => this.changeAmount(e, 1)}
+                                              >
+                                                +
+                                              </Button>
+                                            </div>
+                                          </InputGroup>
+                                        </Col>
+                                        <Col xs={2} className="text-center">
+                                          <Button type="submit" className="btn-sm">
+                                            Hinzufügen
+                                          </Button>
+                                        </Col>
+                                      </Row>
+                                    </ListGroupItem>
+                                  </ListGroup>
+                                </Col>
+                              )}
+                              <Col xs={12}>
+                                <Input
+                                  className="text-center"
+                                  type="text"
+                                  name="currentProduct"
+                                  id="currentProduct"
+                                  value={this.state.currentProduct}
+                                  innerRef={input => (this.focussedInput = input)}
+                                  onChange={e => this.handleOnChange(e, 'currentProduct')}
+                                  placeholder="EAN-Nummer"
+                                />
+                              </Col>
+                            </Row>
+                          </Form>
+                        </CardFooter>
                       </Card>
                     </Col>
                   </Row>
