@@ -75,6 +75,7 @@ class Members extends Component {
     if (!member.membernumber) {
       member.membernumber = this.state.newMembernumber;
       member.active = true;
+      member.isGuest = false;
     }
 
     this.setState({
@@ -129,8 +130,6 @@ class Members extends Component {
       }
     }
 
-    console.log('#### newValue: ', newValue);
-
     if (fieldKey.indexOf('.') > 0) {
       const splitFieldKey = fieldKey.split('.');
       this.setState(prevState => ({
@@ -166,6 +165,7 @@ class Members extends Component {
         name: `Aufnahmegebühr (${tarif.name})`,
         date: new Date(),
         price: tarif.entryFee,
+        public: false,
         amount: 1,
       };
       membersRef.add(this.state.editMember).then(docRef => {

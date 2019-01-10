@@ -141,8 +141,8 @@ svg {
 
 /* helpers */
 .mx-neg-3 {
-  margin-left: -1.25rem;
-  margin-right: -1.25rem;
+  margin-left: -1.25rem !important;
+  margin-right: -1.25rem !important;
 }
 
 .h-10 {
@@ -180,4 +180,8 @@ svg {
 .list-item-wrapper {
   border-top: 1px solid rgba(0,0,0,0.2);
   border-bottom: 1px solid rgba(0,0,0,0.2);
+}
+
+.border-radius-50 {
+  border-radius: 50% !important;
 }

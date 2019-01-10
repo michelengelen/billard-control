@@ -15,12 +15,19 @@ import {
   Label,
   Input,
   Button,
+  Table,
 } from 'reactstrap';
 
 import { PurchaseContext } from 'contexts/purchaseContext';
-import { membersRef, productsRef, purchasesRef } from 'firebase-config/config';
-import { ActivityIndicator } from 'components/common';
-import { getDateString } from 'helpers/helpers';
+import { categoriesRef, membersRef, productsRef, purchasesRef } from 'firebase-config/config';
+import { ActivityIndicator, Icon } from 'components/common';
+import {
+  getDateString,
+  getPriceString,
+  refineProductForPurchase,
+  sortByProperty,
+} from 'helpers/helpers';
+import { Icons } from '../../variables/constants';
 
 class Purchase extends PureComponent {
   constructor(props) {
@@ -33,19 +40,39 @@ class Purchase extends PureComponent {
     this.submitPurchase = this.submitPurchase.bind(this);
 
     this.state = {
-      loading: false,
+      loading: true,
       membernumber: '',
       product: {},
+      products: {},
+      categories: {},
       currentProduct: '',
       currentPurchase: [],
+      currentPurchaseId: '',
       error: '',
-      currentPurchaseRef: null,
     };
 
     this.focussedInput = null;
   }
 
   componentDidMount() {
+    let response = {};
+    productsRef.onSnapshot(querySnapshot => {
+      response.products = [];
+      querySnapshot.forEach(doc => {
+        response.products.push({ id: doc.id, ...doc.data() });
+      });
+      categoriesRef.onSnapshot(querySnapshot => {
+        response.categories = [];
+        querySnapshot.forEach(doc => {
+          response.categories.push({ id: doc.id, ...doc.data() });
+        });
+        this.setState({
+          loading: false,
+          products: sortByProperty(response.products, 'name'),
+          categories: sortByProperty(response.categories, 'name'),
+        });
+      });
+    });
     if (this.focussedInput) {
       this.focussedInput.focus();
     }
@@ -66,22 +93,11 @@ class Purchase extends PureComponent {
     });
 
     if (prop === 'currentProduct') {
-      productsRef
-        .where('ean', '==', newValue)
-        .get()
-        .then(querySnap => {
-          if (querySnap.size === 1) {
-            querySnap.forEach(docRef => {
-              this.setState({
-                product: { ...docRef.data(), productId: docRef.id },
-              });
-            });
-          } else {
-            this.setState({
-              product: {},
-            });
-          }
-        });
+      const foundProduct = this.state.products.find(element => element.ean === newValue);
+      if (foundProduct) {
+        const product = refineProductForPurchase(foundProduct, this.context.memberData.isGuest);
+        this.setState({ product });
+      }
     }
   }
 
@@ -93,17 +109,11 @@ class Purchase extends PureComponent {
       .get()
       .then(snapShot => {
         if (snapShot.size !== 1) {
-          this.setError(
-            'Es konnte kein eindeutiger Nutzer mit der Nummer gefunden werden.',
-          );
+          this.setError('Es konnte kein eindeutiger Nutzer mit der Nummer gefunden werden.');
         } else {
           snapShot.forEach(doc => {
             membersRef.doc(doc.id).onSnapshot(docRef => {
-              this.context.setMember(
-                this.state.membernumber,
-                docRef.id,
-                docRef.data(),
-              );
+              this.context.setMember(this.state.membernumber, docRef.id, docRef.data());
               purchasesRef
                 .where('userId', '==', docRef.id)
                 .get()
@@ -113,16 +123,17 @@ class Purchase extends PureComponent {
                       purchasesRef
                         .doc(doc.id)
                         .collection('journal')
+                        .orderBy('date', 'desc')
                         .limit(10)
                         .onSnapshot(journalSnap => {
                           const journal = [];
-                          journalSnap.forEach(journalDoc =>
-                            journal.push({ ...journalDoc.data() }),
-                          );
+                          journalSnap.forEach(journalDoc => journal.push({ ...journalDoc.data() }));
                           this.context.setPurchaseJournal(journal);
+                          console.log('#### journal: ', journal);
+                          // this.context.setPurchaseJournal(journal);
                           this.setState({
                             loading: false,
-                            currentPurchaseRef: purchasesRef.doc(doc.id),
+                            currentPurchaseId: doc.id,
                           });
                         });
                     });
@@ -130,7 +141,7 @@ class Purchase extends PureComponent {
                     purchasesRef.add({ userId: docRef.id }).then(doc => {
                       this.setState({
                         loading: false,
-                        currentPurchaseRef: purchasesRef.doc(doc.id),
+                        currentPurchaseId: doc.id,
                       });
                     });
                   }
@@ -148,29 +159,56 @@ class Purchase extends PureComponent {
     e.preventDefault();
     this.setState(prevState => ({
       currentProduct: '',
-      currentPurchase: [
-        ...prevState.currentPurchase,
-        { ...prevState.product, date: new Date() },
-      ],
+      currentPurchase: [...prevState.currentPurchase, { ...prevState.product, date: new Date() }],
       product: {},
     }));
   }
 
-  submitPurchase() {
-    const { currentPurchase } = this.state;
+  directlyAddProduct(e, productId) {
+    e.preventDefault();
+    const productIndex = this.state.currentPurchase.findIndex(element => element.id === productId);
+    debugger;
+    if (productIndex > -1) {
+      this.setState(prevState => ({
+        currentPurchase: [
+          ...prevState.currentPurchase.slice(0, productIndex),
+          {
+            ...prevState.currentPurchase[productIndex],
+            amount: prevState.currentPurchase[productIndex].amount + 1,
+          },
+          ...prevState.currentPurchase.slice(productIndex + 1),
+        ],
+      }));
+    } else {
+      const product = refineProductForPurchase(
+        this.state.products.find(element => element.id === productId),
+        this.context.memberData.isGuest,
+      );
+      this.setState(prevState => {
+        return {
+          currentPurchase: [...prevState.currentPurchase, { ...product, date: new Date() }],
+        };
+      });
+    }
+  }
+
+  async submitPurchase() {
+    const { currentPurchase, currentPurchaseId } = this.state;
     if (currentPurchase.length > 0) {
       this.setState({ loading: true });
-      for (let i = 0; i > currentPurchase.length; i++) {
-        this.state.currentPurchaseRef
+      const promises = currentPurchase.map(currentItem => {
+        purchasesRef
+          .doc(currentPurchaseId)
           .collection('journal')
-          .add(currentPurchase[i])
+          .add(currentItem)
           .then(doc => {
             console.log('#### submitPurchase: ', doc.id);
           });
-      }
+      });
+      await Promise.all(promises);
       this.setState({ loading: false, currentPurchase: [] });
     } else {
-      this.setError('Keine Produkte in der aktuellen Buchung.');
+      await this.setError('Keine Produkte in der aktuellen Buchung.');
     }
   }
 
@@ -179,6 +217,7 @@ class Purchase extends PureComponent {
   }
 
   render() {
+    console.log('#### state: ', this.state.currentPurchase);
     return (
       <Row className="bc-content">
         <ActivityIndicator loading={this.state.loading} />
@@ -210,9 +249,7 @@ class Purchase extends PureComponent {
                               id="membernumber"
                               value={this.state.membernumber}
                               innerRef={input => (this.focussedInput = input)}
-                              onChange={e =>
-                                this.handleOnChange(e, 'membernumber')
-                              }
+                              onChange={e => this.handleOnChange(e, 'membernumber')}
                               placeholder="******"
                             />
                           </FormGroup>
@@ -237,20 +274,18 @@ class Purchase extends PureComponent {
                           <h5 className="m-0">Mitgliedsdaten</h5>
                         </CardHeader>
                         <CardBody>
-                          <h4>
+                          <h4 className="ml-0">
                             <strong>{`${ctxt.memberData.firstname} ${
                               ctxt.memberData.lastname
                             }`}</strong>
                           </h4>
+                          <hr />
                           <p>
                             <strong>Mitgliedsnummer</strong> {ctxt.membernumber}
                           </p>
                           <p>
                             <strong>Mitglied seit</strong>{' '}
-                            {getDateString(
-                              ctxt.memberData.entryDate.seconds * 1000,
-                              false
-                            )}
+                            {getDateString(ctxt.memberData.entryDate.timestamp, false)}
                           </p>
                         </CardBody>
                       </Card>
@@ -258,12 +293,53 @@ class Purchase extends PureComponent {
                         <CardHeader>
                           <h5 className="m-0">letzte Buchungen</h5>
                         </CardHeader>
-                        <CardBody>
-                          {ctxt.journal.map((item, index) => (
-                            <p key={`${item.productId}_${index}`}>
-                              {item.name}
-                            </p>
-                          ))}
+                        <CardBody className="py-0">
+                          <Row className="mx-neg-3">
+                            <Table striped hover>
+                              <thead>
+                                <tr>
+                                  <th>Artikel</th>
+                                  <th className="text-center">Preis</th>
+                                  <th className="text-center">Menge</th>
+                                  <th className="text-center">Gesamt</th>
+                                  <th> </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {ctxt.journal.map((item, index) => {
+                                  if (item.public) {
+                                    return (
+                                      <tr key={`journalTable${index}_${item.id}`}>
+                                        <td className="align-middle">{item.name || '---'}</td>
+                                        <td className="text-center align-middle">
+                                          {item.price ? getPriceString(item.price) : '---'}
+                                        </td>
+                                        <td className="text-center align-middle">{item.amount}</td>
+                                        <td className="text-center align-middle">
+                                          {getPriceString(item.amount * item.price)}
+                                        </td>
+                                        <td className="text-right">
+                                          <Button
+                                            color="success"
+                                            size="sm"
+                                            className="border-radius-50 p-2"
+                                            onClick={e => this.directlyAddProduct(e, item.id)}
+                                          >
+                                            <Icon
+                                              color="#EEEEEE"
+                                              size={20}
+                                              icon={Icons.CHEVRON.RIGHT}
+                                            />
+                                          </Button>
+                                        </td>
+                                      </tr>
+                                    );
+                                  }
+                                  return null;
+                                })}
+                              </tbody>
+                            </Table>
+                          </Row>
                         </CardBody>
                       </Card>
                     </Col>
@@ -281,9 +357,7 @@ class Purchase extends PureComponent {
                             {this.state.error}
                           </Alert>
                           {this.state.currentPurchase.map((item, index) => (
-                            <p key={`${item.productId}_${index}`}>
-                              {item.name}
-                            </p>
+                            <p key={`${item.productId}_${index}`}>{item.name}</p>
                           ))}
                           <Form onSubmit={this.addProduct}>
                             <FormGroup>
@@ -295,14 +369,10 @@ class Purchase extends PureComponent {
                                 id="currentProduct"
                                 value={this.state.currentProduct}
                                 innerRef={input => (this.focussedInput = input)}
-                                onChange={e =>
-                                  this.handleOnChange(e, 'currentProduct')
-                                }
+                                onChange={e => this.handleOnChange(e, 'currentProduct')}
                                 placeholder="******"
                               />
-                              {this.state.product.name && (
-                                <p>{this.state.product.name}</p>
-                              )}
+                              {this.state.product.name && <p>{this.state.product.name}</p>}
                             </FormGroup>
                           </Form>
                         </CardBody>
@@ -310,7 +380,7 @@ class Purchase extends PureComponent {
                     </Col>
                   </Row>
                   <Row className="bc-content align-items-stretch h-10 p-3">
-                    <Col xs={6} className="text-right">
+                    <Col xs={12} className="text-right">
                       <Button type="button" onClick={this.submitPurchase}>
                         Buchung abschicken
                       </Button>

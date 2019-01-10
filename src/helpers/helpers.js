@@ -6,8 +6,8 @@ export const validateEmail = email =>
 
 export const sortByProperty = (arr, prop) => {
   return arr.sort((a, b) => {
-    const propA = a[prop].toUpperCase(); // ignore upper and lowercase
-    const propB = b[prop].toUpperCase(); // ignore upper and lowercase
+    const propA = typeof a[prop] === 'string' ? a[prop].toUpperCase() : a[prop]; // ignore upper and lowercase
+    const propB = typeof b[prop] === 'string' ? b[prop].toUpperCase() : b[prop]; // ignore upper and lowercase
 
     if (propA < propB) {
       return -1;
@@ -52,33 +52,14 @@ export const getDateString = (date, short) => {
     1}. ${d.getFullYear()}`;
 };
 
-/**
- *
- * @param {object}     data
- * @param {boolean}    data.active
- * @param {number}     data.membernumber
- * @param {timestamp}  data.entryDate
- * @param {string}     data.firstname
- * @param {string}     data.lastname
- * @param {string}     data.tarifId
- * @param {object}     data.bank
- * @param {string}     data.bank.iban
- * @param {string}     data.bank.holder
- * @param {string}     data.bank.name
- * @param {object}     data.adress
- * @param {string}     data.adress.street
- * @param {string}     data.adress.number
- * @param {string}     data.adress.plz
- * @param {string}     data.adress.city
- */
-export const validateMemberData = data => {
-  const errors = [];
-  mapObjectKeys(data, (key, value) => {
-    debugger;
-    if (value) return;
-    errors.push(key);
-  });
-  return errors;
+export const refineProductForPurchase = (product, isGuest) => {
+  const p = JSON.parse(JSON.stringify(product));
+  p.price = isGuest ? p.priceExt : p.priceInt;
+  delete p.priceInt;
+  delete p.priceExt;
+  p.amount = 1;
+  p.public = true;
+  return p;
 };
 
 const mapObjectKeys = (obj, callback) => {

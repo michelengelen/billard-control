@@ -494,7 +494,7 @@ class MemberEdit extends Component {
                       ))}
                     </AvField>
                   </Col>
-                  <Col xs={12}>
+                  <Col xs={6}>
                     <AvField
                       name="active"
                       id="active"
@@ -504,6 +504,18 @@ class MemberEdit extends Component {
                       value={member.active}
                       onChange={() =>
                         handleOnChange(null, 'active', !member.active)
+                      }
+                    />
+                  </Col>
+                  <Col xs={6}>
+                    <AvField
+                      name="isGuest"
+                      id="isGuest"
+                      type="checkbox"
+                      label={<span> aktives Mitglied</span>}
+                      value={member.isGuest}
+                      onChange={() =>
+                        handleOnChange(null, 'isGuest', !member.isGuest)
                       }
                     />
                   </Col>

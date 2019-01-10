@@ -47,4 +47,6 @@ rules:
   - WithStatement
   linebreak-style: off
   prefer-destructuring: off
-  max-len: warn
+  max-len:
+  - warn
+  - 100

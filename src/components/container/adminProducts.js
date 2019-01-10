@@ -184,16 +184,19 @@ class Products extends Component {
   }
 
   handleOnChange(e, fieldKey, maskedValue, floatValue) {
-    e.preventDefault();
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
 
     const { editValues, modalType } = this.state;
     const oldRequiredFields = requiredFields[modalType];
-    console.log('#### modalType: ', modalType);
     const newRequiredFields = [];
 
     let newValue = 0;
     if (floatValue || floatValue === 0) {
       newValue = floatValue;
+    } else if (typeof maskedValue === 'boolean') {
+      newValue = maskedValue;
     } else {
       newValue = e.currentTarget.value;
     }
@@ -524,7 +527,7 @@ class Products extends Component {
                       <Label check for="public">
                         <Input
                           type="checkbox"
-                          checked={this.state.editValues.public}
+                          checked={this.state.editValues.public || false}
                           name="public"
                           id="public"
                           onChange={() => this.handleOnChange(null, 'public', !this.state.editValues.public)}
