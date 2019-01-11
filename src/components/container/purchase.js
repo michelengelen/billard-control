@@ -46,6 +46,7 @@ class Purchase extends PureComponent {
     this.submitPurchase = this.submitPurchase.bind(this);
     this.changeAmount = this.changeAmount.bind(this);
     this.removeProduct = this.removeProduct.bind(this);
+    this.clearPurchaseList = this.clearPurchaseList.bind(this);
 
     this.state = {
       loading: true,
@@ -230,7 +231,6 @@ class Purchase extends PureComponent {
   async submitPurchase() {
     const { currentPurchase, currentPurchaseId } = this.state;
     if (currentPurchase.length > 0) {
-      this.setState({ loading: true });
       const promises = currentPurchase.map(currentItem => {
         purchasesRef
           .doc(currentPurchaseId)
@@ -240,11 +240,14 @@ class Purchase extends PureComponent {
             console.log('#### submitPurchase: ', doc.id);
           });
       });
-      await Promise.all(promises);
-      this.setState({ loading: false, currentPurchase: [] });
+      await Promise.all(promises).then(this.clearPurchaseList);
     } else {
       await this.setError('Keine Produkte in der aktuellen Buchung.');
     }
+  }
+
+  clearPurchaseList() {
+    this.setState({ currentPurchase: [] });
   }
 
   changeAmount(e, number, index = null) {
@@ -286,6 +289,7 @@ class Purchase extends PureComponent {
   }
 
   render() {
+    console.log('#### startTimer: ', !this.state.loading && !!this.context.memberId);
     return (
       <Row className="bc-content">
         <ActivityIndicator loading={this.state.loading} />
@@ -337,33 +341,49 @@ class Purchase extends PureComponent {
                 <Col xs={12}>
                   <Row className="bc-content align-items-stretch p-3 h-100">
                     <Col xs={6}>
-                      <Card className="mb-3">
-                        <CardHeader>
-                          <h5 className="m-0">Mitgliedsdaten</h5>
-                        </CardHeader>
-                        <CardBody>
-                          <h4 className="ml-0">
-                            <strong>{`${ctxt.memberData.firstname} ${
-                              ctxt.memberData.lastname
-                            }`}</strong>
-                          </h4>
-                          <hr />
-                          <p>
-                            <strong>Mitgliedsnummer</strong> {ctxt.membernumber}
-                          </p>
-                          <p>
-                            <strong>Mitglied seit</strong>{' '}
-                            {getDateString(ctxt.memberData.entryDate.timestamp, false)}
-                          </p>
-                          <LogoutTimer
-                            callback={ctxt.unsetMember}
-                            startTimer={!this.state.loading}
-                            interval={250}
-                            storeKey={'lastAction'}
-                            time={30000}
-                          />
-                        </CardBody>
-                      </Card>
+                      <div className="card-deck">
+                        <Card className="mb-3">
+                          <CardHeader>
+                            <h5 className="m-0">Mitgliedsdaten</h5>
+                          </CardHeader>
+                          <CardBody>
+                            <h4 className="ml-0">
+                              <strong>{`${ctxt.memberData.firstname} ${
+                                ctxt.memberData.lastname
+                              }`}</strong>
+                            </h4>
+                            <hr />
+                            <p>
+                              <strong>Mitgliedsnummer</strong> {ctxt.membernumber}
+                            </p>
+                            <p>
+                              <strong>Mitglied seit</strong>{' '}
+                              {getDateString(ctxt.memberData.entryDate.timestamp, false)}
+                            </p>
+                          </CardBody>
+                        </Card>
+                        <Card className="mb-3">
+                          <CardHeader>
+                            <h5 className="m-0">Auto-Logout</h5>
+                          </CardHeader>
+                          <CardBody className="text-center">
+                            <LogoutTimer
+                              callback={ctxt.unsetMember}
+                              startTimer={!this.state.loading && !!ctxt.memberId}
+                              interval={250}
+                              storeKey={'lastAction'}
+                              time={30000}
+                            />
+                            <Button
+                              type="button"
+                              className="btn-danger btn-block"
+                              onClick={ctxt.unsetMember}
+                            >
+                              Logout
+                            </Button>
+                          </CardBody>
+                        </Card>
+                      </div>
                       <Card>
                         <CardHeader>
                           <Nav tabs className="card-header-tabs">
@@ -439,7 +459,11 @@ class Purchase extends PureComponent {
                               <h5 className="m-0">aktuelle Buchung</h5>
                             </Col>
                             <Col xs={6} className="text-right">
-                              <Button type="button" onClick={this.submitPurchase}>
+                              <Button
+                                type="button"
+                                color="success"
+                                onClick={() => this.submitPurchase().then(ctxt.unsetMember)}
+                              >
                                 Buchung abschicken
                               </Button>
                             </Col>

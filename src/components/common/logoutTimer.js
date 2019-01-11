@@ -1,6 +1,7 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import store from 'store';
 import PropTypes from 'prop-types';
+import { Alert, Progress } from 'reactstrap';
 
 const getRemainingTime = time => {
   const t = new Date(time);
@@ -11,12 +12,13 @@ const getRemainingTime = time => {
   return `${minutes}:${seconds}`;
 };
 
-class LogoutTimer extends PureComponent {
+class LogoutTimer extends Component {
   constructor(props) {
     super(props);
 
     this.check = this.check.bind(this);
     this.reset = this.reset.bind(this);
+    this.destroy = this.destroy.bind(this);
     this.getLastAction = this.getLastAction.bind(this);
     this.setLastAction = this.setLastAction.bind(this);
     this.initListener = this.initListener.bind(this);
@@ -31,19 +33,14 @@ class LogoutTimer extends PureComponent {
 
   componentDidMount() {
     this.initListener();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (!prevProps.startTimer && this.props.startTimer) {
-      console.log('###### start Timer #######');
-      this.setLastAction(Date.now());
-      this.check();
-      this.initInterval();
-    }
+    this.reset();
   }
 
   componentWillUnmount() {
+    clearInterval(this.intervalHandle);
     this.removeListener();
+    store.clearAll();
+    this.props.callback();
   }
 
   getLastAction() {
@@ -84,10 +81,7 @@ class LogoutTimer extends PureComponent {
     const isTimeout = diff < 0;
 
     if (this.props.startTimer && isTimeout) {
-      this.removeListener();
-      clearInterval(this.intervalHandle);
-      store.clearAll();
-      this.props.callback();
+      this.destroy();
     } else {
       this.setState({
         currentTime: getRemainingTime(diff),
@@ -95,12 +89,31 @@ class LogoutTimer extends PureComponent {
     }
   }
 
+  destroy() {
+    console.log('#### timer got destroyed ####');
+    this.removeListener();
+    clearInterval(this.intervalHandle);
+    store.clearAll();
+    this.props.callback();
+  }
+
   initInterval() {
     this.intervalHandle = setInterval(this.check, this.props.interval);
   }
 
   render() {
-    return <p>{this.state.currentTime}</p>;
+    const t = this.getLastAction() + this.props.time - Date.now();
+    const secondsLeft = new Date(t).getSeconds();
+    const msecondsLeft = secondsLeft * 1000;
+    const counterClass = secondsLeft < 10 ? 'danger' : 'dark';
+    const progressClass = secondsLeft < 10 ? 'danger' : 'primary';
+    const progress = parseInt(100 * (msecondsLeft / this.props.time));
+    return (
+      <Alert color={counterClass}>
+        <h1 className={`text-${counterClass}`}>{this.state.currentTime}</h1>
+        <Progress color={progressClass} value={progress} />
+      </Alert>
+    );
   }
 }
 
