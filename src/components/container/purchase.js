@@ -17,13 +17,16 @@ import {
   InputGroup,
   ListGroup,
   ListGroupItem,
+  Nav,
+  NavItem,
+  NavLink,
   Button,
   Table,
 } from 'reactstrap';
 
 import { PurchaseContext } from 'contexts/purchaseContext';
 import { categoriesRef, membersRef, productsRef, purchasesRef } from 'firebase-config/config';
-import { ActivityIndicator, Icon } from 'components/common';
+import { ActivityIndicator, Icon, LogoutTimer } from 'components/common';
 import {
   getDateString,
   getPriceString,
@@ -54,6 +57,7 @@ class Purchase extends PureComponent {
       currentPurchase: [],
       currentPurchaseId: '',
       error: '',
+      activeTab: 'lastPurchase',
     };
 
     this.focussedInput = null;
@@ -141,6 +145,7 @@ class Purchase extends PureComponent {
                           this.setState({
                             loading: false,
                             currentPurchaseId: doc.id,
+                            membernumber: '',
                           });
                         });
                     });
@@ -281,7 +286,6 @@ class Purchase extends PureComponent {
   }
 
   render() {
-    console.log('#### product: ', this.state.product);
     return (
       <Row className="bc-content">
         <ActivityIndicator loading={this.state.loading} />
@@ -331,7 +335,7 @@ class Purchase extends PureComponent {
             } else {
               return (
                 <Col xs={12}>
-                  <Row className="bc-content align-items-stretch h-90 p-3">
+                  <Row className="bc-content align-items-stretch p-3 h-100">
                     <Col xs={6}>
                       <Card className="mb-3">
                         <CardHeader>
@@ -351,57 +355,95 @@ class Purchase extends PureComponent {
                             <strong>Mitglied seit</strong>{' '}
                             {getDateString(ctxt.memberData.entryDate.timestamp, false)}
                           </p>
+                          <LogoutTimer
+                            callback={ctxt.unsetMember}
+                            startTimer={!this.state.loading}
+                            interval={250}
+                            storeKey={'lastAction'}
+                            time={30000}
+                          />
                         </CardBody>
                       </Card>
                       <Card>
                         <CardHeader>
-                          <h5 className="m-0">letzte Buchungen</h5>
+                          <Nav tabs className="card-header-tabs">
+                            <NavItem>
+                              <NavLink
+                                active={this.state.activeTab === 'lastPurchase'}
+                                onClick={() => this.setState({ activeTab: 'lastPurchase' })}
+                              >
+                                letzte Buchungen
+                              </NavLink>
+                            </NavItem>
+                            <NavItem>
+                              <NavLink
+                                active={this.state.activeTab === 'categories'}
+                                onClick={() => this.setState({ activeTab: 'categories' })}
+                              >
+                                Produktübersicht
+                              </NavLink>
+                            </NavItem>
+                          </Nav>
                         </CardHeader>
                         <CardBody className="py-0">
-                          <Row className="mx-neg-3">
-                            <Table striped hover>
-                              <tbody>
-                                {ctxt.journal.map((item, index) => {
-                                  if (item.public) {
-                                    return (
-                                      <tr key={`journalTable${index}_${item.id}`}>
-                                        <td className="align-middle">{item.name || '---'}</td>
-                                        <td className="text-center align-middle">
-                                          {item.price ? getPriceString(item.price) : '---'}
-                                        </td>
-                                        <td className="text-center align-middle">{item.amount}</td>
-                                        <td className="text-center align-middle">
-                                          {getPriceString(item.amount * item.price)}
-                                        </td>
-                                        <td className="text-right">
-                                          <Button
-                                            color="success"
-                                            size="sm"
-                                            className="p-1"
-                                            onClick={e => this.directlyAddProduct(e, item.id)}
-                                          >
-                                            <Icon
-                                              color="#EEEEEE"
-                                              size={20}
-                                              icon={Icons.CHEVRON.RIGHT}
-                                            />
-                                          </Button>
-                                        </td>
-                                      </tr>
-                                    );
-                                  }
-                                  return null;
-                                })}
-                              </tbody>
-                            </Table>
-                          </Row>
+                          {this.state.activeTab === 'lastPurchase' && (
+                            <Row className="mx-neg-3">
+                              <Table striped hover>
+                                <tbody>
+                                  {ctxt.journal.map((item, index) => {
+                                    if (item.public) {
+                                      return (
+                                        <tr key={`journalTable${index}_${item.id}`}>
+                                          <td className="align-middle">{item.name || '---'}</td>
+                                          <td className="text-center align-middle">
+                                            {item.price ? getPriceString(item.price) : '---'}
+                                          </td>
+                                          <td className="text-center align-middle">
+                                            {item.amount}
+                                          </td>
+                                          <td className="text-center align-middle">
+                                            {getPriceString(item.amount * item.price)}
+                                          </td>
+                                          <td className="text-right">
+                                            <Button
+                                              color="success"
+                                              size="sm"
+                                              className="p-1"
+                                              onClick={e => this.directlyAddProduct(e, item.id)}
+                                            >
+                                              <Icon
+                                                color="#EEEEEE"
+                                                size={20}
+                                                icon={Icons.CHEVRON.RIGHT}
+                                              />
+                                            </Button>
+                                          </td>
+                                        </tr>
+                                      );
+                                    }
+                                    return null;
+                                  })}
+                                </tbody>
+                              </Table>
+                            </Row>
+                          )}
+                          {this.state.activeTab === 'categories' && <h1>Produktübersicht!</h1>}
                         </CardBody>
                       </Card>
                     </Col>
                     <Col xs={6}>
                       <Card className="h-100">
                         <CardHeader>
-                          <h5 className="m-0">aktuelle Buchung</h5>
+                          <Row>
+                            <Col xs={6}>
+                              <h5 className="m-0">aktuelle Buchung</h5>
+                            </Col>
+                            <Col xs={6} className="text-right">
+                              <Button type="button" onClick={this.submitPurchase}>
+                                Buchung abschicken
+                              </Button>
+                            </Col>
+                          </Row>
                         </CardHeader>
                         <CardBody className="p-0">
                           <Alert
@@ -422,7 +464,7 @@ class Purchase extends PureComponent {
                                   key={`purchaseTable_${item.id}_${index}`}
                                 >
                                   <Row className="align-items-center">
-                                    <Col xs={4}>
+                                    <Col xs={5}>
                                       <span className="align-self-center">
                                         {item.name || '---'}
                                       </span>
@@ -433,7 +475,7 @@ class Purchase extends PureComponent {
                                     <Col xs={2} className="text-center">
                                       {getPriceString(item.amount * item.price)}
                                     </Col>
-                                    <Col xs={2} className="text-center">
+                                    <Col xs={3} className="text-center">
                                       <InputGroup className="input-group-sm">
                                         <div className="input-group-prepend">
                                           <Button
@@ -464,18 +506,16 @@ class Purchase extends PureComponent {
                                           >
                                             +
                                           </Button>
+                                          <Button
+                                            color="danger"
+                                            size="sm"
+                                            className="p-1"
+                                            onClick={() => this.removeProduct(index)}
+                                          >
+                                            <Icon color="#EEEEEE" size={20} icon={Icons.DELETE} />
+                                          </Button>
                                         </div>
-                                      </InputGroup>
-                                    </Col>
-                                    <Col xs={2} className="text-right">
-                                      <Button
-                                        color="danger"
-                                        size="sm"
-                                        className="p-1"
-                                        onClick={() => this.removeProduct(index)}
-                                      >
-                                        <Icon color="#EEEEEE" size={20} icon={Icons.DELETE} />
-                                      </Button>
+                                      </InputGroup>{' '}
                                     </Col>
                                   </Row>
                                 </ListGroupItem>
@@ -564,13 +604,6 @@ class Purchase extends PureComponent {
                           </Form>
                         </CardFooter>
                       </Card>
-                    </Col>
-                  </Row>
-                  <Row className="bc-content align-items-stretch h-10 p-3">
-                    <Col xs={12} className="text-right">
-                      <Button type="button" onClick={this.submitPurchase}>
-                        Buchung abschicken
-                      </Button>
                     </Col>
                   </Row>
                 </Col>

@@ -111,27 +111,27 @@ h4, h5 {
 }
 
 /* navigation */
-.nav {
+.bc-nav {
   padding: 12px 0;
   color: rgba(244, 244, 244, 1);
   background-color: #4e555b;
   height: 100%;
 }
 
-.nav-item {
+.bc-nav .nav-item {
   border-bottom: 1px solid rgba(70, 70, 70, 1);
   transition: background-color .4s ease-in-out;
 }
 
-.nav-item.active {
+.bc-nav .nav-item.active {
   background-color: #5a6268;
 }
 
-.nav-item:first-child {
+.bc-nav .nav-item:first-child {
   border-top: 1px solid rgba(70, 70, 70, 1);
 }
 
-.nav-item:hover {
+.bc-nav .nav-item:hover {
   background-color:#343a40;
 }
 
@@ -184,4 +184,8 @@ svg {
 
 .border-radius-50 {
   border-radius: 50% !important;
+}
+
+.card-columns {
+  column-count: 2 !important;
 }

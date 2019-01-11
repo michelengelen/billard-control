@@ -24,7 +24,7 @@ class Navigation extends PureComponent {
   render() {
     const { history, location } = this.props;
     return (
-      <Nav vertical>
+      <Nav vertical className="bc-nav">
         <UserContext.Consumer>
           {ctxt => (
               <div>

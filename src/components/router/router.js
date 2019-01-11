@@ -49,6 +49,7 @@ class AppRouter extends PureComponent {
     this.signInUser = this.signInUser.bind(this);
     this.logoutUser = this.logoutUser.bind(this);
     this.setMember = this.setMember.bind(this);
+    this.unsetMember = this.unsetMember.bind(this);
     this.setPurchaseJournal = this.setPurchaseJournal.bind(this);
 
     this.state = {
@@ -67,6 +68,7 @@ class AppRouter extends PureComponent {
         memberId: '',
         journal: [],
         setMember: this.setMember,
+        unsetMember: this.unsetMember,
         setPurchaseJournal: this.setPurchaseJournal,
       },
     };
@@ -111,6 +113,17 @@ class AppRouter extends PureComponent {
           lastname: memberData.lastname || '',
           entryDate: memberData.entryDate,
         }
+      },
+    }));
+  }
+
+  unsetMember() {
+    this.setState(prevState => ({
+      purchaseContext: {
+        ...prevState.purchaseContext,
+        membernumber: -1,
+        memberId: '',
+        memberData: {}
       },
     }));
   }

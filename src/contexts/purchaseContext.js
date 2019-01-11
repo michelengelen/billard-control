@@ -6,5 +6,6 @@ export const PurchaseContext = React.createContext({
   memberData: {},
   journal: [],
   setMember: () => {},
+  unsetMember: () => {},
   setPurchaseJournal: () => {},
 });
