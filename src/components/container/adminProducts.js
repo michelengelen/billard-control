@@ -80,9 +80,7 @@ class Products extends Component {
   }
 
   editDoc(id, docType) {
-    const doc = JSON.parse(
-      JSON.stringify(this.state[docType].filter(item => item.id === id)[0]),
-    );
+    const doc = JSON.parse(JSON.stringify(this.state[docType].filter(item => item.id === id)[0]));
 
     if (doc.hasOwnProperty('id')) delete doc.id;
     if (docType === 'products' && !doc.public) doc.public = true;
@@ -143,38 +141,36 @@ class Products extends Component {
           </tr>
         </thead>
         <tbody>
-          {products.map((product, index) => (
-            <tr key={`productTable_${index}_${product.id}`}>
+          {products.map(product => (
+            <tr key={`productTable_${product.id}`}>
               <td>{product.name || '---'}</td>
               <td>{product.ean || '---'}</td>
               <td className="text-center">
-                {product.priceInt >= 0
-                  ? getPriceString(product.priceInt)
-                  : '---'}
+                {product.priceInt >= 0 ? getPriceString(product.priceInt) : '---'}
               </td>
               <td className="text-center">
-                {product.priceExt >= 0
-                  ? getPriceString(product.priceExt)
-                  : '---'}
+                {product.priceExt >= 0 ? getPriceString(product.priceExt) : '---'}
               </td>
               <td className="text-center">{product.amount || 0}</td>
               <td className="text-right">
-                <Button color="primary" size="sm">
-                  <Icon
-                    color="#EEEEEE"
-                    size={16}
-                    icon={Icons.PENCIL}
-                    onClick={() => this.editDoc(product.id, 'products')}
-                  />
-                </Button>{' '}
-                <Button color="danger" size="sm">
-                  <Icon
-                    color="#EEEEEE"
-                    size={16}
-                    icon={Icons.DELETE}
-                    onClick={() => this.deleteDoc(product.id, 'products')}
-                  />
-                </Button>
+                <div className="btn-group" role="group" aria-label="Basic example">
+                  <Button color="primary" size="sm">
+                    <Icon
+                      color="#EEEEEE"
+                      size={16}
+                      icon={Icons.PENCIL}
+                      onClick={() => this.editDoc(product.id, 'products')}
+                    />
+                  </Button>{' '}
+                  <Button color="danger" size="sm">
+                    <Icon
+                      color="#EEEEEE"
+                      size={16}
+                      icon={Icons.DELETE}
+                      onClick={() => this.deleteDoc(product.id, 'products')}
+                    />
+                  </Button>
+                </div>
               </td>
             </tr>
           ))}
@@ -203,8 +199,7 @@ class Products extends Component {
 
     for (let i = 0; i < oldRequiredFields.length; i++) {
       if (
-        (oldRequiredFields[i] !== fieldKey &&
-          !editValues[oldRequiredFields[i]]) ||
+        (oldRequiredFields[i] !== fieldKey && !editValues[oldRequiredFields[i]]) ||
         (oldRequiredFields[i] === fieldKey && !newValue)
       ) {
         newRequiredFields.push(oldRequiredFields[i]);
@@ -265,13 +260,7 @@ class Products extends Component {
   }
 
   render() {
-    const {
-      categories,
-      products,
-      openCategory,
-      validated,
-      requiredFields,
-    } = this.state;
+    const { categories, products, openCategory, validated, requiredFields } = this.state;
 
     return (
       <Row className="bc-content mr-0 pt-3">
@@ -295,47 +284,42 @@ class Products extends Component {
                   >
                     <Row className="p-3">
                       <Col xs={9} className="align-top">
-                        {category.name}{' '}
-                        <Badge color="success">
-                          {productsInCategory.length}
-                        </Badge>
+                        {category.name} <Badge color="success">{productsInCategory.length}</Badge>
                       </Col>
                       <Col xs={3} className="text-right">
-                        <Button
-                          color="secondary"
-                          size="sm"
-                          disabled={productsInCategory.length < 1}
-                          onClick={() => this.openCategory(category.id)}
-                        >
-                          <Icon
-                            color="#EEEEEE"
-                            size={16}
-                            icon={
-                              this.state.openCategory === category.id
-                                ? Icons.CHEVRON.UP
-                                : Icons.CHEVRON.DOWN
-                            }
-                          />
-                        </Button>{' '}
-                        <Button
-                          color="primary"
-                          size="sm"
-                          onClick={() =>
-                            this.editDoc(category.id, 'categories')
-                          }
-                        >
-                          <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
-                        </Button>{' '}
-                        <Button
-                          color="danger"
-                          size="sm"
-                          disabled={productsInCategory.length > 0}
-                          onClick={() =>
-                            this.deleteDoc(category.id, 'categories')
-                          }
-                        >
-                          <Icon color="#EEEEEE" size={16} icon={Icons.DELETE} />
-                        </Button>
+                        <div className="btn-group" role="group" aria-label="Basic example">
+                          <Button
+                            color="secondary"
+                            size="sm"
+                            disabled={productsInCategory.length < 1}
+                            onClick={() => this.openCategory(category.id)}
+                          >
+                            <Icon
+                              color="#EEEEEE"
+                              size={16}
+                              icon={
+                                this.state.openCategory === category.id
+                                  ? Icons.CHEVRON.UP
+                                  : Icons.CHEVRON.DOWN
+                              }
+                            />
+                          </Button>
+                          <Button
+                            color="primary"
+                            size="sm"
+                            onClick={() => this.editDoc(category.id, 'categories')}
+                          >
+                            <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
+                          </Button>
+                          <Button
+                            color="danger"
+                            size="sm"
+                            disabled={productsInCategory.length > 0}
+                            onClick={() => this.deleteDoc(category.id, 'categories')}
+                          >
+                            <Icon color="#EEEEEE" size={16} icon={Icons.DELETE} />
+                          </Button>
+                        </div>
                       </Col>
                     </Row>
                     {productsInCategory.length > 0 && (
@@ -344,9 +328,7 @@ class Products extends Component {
                         className="bg-light text-dark"
                       >
                         <Row className="p-0">
-                          <Col xs={12}>
-                            {this.renderTable(productsInCategory)}
-                          </Col>
+                          <Col xs={12}>{this.renderTable(productsInCategory)}</Col>
                         </Row>
                       </Collapse>
                     )}
@@ -381,9 +363,7 @@ class Products extends Component {
           </Card>
         </Col>
         <Modal isOpen={this.state.openModal} toggle={this.closeModal}>
-          <ModalHeader toggle={this.closeModal}>
-            Produkt anlegen/editieren
-          </ModalHeader>
+          <ModalHeader toggle={this.closeModal}>Produkt anlegen/editieren</ModalHeader>
           <ModalBody>
             <Alert
               color="danger"
@@ -414,9 +394,7 @@ class Products extends Component {
                         type="text"
                         name="ean"
                         id="ean"
-                        invalid={
-                          validated && requiredFields.indexOf('ean') > -1
-                        }
+                        invalid={validated && requiredFields.indexOf('ean') > -1}
                         value={this.state.editValues.ean || ''}
                         onChange={e => this.handleOnChange(e, 'ean')}
                         placeholder=""
@@ -444,9 +422,7 @@ class Products extends Component {
                       <Label for="priceInt">Mitglieder-Preis</Label>
                       <CurrencyInput
                         className={`form-control ${
-                          validated && requiredFields.indexOf('priceInt') > -1
-                            ? 'is-invalid'
-                            : ''
+                          validated && requiredFields.indexOf('priceInt') > -1 ? 'is-invalid' : ''
                         }`}
                         decimalSeparator=","
                         precision="2"
@@ -456,12 +432,7 @@ class Products extends Component {
                         id="priceInt"
                         value={this.state.editValues.priceInt || ''}
                         onChange={(maskedValue, floatValue, e) => {
-                          this.handleOnChange(
-                            e,
-                            'priceInt',
-                            maskedValue,
-                            floatValue,
-                          );
+                          this.handleOnChange(e, 'priceInt', maskedValue, floatValue);
                         }}
                         placeholder="0,00 €"
                       />
@@ -472,9 +443,7 @@ class Products extends Component {
                       <Label for="priceExt">Gäste-Preis</Label>
                       <CurrencyInput
                         className={`form-control ${
-                          validated && requiredFields.indexOf('priceExt') > -1
-                            ? 'is-invalid'
-                            : ''
+                          validated && requiredFields.indexOf('priceExt') > -1 ? 'is-invalid' : ''
                         }`}
                         decimalSeparator=","
                         precision="2"
@@ -484,12 +453,7 @@ class Products extends Component {
                         id="priceExt"
                         value={this.state.editValues.priceExt || ''}
                         onChange={(maskedValue, floatValue, e) => {
-                          this.handleOnChange(
-                            e,
-                            'priceExt',
-                            maskedValue,
-                            floatValue,
-                          );
+                          this.handleOnChange(e, 'priceExt', maskedValue, floatValue);
                         }}
                         placeholder="0,00 €"
                       />
@@ -503,19 +467,12 @@ class Products extends Component {
                         value={this.state.editValues.categoryId || ''}
                         name="select"
                         id="category"
-                        invalid={
-                          validated && requiredFields.indexOf('categoryId') > -1
-                        }
+                        invalid={validated && requiredFields.indexOf('categoryId') > -1}
                         onChange={e => this.handleOnChange(e, 'categoryId')}
                       >
-                        <option value={null}>
-                          Bitte eine Kategorie wählen
-                        </option>
+                        <option value={null}>Bitte eine Kategorie wählen</option>
                         {categories.map(category => (
-                          <option
-                            key={`select_${category.id}`}
-                            value={category.id}
-                          >
+                          <option key={`select_${category.id}`} value={category.id}>
                             {category.name}
                           </option>
                         ))}
@@ -530,7 +487,9 @@ class Products extends Component {
                           checked={this.state.editValues.public || false}
                           name="public"
                           id="public"
-                          onChange={() => this.handleOnChange(null, 'public', !this.state.editValues.public)}
+                          onChange={() =>
+                            this.handleOnChange(null, 'public', !this.state.editValues.public)
+                          }
                         />{' '}
                         öffentlich buchbar
                       </Label>

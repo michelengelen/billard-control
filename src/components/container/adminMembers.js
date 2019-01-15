@@ -123,7 +123,7 @@ class Members extends Component {
       newValue = value;
     }
 
-    if (e.currentTarget.type === 'date') {
+    if (e && e.currentTarget && e.currentTarget.type === 'date') {
       newValue = {
         timestamp: new Date(value),
         dateString: value,

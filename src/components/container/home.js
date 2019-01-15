@@ -103,8 +103,7 @@ class Home extends PureComponent {
               <h5 className="m-0">Buchung</h5>
             </CardHeader>
             <CardBody>
-              With supporting text below as a natural lead-in to additional
-              content.
+              With supporting text below as a natural lead-in to additional content.
             </CardBody>
             <CardFooter>
               <Button color="primary" onClick={() => history.push('/purchase')}>
@@ -118,9 +117,7 @@ class Home extends PureComponent {
             <CardHeader>
               <h5 className="m-0">Admin-Bereich</h5>
             </CardHeader>
-            <CardBody>
-              Hier geht es zum Verwaltungsbereich der Billard-Control Software.
-            </CardBody>
+            <CardBody>Hier geht es zum Verwaltungsbereich der Billard-Control Software.</CardBody>
             <CardFooter>
               <Button color="primary" onClick={this.toggleModal}>
                 Zum Admin-Bereich
@@ -139,7 +136,6 @@ class Home extends PureComponent {
                     isOpen={!!this.state.error}
                     toggle={() => this.setState({ error: '' })}
                   >
-
                     <h4 className="alert-heading">Oops!</h4>
                     <hr />
                     <p>{this.state.error}</p>
@@ -159,8 +155,7 @@ class Home extends PureComponent {
                           },
                           email: {
                             value: true,
-                            errorMessage:
-                              'Die E-Mail Adresse ist nicht im korrekten Format',
+                            errorMessage: 'Die E-Mail Adresse ist nicht im korrekten Format',
                           },
                         }}
                       />
@@ -179,8 +174,7 @@ class Home extends PureComponent {
                           },
                           minLength: {
                             value: 6,
-                            errorMessage:
-                              'Das Passwort muss 6 Zeichen oder mehr haben',
+                            errorMessage: 'Das Passwort muss 6 Zeichen oder mehr haben',
                           },
                         }}
                       />

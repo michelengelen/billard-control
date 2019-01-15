@@ -13,5 +13,6 @@ export const membersRef = dbRef.collection('members');
 export const productsRef = dbRef.collection('products');
 export const categoriesRef = dbRef.collection('categories');
 export const purchasesRef = dbRef.collection('purchases');
+export const clubDataRef = dbRef.collection('clubData');
 
 export const authRef = firebase.auth();

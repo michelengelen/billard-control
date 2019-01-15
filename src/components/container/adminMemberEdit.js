@@ -512,7 +512,7 @@ class MemberEdit extends Component {
                       name="isGuest"
                       id="isGuest"
                       type="checkbox"
-                      label={<span> aktives Mitglied</span>}
+                      label={<span> Gastkarte</span>}
                       value={member.isGuest}
                       onChange={() =>
                         handleOnChange(null, 'isGuest', !member.isGuest)
