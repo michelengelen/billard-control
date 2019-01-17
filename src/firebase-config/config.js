@@ -2,6 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import { FIREBASECONFIG } from 'variables/constants';
+
 firebase.initializeApp(FIREBASECONFIG);
 
 const dbRef = firebase.firestore();

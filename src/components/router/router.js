@@ -1,10 +1,5 @@
 import React, { PureComponent } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Redirect,
-  Switch,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 
 // import of custom components
 import Home from 'components/container/home';
@@ -12,9 +7,13 @@ import Header from 'components/container/header';
 import Purchase from 'components/container/purchase';
 import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
+import { ActivityIndicator } from 'components/common';
+
+import { clubDataRef } from 'firebase-config/config';
 
 import { UserContext } from 'contexts/userContext';
 import { PurchaseContext } from 'contexts/purchaseContext';
+import { ClubDataContext } from 'contexts/clubDataContext';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   return (
@@ -71,7 +70,20 @@ class AppRouter extends PureComponent {
         unsetMember: this.unsetMember,
         setPurchaseJournal: this.setPurchaseJournal,
       },
+      clubData: {},
+      loading: true,
     };
+  }
+
+  componentDidMount() {
+    clubDataRef.get().then(snapShot =>
+      clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
+        this.setState({
+          clubData: querySnapshot.data(),
+          loading: false,
+        });
+      }),
+    );
   }
 
   async signInUser(userData) {
@@ -112,7 +124,7 @@ class AppRouter extends PureComponent {
           firstname: memberData.firstname || '',
           lastname: memberData.lastname || '',
           entryDate: memberData.entryDate,
-        }
+        },
       },
     }));
   }
@@ -123,7 +135,7 @@ class AppRouter extends PureComponent {
         ...prevState.purchaseContext,
         membernumber: -1,
         memberId: '',
-        memberData: {}
+        memberData: {},
       },
     }));
   }
@@ -132,29 +144,30 @@ class AppRouter extends PureComponent {
     this.setState(prevState => ({
       purchaseContext: {
         ...prevState.purchaseContext,
-        journal: [
-          ...journal
-        ]
-      }
-    }))
+        journal: [...journal],
+      },
+    }));
   }
 
   render() {
     return (
       <UserContext.Provider value={this.state.userContext}>
         <PurchaseContext.Provider value={this.state.purchaseContext}>
-          <Router>
-            <div className="bc-viewport">
-              <Header />
-              <Switch>
-                <Route path="/" exact component={Home} />
-                <Route path="/settings" component={Settings} />
-                <Route path="/purchase" component={Purchase} />
-                <PrivateRoute path="/admin" component={Admin} />
-                <Route component={NoMatch} />
-              </Switch>
-            </div>
-          </Router>
+          <ClubDataContext.Provider value={this.state.clubData}>
+            <ActivityIndicator loading={this.state.loading} />
+            <Router>
+              <div className="bc-viewport">
+                <Header />
+                <Switch>
+                  <Route path="/" exact component={Home} />
+                  <Route path="/settings" component={Settings} />
+                  <Route path="/purchase" component={Purchase} />
+                  <PrivateRoute path="/admin" component={Admin} />
+                  <Route component={NoMatch} />
+                </Switch>
+              </div>
+            </Router>
+          </ClubDataContext.Provider>
         </PurchaseContext.Provider>
       </UserContext.Provider>
     );

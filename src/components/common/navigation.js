@@ -65,6 +65,11 @@ class Navigation extends PureComponent {
             Abrechnung
           </NavLink>
         </NavItem>
+        <NavItem active={location.pathname === '/admin/clubdata'}>
+          <NavLink onClick={() => history.push('/admin/clubdata')}>
+            Vereinsdaten
+          </NavLink>
+        </NavItem>
       </Nav>
     );
   }
