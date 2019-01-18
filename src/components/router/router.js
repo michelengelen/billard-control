@@ -9,7 +9,7 @@ import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
 import { ActivityIndicator } from 'components/common';
 
-import { clubDataRef } from 'firebase-config/config';
+import { clubDataRef, membersRef } from 'firebase-config/config';
 
 import { UserContext } from 'contexts/userContext';
 import { PurchaseContext } from 'contexts/purchaseContext';
@@ -76,14 +76,25 @@ class AppRouter extends PureComponent {
   }
 
   componentDidMount() {
-    clubDataRef.get().then(snapShot =>
-      clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
-        this.setState({
-          clubData: querySnapshot.data(),
-          loading: false,
-        });
-      }),
-    );
+    const response = {};
+    membersRef.onSnapshot(querySnapshot => {
+      response.members = [];
+      querySnapshot.forEach(doc => {
+        const memberDoc = doc.data();
+        response.members.push({ id: doc.id, ...memberDoc });
+        clubDataRef.get().then(snapShot =>
+          clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
+            this.setState({
+              clubData: {
+                ...querySnapshot.data(),
+                members: response.members,
+              },
+              loading: false,
+            });
+          }),
+        );
+      });
+    });
   }
 
   async signInUser(userData) {
@@ -157,7 +168,6 @@ class AppRouter extends PureComponent {
             <ActivityIndicator loading={this.state.loading} />
             <Router>
               <div className="bc-viewport">
-                <Header />
                 <Switch>
                   <Route path="/" exact component={Home} />
                   <Route path="/settings" component={Settings} />
