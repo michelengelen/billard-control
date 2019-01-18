@@ -14,7 +14,6 @@ import {
 import { AvField, AvForm } from 'availity-reactstrap-validation';
 
 import { ActivityIndicator, Icon } from 'components/common';
-import { ClubDataContext } from 'contexts/clubDataContext';
 
 import { clubDataRef } from 'firebase-config/config';
 import { getDateString } from 'helpers/helpers';
@@ -193,6 +192,33 @@ class ClubData extends Component {
                   email: {
                     value: true,
                     errorMessage: 'E-Mail nicht im korrekten Format',
+                  },
+                }}
+              />
+            </Col>
+            <Col xs={12}>
+              <AvField
+                type="text"
+                name={`board.${position}.telephone`}
+                id={`board.${position}.telephone`}
+                label={
+                  <span>
+                    Telefon <span className="text-danger"> *</span>
+                  </span>
+                }
+                value={
+                  editDoc.board && editDoc.board[position] ? editDoc.board[position].telephone : ''
+                }
+                onChange={e => this.handleOnChange(e, 'board', `${position}.telephone`)}
+                validate={{
+                  required: {
+                    value: true,
+                    errorMessage: 'Eingabe fehlt',
+                  },
+                  pattern: {
+                    value: /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/,
+                    errorMessage:
+                      'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 4281 1234567',
                   },
                 }}
               />

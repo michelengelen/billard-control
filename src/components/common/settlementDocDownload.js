@@ -1,28 +1,23 @@
 import React from 'react';
-import ReactPDF, { Document, Page, Text, View } from '@react-pdf/renderer';
+import ReactPDF from '@react-pdf/renderer';
+import { ClubDataContext } from 'contexts/clubDataContext';
 
-const MyDoc = ({ data }) => (
-  <Document>
-    <Page>
-      <View>
-        <Text>{data}</Text>
-      </View>
-    </Page>
-  </Document>
-);
+import { SettlementDoc } from './settlementDoc';
 
-export const SettlementDocDownload = ({ title, text }) => (
+export const SettlementDocDownload = ({ title }) => (
   <div>
-    <ReactPDF.PDFDownloadLink document={<MyDoc data={text} />} fileName={`${title}.pdf`}>
-      {({ blob, url, loading }) => (
-        <a
-          className={`btn btn-primary ${!loading && 'btn-disabled'}`}
-          href={!loading && url}
-          target="_blank"
-        >
-          {loading ? 'Loading document...' : 'Download now!'}
-        </a>
-      )}
-    </ReactPDF.PDFDownloadLink>
+    <ClubDataContext.Consumer>
+      {ctxt => {
+        return (
+          <ReactPDF.PDFDownloadLink
+            className="btn btn-primary"
+            document={<SettlementDoc clubData={ctxt} />}
+            fileName={`${title}.pdf`}
+          >
+            {({ blob, url, loading }) => (loading ? 'Loading document...' : 'Download now!')}
+          </ReactPDF.PDFDownloadLink>
+        );
+      }}
+    </ClubDataContext.Consumer>
   </div>
 );
