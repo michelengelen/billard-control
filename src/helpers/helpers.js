@@ -53,11 +53,11 @@ export const refineProductForPurchase = (product, isGuest) => {
 };
 
 const mapObjectKeys = (obj, callback) => {
-  Object.keys(obj).map(key => {
+  Object.keys(obj).forEach(key => {
     if (typeof obj[key] === 'object') {
       mapObjectKeys(obj[key], callback);
     } else {
-      return callback(key, obj[key]);
+      callback(key, obj[key]);
     }
   });
 };

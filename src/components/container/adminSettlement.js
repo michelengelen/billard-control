@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { ActivityIndicator } from 'components/common';
+// import { ActivityIndicator } from 'components/common';
 import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 
 class Settlement extends Component {

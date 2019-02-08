@@ -232,7 +232,7 @@ class Purchase extends PureComponent {
     const { currentPurchase, currentPurchaseId } = this.state;
     if (currentPurchase.length > 0) {
       const promises = currentPurchase.map(currentItem => {
-        purchasesRef
+        return purchasesRef
           .doc(currentPurchaseId)
           .collection('journal')
           .add(currentItem)

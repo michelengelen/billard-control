@@ -13,6 +13,7 @@ env:
   browser: true
   mocha: true
 rules:
+  array-callback-return: off
   react/no-danger: off
   react/jsx-filename-extension: off
   react/require-default-props: off

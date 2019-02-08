@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 
 // import of custom components
 import Home from 'components/container/home';
-import Header from 'components/container/header';
 import Purchase from 'components/container/purchase';
 import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
