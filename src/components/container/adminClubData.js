@@ -151,8 +151,6 @@ class ClubData extends Component {
       editDoc.board && editDoc.board[position] && editDoc.board[position].firstname;
     const hasError = editDoc.board && !editDoc.board[position].firstname;
 
-    console.log('#### hasError: ', hasError);
-
     return (
       <ListGroupItem active={position === openPosition} className="p-0">
         <Row className="p-3">
@@ -160,7 +158,7 @@ class ClubData extends Component {
             {hasError && (
               <Icon className="d-inline-block" icon={Icons.SIGNS.ERROR} size={14} color="#dc3545" />
             )}
-            <span className={hasError && 'font-italic text-danger pl-2'}>{title}</span>
+            <span className={hasError ? 'font-italic text-danger pl-2' : ''}>{title}</span>
           </Col>
           <Col xs={3} className="text-right">
             <Button color="secondary" size="sm" onClick={() => this.openPosition(position)}>
@@ -220,7 +218,6 @@ class ClubData extends Component {
       .doc(this.state.docId)
       .set({ ...this.state.editDoc, lastChange: new Date() })
       .then(() => {
-        console.log('### doc saved');
         this.setState({
           alert: {
             type: 'success',
@@ -233,7 +230,6 @@ class ClubData extends Component {
 
   render() {
     const { editDoc, alert } = this.state;
-    console.log('##### loading?: ', this.state.loading);
     return (
       <div className="bc-content__wrapper">
         <AvForm onValidSubmit={() => this.validateAndSave()}>
@@ -277,6 +273,7 @@ class ClubData extends Component {
                     {this.renderBoardMember('Kassenwart', 'accountant', true)}
                     {this.renderBoardMember('Schriftwart', 'writer', false)}
                     {this.renderBoardMember('Sportwart', 'sport', false)}
+                    {this.renderBoardMember('Jugendwart', 'youth', false)}
                   </ListGroup>
                 </Card>
                 <Card>

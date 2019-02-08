@@ -1,13 +1,12 @@
 export const generateUniqueKey = () => (+new Date()).toString(36);
 
 const emailRegEx = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-export const validateEmail = email =>
-  !email || emailRegEx.test(String(email).toLowerCase());
+export const validateEmail = email => !email || emailRegEx.test(String(email).toLowerCase());
 
 export const sortByProperty = (arr, prop) => {
   return arr.sort((a, b) => {
-    const propA = typeof a[prop] === 'string' ? a[prop].toUpperCase() : a[prop]; // ignore upper and lowercase
-    const propB = typeof b[prop] === 'string' ? b[prop].toUpperCase() : b[prop]; // ignore upper and lowercase
+    const propA = typeof a[prop] === 'string' ? a[prop].toUpperCase() : a[prop];
+    const propB = typeof b[prop] === 'string' ? b[prop].toUpperCase() : b[prop];
 
     if (propA < propB) {
       return -1;
@@ -38,18 +37,9 @@ export const getDateString = (date, short) => {
   } else {
     d = new Date(date);
   }
-  const days = [
-    'Sonntag',
-    'Montag',
-    'Dienstag',
-    'Mittwoch',
-    'Donnerstag',
-    'Freitag',
-    'Samstag',
-  ];
+  const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
   const day = `${days[d.getDay()]}, `;
-  return `${short ? '' : day}${d.getDate()}. ${d.getMonth() +
-    1}. ${d.getFullYear()}`;
+  return `${short ? '' : day}${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
 };
 
 export const refineProductForPurchase = (product, isGuest) => {
@@ -67,7 +57,7 @@ const mapObjectKeys = (obj, callback) => {
     if (typeof obj[key] === 'object') {
       mapObjectKeys(obj[key], callback);
     } else {
-      callback(key, obj[key]);
+      return callback(key, obj[key]);
     }
   });
 };
