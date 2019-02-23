@@ -275,7 +275,6 @@ class Products extends Component {
                 const productsInCategory = products.filter(
                   product => product.categoryId === category.id,
                 );
-                console.log(productsInCategory);
                 return (
                   <ListGroupItem
                     key={category.id}
@@ -413,6 +412,24 @@ class Products extends Component {
                       placeholder=""
                     />
                   </FormGroup>
+                  {this.state.modalType === 'categories' && (
+                    <FormGroup>
+                      <Label for="categoryType">Kategorie-Typ</Label>
+                      <Input
+                        type="select"
+                        value={this.state.editValues.categoryType || ''}
+                        name="select"
+                        id="categoryType"
+                        invalid={validated && requiredFields.indexOf('categoryType') > -1}
+                        onChange={e => this.handleOnChange(e, 'categoryType')}
+                      >
+                        <option value={null}>-- Bitte einen Kategorie-Typ wählen</option>
+                        <option value={'beverages'}>Getränke</option>
+                        <option value={'snacks'}>Snacks</option>
+                        <option value={'misc'}>diverses</option>
+                      </Input>
+                    </FormGroup>
+                  )}
                 </Col>
               </Row>
               {this.state.modalType === 'products' && (

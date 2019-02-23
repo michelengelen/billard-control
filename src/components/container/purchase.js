@@ -126,38 +126,20 @@ class Purchase extends PureComponent {
           snapShot.forEach(doc => {
             membersRef.doc(doc.id).onSnapshot(docRef => {
               this.context.setMember(this.state.membernumber, docRef.id, docRef.data());
-              purchasesRef
-                .where('userId', '==', docRef.id)
-                .get()
-                .then(purchSnap => {
-                  if (purchSnap.size > 0) {
-                    purchSnap.forEach(doc => {
-                      purchasesRef
-                        .doc(doc.id)
-                        .collection('journal')
-                        .orderBy('date', 'desc')
-                        .limit(10)
-                        .onSnapshot(journalSnap => {
-                          const journal = [];
-                          journalSnap.forEach(journalDoc => journal.push({ ...journalDoc.data() }));
-                          this.context.setPurchaseJournal(journal);
-                          console.log('#### journal: ', journal);
-                          // this.context.setPurchaseJournal(journal);
-                          this.setState({
-                            loading: false,
-                            currentPurchaseId: doc.id,
-                            membernumber: '',
-                          });
-                        });
-                    });
-                  } else {
-                    purchasesRef.add({ userId: docRef.id }).then(doc => {
-                      this.setState({
-                        loading: false,
-                        currentPurchaseId: doc.id,
-                      });
-                    });
-                  }
+              const memberdata = docRef.data();
+              memberdata.journalRef
+                .collection('journal')
+                .orderBy('date', 'desc')
+                .limit(10)
+                .onSnapshot(journalSnap => {
+                  const journal = [];
+                  journalSnap.forEach(journalDoc => journal.push({ ...journalDoc.data() }));
+                  this.context.setPurchaseJournal(journal);
+                  this.setState({
+                    loading: false,
+                    currentPurchaseId: doc.id,
+                    membernumber: '',
+                  });
                 });
             });
           });

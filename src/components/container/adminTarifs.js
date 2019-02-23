@@ -26,7 +26,7 @@ import {
 } from 'components/common';
 import { Icons } from 'variables/constants';
 
-const requiredFields = ['name', 'monthlyFee', 'tableRent', 'entryFee'];
+const requiredFields = ['name', 'monthlyFee', 'tableFee', 'entryFee'];
 
 class Tarifs extends Component {
   constructor(props) {
@@ -126,7 +126,7 @@ class Tarifs extends Component {
                   : '---'}
               </td>
               <td className="text-center">
-                {tarif.tableRent >= 0 ? getPriceString(tarif.tableRent) : '---'}
+                {tarif.tableFee >= 0 ? getPriceString(tarif.tableFee) : '---'}
               </td>
               <td className="text-center">
                 {tarif.entryFee >= 0 ? getPriceString(tarif.entryFee) : '---'}
@@ -172,7 +172,7 @@ class Tarifs extends Component {
     for (let i = 0; i < requiredFields.length; i++) {
       if (
         (requiredFields[i] !== fieldKey && !editValues[requiredFields[i]]) ||
-        (requiredFields[i] === fieldKey && !newValue)
+        (requiredFields[i] === fieldKey && !(newValue || newValue === 0))
       ) {
         newRequiredFields.push(requiredFields[i]);
       }
@@ -323,10 +323,10 @@ class Tarifs extends Component {
                 </Col>
                 <Col xs={4}>
                   <FormGroup>
-                    <Label for="tableRent">Tischmiete (pro Std.)</Label>
+                    <Label for="tableFee">Tischmiete (pro Std.)</Label>
                     <CurrencyInput
                       className={`form-control ${
-                        validated && requiredFields.indexOf('tableRent') > -1
+                        validated && requiredFields.indexOf('tableFee') > -1
                           ? 'is-invalid'
                           : ''
                       }`}
@@ -334,13 +334,13 @@ class Tarifs extends Component {
                       precision="2"
                       suffix=" €"
                       type="text"
-                      name="tableRent"
-                      id="tableRent"
-                      value={this.state.editValues.tableRent || ''}
+                      name="tableFee"
+                      id="tableFee"
+                      value={this.state.editValues.tableFee || ''}
                       onChange={(maskedValue, floatValue, e) => {
                         this.handleOnChange(
                           e,
-                          'tableRent',
+                          'tableFee',
                           maskedValue,
                           floatValue,
                         );

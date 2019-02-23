@@ -63,11 +63,7 @@ class Members extends Component {
   editMember(id = '') {
     let member = {};
     if (id) {
-      member = JSON.parse(
-        JSON.stringify(
-          this.state.members.filter(member => member.id === id)[0],
-        ),
-      );
+      member = JSON.parse(JSON.stringify(this.state.members.filter(member => member.id === id)[0]));
 
       delete member.id;
     }
@@ -127,7 +123,7 @@ class Members extends Component {
       newValue = {
         timestamp: new Date(value),
         dateString: value,
-      }
+      };
     }
 
     if (fieldKey.indexOf('.') > 0) {
@@ -168,13 +164,21 @@ class Members extends Component {
         public: false,
         amount: 1,
       };
-      membersRef.add(this.state.editMember).then(docRef => {
-        purchasesRef.add({ userId: docRef.id }).then(doc => {
+      membersRef.add(this.state.editMember).then(memberDoc => {
+        purchasesRef.add({ userId: memberDoc.id }).then(journalDoc => {
           purchasesRef
-            .doc(doc.id)
+            .doc(journalDoc.id)
             .collection('journal')
             .add(entryFeePurchase)
-            .then(() => console.log('### Aufnahmegebühr im Journal gebucht.'));
+            .then(() => {
+              membersRef
+                .doc(memberDoc.id)
+                .set(
+                  { journalRef: purchasesRef.doc(journalDoc.id) },
+                  { merge: true },
+                )
+                .then(() => console.log('### journalRef added to member document'));
+            });
         });
         this.cancelEdit();
       });
@@ -188,14 +192,7 @@ class Members extends Component {
   }
 
   render() {
-    const {
-      editId,
-      editMember,
-      errors,
-      members,
-      showEditForm,
-      tarifs,
-    } = this.state;
+    const { editId, editMember, errors, members, showEditForm, tarifs } = this.state;
 
     return (
       <div className="bc-content__wrapper">

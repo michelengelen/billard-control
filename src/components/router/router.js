@@ -8,7 +8,7 @@ import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
 import { ActivityIndicator } from 'components/common';
 
-import { clubDataRef, membersRef } from 'firebase-config/config';
+import { clubDataRef, membersRef, purchasesRef } from 'firebase-config/config';
 
 import { UserContext } from 'contexts/userContext';
 import { PurchaseContext } from 'contexts/purchaseContext';
@@ -78,9 +78,23 @@ class AppRouter extends PureComponent {
     const response = {};
     membersRef.onSnapshot(querySnapshot => {
       response.members = [];
-      querySnapshot.forEach(doc => {
-        const memberDoc = doc.data();
-        response.members.push({ id: doc.id, ...memberDoc });
+      if (querySnapshot.size > 0) {
+        querySnapshot.forEach(doc => {
+          const memberDoc = doc.data();
+          response.members.push({ id: doc.id, ...memberDoc });
+          clubDataRef.get().then(snapShot =>
+            clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
+              this.setState({
+                clubData: {
+                  ...querySnapshot.data(),
+                  members: response.members,
+                },
+                loading: false,
+              });
+            }),
+          );
+        });
+      } else {
         clubDataRef.get().then(snapShot =>
           clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
             this.setState({
@@ -92,7 +106,7 @@ class AppRouter extends PureComponent {
             });
           }),
         );
-      });
+      }
     });
   }
 

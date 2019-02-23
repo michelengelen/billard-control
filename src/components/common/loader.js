@@ -104,7 +104,15 @@ Loader.defaultProps = {
   color: 'rgba(255, 255, 255, 1)'
 };
 
-export const ActivityIndicator = ({ loading }) => {
+export const ActivityIndicator = ({ loading, type }) => {
+  if (type === 'inline') {
+    return (
+      <div className={`bc-loader${loading ? '' : ' hidden'} ${type}`}>
+        <Loader color="rgba(33, 33, 33, 1)" size={40} />
+      </div>
+    );
+  }
+
   return (
     <div className={`bc-loader${loading ? '' : ' hidden'}`}>
       <Loader color="rgba(255,255,255,1)" size={80} />
