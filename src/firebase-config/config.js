@@ -15,5 +15,6 @@ export const productsRef = dbRef.collection('products');
 export const categoriesRef = dbRef.collection('categories');
 export const purchasesRef = dbRef.collection('purchases');
 export const clubDataRef = dbRef.collection('clubData').doc('data');
+export const settlementsRef = dbRef.collection('settlements');
 
 export const authRef = firebase.auth();

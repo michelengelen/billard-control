@@ -1,32 +1,24 @@
 import React, { Component } from 'react';
 import {
-  Alert,
-  Badge,
   Button,
   Card,
   CardHeader,
-  CardFooter,
   Col,
   Collapse,
-  Form,
   FormGroup,
   Label,
   Input,
   ListGroup,
   ListGroupItem,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
   Row,
-  Table,
 } from 'reactstrap';
+import isEqual from 'lodash.isequal';
 
 import { ActivityIndicator, Icon } from 'components/common';
 // import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 import { ClubDataContext } from 'contexts/clubDataContext';
 import { Icons } from '../../variables/constants';
-import { categoriesRef, tarifsRef } from '../../firebase-config/config';
+import { categoriesRef, settlementsRef, tarifsRef } from '../../firebase-config/config';
 import { sortByProperty } from '../../helpers/helpers';
 
 const now = new Date();
@@ -80,31 +72,54 @@ class Settlement extends Component {
 
     this.state = {
       loading: true,
-      settlements: {},
       openedSettlement: '',
-      categories: [],
+      categories: null,
+      tarifs: null,
+      settlements: null,
     };
   }
 
   componentDidMount() {
-    let response = {};
     categoriesRef.onSnapshot(querySnapshot => {
-      response.categories = [];
+      const categories = [];
       querySnapshot.forEach(doc => {
-        response.categories.push({ id: doc.id, ...doc.data() });
+        categories.push({ id: doc.id, ...doc.data() });
       });
-      tarifsRef.onSnapshot(querySnapshot => {
-        response.tarifs = [];
-        querySnapshot.forEach(doc => {
-          response.tarifs.push({ id: doc.id, ...doc.data() });
-        });
-        this.setState({
-          loading: false,
-          categories: sortByProperty(response.categories, 'name'),
-          tarifs: sortByProperty(response.tarifs, 'name'),
-        });
+      this.setState({
+        categories: sortByProperty(categories, 'name'),
       });
     });
+    tarifsRef.onSnapshot(querySnapshot => {
+      const tarifs = [];
+      querySnapshot.forEach(doc => {
+        tarifs.push({ id: doc.id, ...doc.data() });
+      });
+      this.setState({
+        tarifs: sortByProperty(tarifs, 'name'),
+      });
+    });
+    settlementsRef.onSnapshot(querySnapshot => {
+      const settlements = {};
+      querySnapshot.forEach(doc => {
+        settlements[doc.id] = doc.data();
+      });
+      this.setState({
+        settlements,
+      });
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    const { state } = this;
+    if (
+      !isEqual(prevState, state) &&
+      prevState.loading &&
+      Array.isArray(state.categories) &&
+      Array.isArray(state.tarifs) &&
+      typeof state.settlements === 'object'
+    ) {
+      this.setState({ loading: false });
+    }
   }
 
   renderSettlementYear(year) {
@@ -134,7 +149,9 @@ class Settlement extends Component {
     const { members } = this.context;
     console.log('#### context: ', this.context);
     const { settlements, openedSettlement } = this.state;
-    const settlementKey = `${this.currentYear}-${this.currentMonth}`;
+    const settlementKey = `${this.currentYear}-${
+      this.currentMonth < 10 ? `0${this.currentMonth}` : this.currentMonth
+    }`;
     return (
       <ListGroupItem
         key={`settlement_${settlementKey}`}
@@ -164,8 +181,12 @@ class Settlement extends Component {
         {members.length > 0 && (
           <Collapse isOpen={openedSettlement === settlementKey} className="bg-light text-dark">
             <Row className="p-0">
-              <ActivityIndicator loading={!settlements[settlementKey]} type="inline" />
-              {settlements[settlementKey] &&
+              <ActivityIndicator
+                loading={!!settlements && !settlements[settlementKey]}
+                type="inline"
+              />
+              {!!settlements &&
+                settlements[settlementKey] &&
                 members.map(member => this.renderSettlementByMember(member))}
             </Row>
           </Collapse>
