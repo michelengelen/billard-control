@@ -150,13 +150,14 @@ class Members extends Component {
   }
 
   validateAndSave() {
-    if (this.state.editId) {
+    const { editMember, editId, tarifs } = this.state;
+    if (editId) {
       membersRef
-        .doc(this.state.editId)
-        .set(this.state.editMember)
+        .doc(editId)
+        .set(editMember)
         .then(this.cancelEdit);
     } else {
-      const tarif = this.state.tarifs[this.state.editMember.tarifId];
+      const tarif = tarifs[editMember.tarifId];
       const entryFeePurchase = {
         name: `Aufnahmegebühr (${tarif.name})`,
         date: new Date(),
@@ -164,7 +165,7 @@ class Members extends Component {
         public: false,
         amount: 1,
       };
-      membersRef.add(this.state.editMember).then(memberDoc => {
+      membersRef.add(editMember).then(memberDoc => {
         purchasesRef.add({ userId: memberDoc.id }).then(journalDoc => {
           purchasesRef
             .doc(journalDoc.id)
@@ -174,7 +175,10 @@ class Members extends Component {
               membersRef
                 .doc(memberDoc.id)
                 .set(
-                  { journalRef: purchasesRef.doc(journalDoc.id) },
+                  {
+                    journalRef: purchasesRef.doc(journalDoc.id),
+                    tarifRef: tarifsRef.doc(editMember.tarifId),
+                  },
                   { merge: true },
                 )
                 .then(() => console.log('### journalRef added to member document'));

@@ -69,45 +69,47 @@ class AppRouter extends PureComponent {
         unsetMember: this.unsetMember,
         setPurchaseJournal: this.setPurchaseJournal,
       },
-      clubData: {},
+      clubDataContext: {},
       loading: true,
     };
   }
 
   componentDidMount() {
-    const response = {};
-    membersRef.onSnapshot(querySnapshot => {
-      response.members = [];
+    membersRef.onSnapshot(async querySnapshot => {
+      const members = [];
       if (querySnapshot.size > 0) {
-        querySnapshot.forEach(doc => {
-          const memberDoc = doc.data();
-          response.members.push({ id: doc.id, ...memberDoc });
-          clubDataRef.get().then(snapShot =>
-            clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
-              this.setState({
-                clubData: {
-                  ...querySnapshot.data(),
-                  members: response.members,
-                },
-                loading: false,
-              });
-            }),
-          );
-        });
-      } else {
-        clubDataRef.get().then(snapShot =>
-          clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
-            this.setState({
-              clubData: {
-                ...querySnapshot.data(),
-                members: response.members,
-              },
-              loading: false,
-            });
-          }),
-        );
+        await querySnapshot
+          .forEach(doc => {
+            const memberDoc = doc.data();
+            members.push({ id: doc.id, ...memberDoc });
+          });
       }
+
+      this.setState(prevState => ({
+        clubDataContext: {
+          ...prevState.clubDataContext,
+          members,
+        },
+      }));
     });
+
+    clubDataRef.onSnapshot(querySnapshot => {
+      this.setState(prevState => ({
+        clubDataContext: {
+          ...prevState.clubDataContext,
+          board: {
+            ...querySnapshot.data(),
+          },
+        },
+      }));
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    const { clubDataContext } = this.state;
+    if (prevState.loading && !!clubDataContext.members && !!clubDataContext.board) {
+      this.setState({ loading: false });
+    }
   }
 
   async signInUser(userData) {
@@ -177,7 +179,7 @@ class AppRouter extends PureComponent {
     return (
       <UserContext.Provider value={this.state.userContext}>
         <PurchaseContext.Provider value={this.state.purchaseContext}>
-          <ClubDataContext.Provider value={this.state.clubData}>
+          <ClubDataContext.Provider value={this.state.clubDataContext}>
             <ActivityIndicator loading={this.state.loading} />
             <Router>
               <div className="bc-viewport">

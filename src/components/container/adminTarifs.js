@@ -20,10 +20,7 @@ import {
 import CurrencyInput from 'react-currency-input';
 import { tarifsRef } from 'firebase-config/config';
 import { sortByProperty, getPriceString } from 'helpers/helpers';
-import {
-  ActivityIndicator,
-  Icon,
-} from 'components/common';
+import { ActivityIndicator, Icon } from 'components/common';
 import { Icons } from 'variables/constants';
 
 const requiredFields = ['name', 'monthlyFee', 'tableFee', 'entryFee'];
@@ -65,9 +62,7 @@ class Tarifs extends Component {
   }
 
   editTarif(id) {
-    const tarif = JSON.parse(
-      JSON.stringify(this.state.tarifs.filter(tarif => tarif.id === id)[0]),
-    );
+    const tarif = JSON.parse(JSON.stringify(this.state.tarifs.filter(tarif => tarif.id === id)[0]));
 
     delete tarif.id;
 
@@ -121,9 +116,7 @@ class Tarifs extends Component {
             <tr key={`productTable_${index}_${tarif.id}`}>
               <td>{tarif.name || '---'}</td>
               <td className="text-center">
-                {tarif.monthlyFee >= 0
-                  ? getPriceString(tarif.monthlyFee)
-                  : '---'}
+                {tarif.monthlyFee >= 0 ? getPriceString(tarif.monthlyFee) : '---'}
               </td>
               <td className="text-center">
                 {tarif.tableFee >= 0 ? getPriceString(tarif.tableFee) : '---'}
@@ -171,7 +164,9 @@ class Tarifs extends Component {
 
     for (let i = 0; i < requiredFields.length; i++) {
       if (
-        (requiredFields[i] !== fieldKey && !editValues[requiredFields[i]]) ||
+        (requiredFields[i] !== fieldKey &&
+          !editValues[requiredFields[i]] &&
+          editValues[requiredFields[i]] !== 0) ||
         (requiredFields[i] === fieldKey && !(newValue || newValue === 0))
       ) {
         newRequiredFields.push(requiredFields[i]);
@@ -228,6 +223,8 @@ class Tarifs extends Component {
   render() {
     const { tarifs, validated, requiredFields } = this.state;
 
+    console.log('#### requiredFields: ', requiredFields);
+
     return (
       <Row className="bc-content mr-0 pt-3">
         <ActivityIndicator loading={this.state.loading} />
@@ -242,6 +239,11 @@ class Tarifs extends Component {
                 color="primary"
                 onClick={() =>
                   this.setState({
+                    editValues: {
+                      monthlyFee: 0,
+                      entryFee: 0,
+                      tableFee: 0,
+                    },
                     openModal: true,
                   })
                 }
@@ -252,9 +254,7 @@ class Tarifs extends Component {
           </Card>
         </Col>
         <Modal isOpen={this.state.openModal} toggle={this.closeModal}>
-          <ModalHeader toggle={this.closeModal}>
-            Tarif anlegen/editieren
-          </ModalHeader>
+          <ModalHeader toggle={this.closeModal}>Tarif anlegen/editieren</ModalHeader>
           <ModalBody>
             <Alert
               color="danger"
@@ -298,9 +298,7 @@ class Tarifs extends Component {
                     <Label for="monthlyFee">Monatsbeitrag</Label>
                     <CurrencyInput
                       className={`form-control ${
-                        validated && requiredFields.indexOf('monthlyFee') > -1
-                          ? 'is-invalid'
-                          : ''
+                        validated && requiredFields.indexOf('monthlyFee') > -1 ? 'is-invalid' : ''
                       }`}
                       decimalSeparator=","
                       precision="2"
@@ -310,12 +308,7 @@ class Tarifs extends Component {
                       id="monthlyFee"
                       value={this.state.editValues.monthlyFee || ''}
                       onChange={(maskedValue, floatValue, e) => {
-                        this.handleOnChange(
-                          e,
-                          'monthlyFee',
-                          maskedValue,
-                          floatValue,
-                        );
+                        this.handleOnChange(e, 'monthlyFee', maskedValue, floatValue);
                       }}
                       placeholder="0,00 €"
                     />
@@ -326,9 +319,7 @@ class Tarifs extends Component {
                     <Label for="tableFee">Tischmiete (pro Std.)</Label>
                     <CurrencyInput
                       className={`form-control ${
-                        validated && requiredFields.indexOf('tableFee') > -1
-                          ? 'is-invalid'
-                          : ''
+                        validated && requiredFields.indexOf('tableFee') > -1 ? 'is-invalid' : ''
                       }`}
                       decimalSeparator=","
                       precision="2"
@@ -338,12 +329,7 @@ class Tarifs extends Component {
                       id="tableFee"
                       value={this.state.editValues.tableFee || ''}
                       onChange={(maskedValue, floatValue, e) => {
-                        this.handleOnChange(
-                          e,
-                          'tableFee',
-                          maskedValue,
-                          floatValue,
-                        );
+                        this.handleOnChange(e, 'tableFee', maskedValue, floatValue);
                       }}
                       placeholder="0,00 €"
                     />
@@ -354,9 +340,7 @@ class Tarifs extends Component {
                     <Label for="entryFee">Aufnahmegebühr</Label>
                     <CurrencyInput
                       className={`form-control ${
-                        validated && requiredFields.indexOf('entryFee') > -1
-                          ? 'is-invalid'
-                          : ''
+                        validated && requiredFields.indexOf('entryFee') > -1 ? 'is-invalid' : ''
                       }`}
                       decimalSeparator=","
                       precision="2"
@@ -366,12 +350,7 @@ class Tarifs extends Component {
                       id="entryFee"
                       value={this.state.editValues.entryFee || ''}
                       onChange={(maskedValue, floatValue, e) => {
-                        this.handleOnChange(
-                          e,
-                          'entryFee',
-                          maskedValue,
-                          floatValue,
-                        );
+                        this.handleOnChange(e, 'entryFee', maskedValue, floatValue);
                       }}
                       placeholder="0,00 €"
                     />

@@ -33,7 +33,6 @@ class ClubData extends Component {
 
     this.state = {
       alert: null,
-      docId: '',
       editDoc: {},
       boardMembers: {},
       loading: true,
@@ -41,15 +40,12 @@ class ClubData extends Component {
   }
 
   componentDidMount() {
-    clubDataRef.get().then(snapShot => {
-      clubDataRef.doc(snapShot.docs[0].id).onSnapshot(querySnapshot => {
-        this.setState({
-          editDoc: {
-            ...querySnapshot.data(),
-          },
-          docId: snapShot.docs[0].id,
-          loading: false,
-        });
+    clubDataRef.onSnapshot(querySnapshot => {
+      this.setState({
+        editDoc: {
+          ...querySnapshot.data(),
+        },
+        loading: false,
       });
     });
   }
@@ -149,7 +145,8 @@ class ClubData extends Component {
     const { editDoc, openPosition, boardMembers } = this.state;
     const positionFilled =
       editDoc.board && editDoc.board[position] && editDoc.board[position].firstname;
-    const hasError = editDoc.board && !editDoc.board[position].firstname;
+    const hasError =
+      editDoc.board && !editDoc.board[position] && !editDoc.board[position].firstname;
 
     return (
       <ListGroupItem active={position === openPosition} className="p-0">
@@ -214,18 +211,15 @@ class ClubData extends Component {
 
   validateAndSave() {
     this.setState({ loading: true });
-    clubDataRef
-      .doc(this.state.docId)
-      .set({ ...this.state.editDoc, lastChange: new Date() })
-      .then(() => {
-        this.setState({
-          alert: {
-            type: 'success',
-            message: 'Daten wurden erfolgreich aktualisiert',
-          },
-          loading: false,
-        });
+    clubDataRef.set({ ...this.state.editDoc, lastChange: new Date() }).then(() => {
+      this.setState({
+        alert: {
+          type: 'success',
+          message: 'Daten wurden erfolgreich aktualisiert',
+        },
+        loading: false,
       });
+    });
   }
 
   render() {

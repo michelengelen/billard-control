@@ -81,7 +81,7 @@ class Settlement extends Component {
     this.state = {
       loading: true,
       settlements: {},
-      openSettlement: '',
+      openedSettlement: '',
       categories: [],
     };
   }
@@ -132,12 +132,13 @@ class Settlement extends Component {
 
   renderSettlementMonth() {
     const { members } = this.context;
-    const { settlements, openSettlement } = this.state;
+    console.log('#### context: ', this.context);
+    const { settlements, openedSettlement } = this.state;
     const settlementKey = `${this.currentYear}-${this.currentMonth}`;
     return (
       <ListGroupItem
         key={`settlement_${settlementKey}`}
-        active={`${settlementKey}` === openSettlement}
+        active={`${settlementKey}` === openedSettlement}
         className="p-0"
       >
         <Row className="p-3">
@@ -154,14 +155,14 @@ class Settlement extends Component {
                 <Icon
                   color="#EEEEEE"
                   size={16}
-                  icon={openSettlement === settlementKey ? Icons.CHEVRON.UP : Icons.CHEVRON.DOWN}
+                  icon={openedSettlement === settlementKey ? Icons.CHEVRON.UP : Icons.CHEVRON.DOWN}
                 />
               </Button>
             </div>
           </Col>
         </Row>
         {members.length > 0 && (
-          <Collapse isOpen={openSettlement === settlementKey} className="bg-light text-dark">
+          <Collapse isOpen={openedSettlement === settlementKey} className="bg-light text-dark">
             <Row className="p-0">
               <ActivityIndicator loading={!settlements[settlementKey]} type="inline" />
               {settlements[settlementKey] &&
@@ -174,15 +175,15 @@ class Settlement extends Component {
   }
 
   renderSettlementByMember(member) {
-    const { openSettlement, settlements } = this.state;
-    const { year, month } = getYearMonthFromKey(openSettlement);
-    const memberPurchases = settlements[openSettlement][member.id];
+    const { openedSettlement, settlements } = this.state;
+    const { year, month } = getYearMonthFromKey(openedSettlement);
+    const memberPurchases = settlements[openedSettlement][member.id];
     const { beverages, snacks, misc } = this.getSettlementPositions(
       memberPurchases,
       member.tarifId,
     );
     return (
-      <Col xs={12} key={`settlement_${openSettlement}_member_${member.id}`}>
+      <Col xs={12} key={`settlement_${openedSettlement}_member_${member.id}`}>
         <Row form>
           <Col xs={4}>{`${member.lastname}, ${member.firstname}`}</Col>
           <Col xs={2}>
@@ -221,7 +222,7 @@ class Settlement extends Component {
   }
 
   addTableRent(event, memberId, key) {
-    const { openSettlement } = this.state;
+    const { openedSettlement } = this.state;
     console.log('##### event: ', event);
     console.log('##### memberId: ', memberId);
     console.log('##### key: ', key);
@@ -244,26 +245,23 @@ class Settlement extends Component {
       return {
         settlements: {
           ...prevState.settlements,
-          [openSettlement]: {
-          ...prevState.settlements[openSettlement],
+          [openedSettlement]: {
+            ...prevState.settlements[openedSettlement],
             [memberId]: {
-              ...prevState.settlements[openSettlement][memberId],
+              ...prevState.settlements[openedSettlement][memberId],
               tableRent: {
-                ...prevState.settlements[openSettlement][memberId].tableRent,
+                ...prevState.settlements[openedSettlement][memberId].tableRent,
                 [key]: value,
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      };
     });
   }
 
   async openSettlement(key) {
     const { settlements } = this.state;
-    this.setState({
-      openSettlement: key,
-    });
 
     if (!settlements[key]) {
       this.getPurchasesByKey(key).then(resp => {
@@ -276,11 +274,16 @@ class Settlement extends Component {
           };
         });
         this.setState(prevState => ({
+          openedSettlement: key,
           settlements: {
             ...prevState.settlements,
             [key]: response,
           },
         }));
+      });
+    } else {
+      this.setState({
+        openedSettlement: key,
       });
     }
   }
@@ -298,8 +301,9 @@ class Settlement extends Component {
     const endMonth = month === 11 ? 0 : month;
     const endTime = new Date(endYear, endMonth, 14, 23, 59, 59, 999);
 
-    const p = members.map(({ id, _purchasesRef }) =>
-      _purchasesRef
+    const p = members.map(({ id, journalRef }) => {
+      return journalRef
+        .collection('journal')
         .orderBy('date')
         .startAt(startTime)
         .endAt(endTime)
@@ -310,11 +314,12 @@ class Settlement extends Component {
             purchases: [],
           };
           if (!snapShot.empty) {
+            console.log('#### snapshot: ', snapShot);
             snapShot.forEach(snap => response.purchases.push(snap.data()));
           }
           return response;
-        }),
-    );
+        });
+    });
 
     return Promise.all(p);
   }
