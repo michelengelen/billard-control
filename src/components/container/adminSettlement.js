@@ -18,7 +18,12 @@ import { ActivityIndicator, Icon } from 'components/common';
 // import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 import { ClubDataContext } from 'contexts/clubDataContext';
 import { Icons } from '../../variables/constants';
-import { categoriesRef, settlementsRef, tarifsRef } from '../../firebase-config/config';
+import {
+  categoriesRef,
+  settlementsRef,
+  tarifsRef,
+  unsubscribe,
+} from '../../firebase-config/config';
 import { sortByProperty } from '../../helpers/helpers';
 
 const now = new Date();
@@ -58,6 +63,8 @@ class Settlement extends Component {
     this.getPurchasesByKey = this.getPurchasesByKey.bind(this);
     this.getSettlementPositions = this.getSettlementPositions.bind(this);
 
+    this.unsubscribe = unsubscribe.bind(this);
+
     this._years = [];
     this.currentYear = 2018;
     this.currentMonth = 0;
@@ -70,6 +77,8 @@ class Settlement extends Component {
       this._years.push(now.getFullYear() - i);
     }
 
+    this.listeners = {};
+
     this.state = {
       loading: true,
       openedSettlement: '',
@@ -80,7 +89,7 @@ class Settlement extends Component {
   }
 
   componentDidMount() {
-    categoriesRef.onSnapshot(querySnapshot => {
+    this.listeners.categoriesRef = categoriesRef.onSnapshot(querySnapshot => {
       const categories = [];
       querySnapshot.forEach(doc => {
         categories.push({ id: doc.id, ...doc.data() });
@@ -89,7 +98,7 @@ class Settlement extends Component {
         categories: sortByProperty(categories, 'name'),
       });
     });
-    tarifsRef.onSnapshot(querySnapshot => {
+    this.listeners.tarifsRef = tarifsRef.onSnapshot(querySnapshot => {
       const tarifs = [];
       querySnapshot.forEach(doc => {
         tarifs.push({ id: doc.id, ...doc.data() });
@@ -98,7 +107,7 @@ class Settlement extends Component {
         tarifs: sortByProperty(tarifs, 'name'),
       });
     });
-    settlementsRef.onSnapshot(querySnapshot => {
+    this.listeners.settlementsRef = settlementsRef.onSnapshot(querySnapshot => {
       const settlements = {};
       querySnapshot.forEach(doc => {
         settlements[doc.id] = doc.data();
@@ -120,6 +129,19 @@ class Settlement extends Component {
     ) {
       this.setState({ loading: false });
     }
+  }
+
+  componentWillUnmount() {
+    const { listeners } = this;
+    const listenerKeys = Object.keys(listeners);
+    listenerKeys.forEach(key => {
+      if (
+        Object.prototype.hasOwnProperty.call(listeners, key) &&
+        typeof listeners[key] === 'function'
+      ) {
+        listeners[key]();
+      }
+    });
   }
 
   renderSettlementYear(year) {
@@ -335,7 +357,6 @@ class Settlement extends Component {
             purchases: [],
           };
           if (!snapShot.empty) {
-            console.log('#### snapshot: ', snapShot);
             snapShot.forEach(snap => response.purchases.push(snap.data()));
           }
           return response;
@@ -360,6 +381,7 @@ class Settlement extends Component {
     };
 
     console.log('##### sums: ', sums);
+    console.log('##### hours: ', parseInt(hours) + parseFloat(fracture));
     const categoryTypes = {};
     categories.forEach(cat => (categoryTypes[cat.id] = cat.categoryType));
 

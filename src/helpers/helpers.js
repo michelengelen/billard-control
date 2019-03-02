@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash.clonedeep';
+
 export const generateUniqueKey = () => (+new Date()).toString(36);
 
 const emailRegEx = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -43,7 +45,7 @@ export const getDateString = (date, short) => {
 };
 
 export const refineProductForPurchase = (product, isGuest) => {
-  const p = JSON.parse(JSON.stringify(product));
+  const p = cloneDeep(product);
   p.price = isGuest ? p.priceExt : p.priceInt;
   delete p.priceInt;
   delete p.priceExt;

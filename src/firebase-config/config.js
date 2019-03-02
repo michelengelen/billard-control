@@ -17,4 +17,12 @@ export const purchasesRef = dbRef.collection('purchases');
 export const clubDataRef = dbRef.collection('clubData').doc('data');
 export const settlementsRef = dbRef.collection('settlements');
 
+export const unsubscribe = ref => {
+  if (Array.isArray(ref)) {
+    ref.forEach(r => unsubscribe(r));
+    return;
+  }
+  ref.onSnapshot(function() {});
+};
+
 export const authRef = firebase.auth();

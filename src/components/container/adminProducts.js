@@ -21,11 +21,14 @@ import {
   Row,
   Table,
 } from 'reactstrap';
+import cloneDeep from 'lodash.clonedeep';
 import CurrencyInput from 'react-currency-input';
 import { categoriesRef, productsRef } from 'firebase-config/config';
 import { getPriceString, sortByProperty } from 'helpers/helpers';
 import { ActivityIndicator, Icon } from '../common';
 import { Icons } from '../../variables/constants';
+import isEqual
+  from 'lodash.isequal';
 
 const requiredFields = {
   products: ['name', 'ean', 'priceInt', 'priceExt', 'categoryId'],
@@ -43,9 +46,11 @@ class Products extends Component {
     this.openCategory = this.openCategory.bind(this);
     this.checkFormValidity = this.checkFormValidity.bind(this);
 
+    this.listeners = {};
+
     this.state = {
-      categories: [],
-      products: [],
+      categories: null,
+      products: null,
       editId: '',
       openCategory: '',
       editValues: {},
@@ -59,28 +64,53 @@ class Products extends Component {
   }
 
   componentDidMount() {
-    let response = {};
-    productsRef.onSnapshot(querySnapshot => {
-      response.products = [];
+    this.listeners.products = productsRef.onSnapshot(querySnapshot => {
+      const products = [];
       querySnapshot.forEach(doc => {
-        response.products.push({ id: doc.id, ...doc.data() });
+        products.push({ id: doc.id, ...doc.data() });
       });
-      categoriesRef.onSnapshot(querySnapshot => {
-        response.categories = [];
-        querySnapshot.forEach(doc => {
-          response.categories.push({ id: doc.id, ...doc.data() });
-        });
-        this.setState({
-          loading: false,
-          categories: sortByProperty(response.categories, 'name'),
-          products: sortByProperty(response.products, 'name'),
-        });
+      this.setState({
+        products: sortByProperty(products, 'name'),
+      });
+    });
+    this.listeners.categories = categoriesRef.onSnapshot(querySnapshot => {
+      const categories = [];
+      querySnapshot.forEach(doc => {
+        categories.push({ id: doc.id, ...doc.data() });
+      });
+      this.setState({
+        categories: sortByProperty(categories, 'name'),
       });
     });
   }
 
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    const { state } = this;
+    if (
+      !isEqual(prevState, state) &&
+      prevState.loading &&
+      Array.isArray(state.products) &&
+      Array.isArray(state.categories)
+    ) {
+      this.setState({ loading: false });
+    }
+  }
+
+  componentWillUnmount() {
+    const { listeners } = this;
+    const listenerKeys = Object.keys(listeners);
+    listenerKeys.forEach(key => {
+      if (
+        Object.prototype.hasOwnProperty.call(listeners, key) &&
+        typeof listeners[key] === 'function'
+      ) {
+        listeners[key]();
+      }
+    });
+  }
+
   editDoc(id, docType) {
-    const doc = JSON.parse(JSON.stringify(this.state[docType].filter(item => item.id === id)[0]));
+    const doc = cloneDeep(this.state[docType].find(item => item.id === id));
 
     if (doc.hasOwnProperty('id')) delete doc.id;
     if (docType === 'products' && !doc.public) doc.public = true;

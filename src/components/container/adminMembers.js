@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import cloneDeep from 'lodash.clonedeep';
 import { membersRef, purchasesRef, tarifsRef } from 'firebase-config/config';
 import { sortByProperty } from 'helpers/helpers';
 
@@ -6,6 +7,7 @@ import MembersList from 'components/container/adminMembersList';
 import MemberEdit from 'components/container/adminMemberEdit';
 
 import { ActivityIndicator } from 'components/common';
+import isEqual from 'lodash.isequal';
 
 class Members extends Component {
   constructor(props) {
@@ -19,10 +21,12 @@ class Members extends Component {
     this.cancelEdit = this.cancelEdit.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
 
+    this.listeners = {};
+
     this.state = {
       newMembernumber: 100000,
-      tarifs: {},
-      members: [],
+      tarifs: null,
+      members: null,
       editId: '',
       openCategory: '',
       editMember: {},
@@ -33,37 +37,62 @@ class Members extends Component {
   }
 
   componentDidMount() {
-    const response = {
-      newMembernumber: this.state.newMembernumber,
-    };
-    membersRef.onSnapshot(querySnapshot => {
-      response.members = [];
+    const { newMembernumber } = this.state;
+    this.listeners.membersRef = membersRef.onSnapshot(querySnapshot => {
+      const members = [];
+      let membernumber = newMembernumber;
       querySnapshot.forEach(doc => {
         const memberData = doc.data();
-        if (response.newMembernumber <= memberData.membernumber) {
-          response.newMembernumber = memberData.membernumber + 1;
+        if (membernumber <= memberData.membernumber) {
+          membernumber = memberData.membernumber + 1;
         }
-        response.members.push({ id: doc.id, ...memberData });
+        members.push({ id: doc.id, ...memberData });
       });
-      tarifsRef.onSnapshot(querySnapshot => {
-        response.tarifs = {};
-        querySnapshot.forEach(doc => {
-          response.tarifs[doc.id] = { ...doc.data() };
-        });
-        this.setState({
-          newMembernumber: response.newMembernumber,
-          tarifs: response.tarifs,
-          members: sortByProperty(response.members, 'lastname'),
-          loading: false,
-        });
+      this.setState({
+        newMembernumber: membernumber,
+        members: sortByProperty(members, 'lastname'),
       });
+    });
+    this.listeners.tarifsRef = tarifsRef.onSnapshot(querySnapshot => {
+      const tarifs = {};
+      querySnapshot.forEach(doc => {
+        tarifs[doc.id] = { ...doc.data() };
+      });
+      this.setState({
+        tarifs: tarifs,
+      });
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    const { state } = this;
+    if (
+      !isEqual(prevState, state) &&
+      prevState.loading &&
+      Array.isArray(state.members) &&
+      typeof state.tarifs === 'object'
+    ) {
+      this.setState({ loading: false });
+    }
+  }
+
+  componentWillUnmount() {
+    const { listeners } = this;
+    const listenerKeys = Object.keys(listeners);
+    listenerKeys.forEach(key => {
+      if (
+        Object.prototype.hasOwnProperty.call(listeners, key) &&
+        typeof listeners[key] === 'function'
+      ) {
+        listeners[key]();
+      }
     });
   }
 
   editMember(id = '') {
     let member = {};
     if (id) {
-      member = JSON.parse(JSON.stringify(this.state.members.filter(member => member.id === id)[0]));
+      member = cloneDeep(this.state.members.find(member => member.id === id));
 
       delete member.id;
     }

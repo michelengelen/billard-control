@@ -20,6 +20,7 @@ import { clubDataRef } from 'firebase-config/config';
 import { getDateString } from 'helpers/helpers';
 import { Icons } from 'variables/constants';
 import { ClubDataContext } from 'contexts/clubDataContext';
+import isEqual from 'lodash.isequal';
 
 class ClubData extends Component {
   constructor(props) {
@@ -31,22 +32,47 @@ class ClubData extends Component {
     this.openPosition = this.openPosition.bind(this);
     this.handleBoardMemberChange = this.handleBoardMemberChange.bind(this);
 
+    this.listeners = {};
+
     this.state = {
       alert: null,
-      editDoc: {},
+      editDoc: null,
       boardMembers: {},
       loading: true,
     };
   }
 
   componentDidMount() {
-    clubDataRef.onSnapshot(querySnapshot => {
+    this.listeners.clubDataRef = clubDataRef.onSnapshot(querySnapshot => {
       this.setState({
         editDoc: {
           ...querySnapshot.data(),
         },
-        loading: false,
       });
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    const { state } = this;
+    if (
+      !isEqual(prevState, state) &&
+      prevState.loading &&
+      typeof state.editDoc === 'object'
+    ) {
+      this.setState({ loading: false });
+    }
+  }
+
+  componentWillUnmount() {
+    const { listeners } = this;
+    const listenerKeys = Object.keys(listeners);
+    listenerKeys.forEach(key => {
+      if (
+        Object.prototype.hasOwnProperty.call(listeners, key) &&
+        typeof listeners[key] === 'function'
+      ) {
+        listeners[key]();
+      }
     });
   }
 

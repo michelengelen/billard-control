@@ -17,11 +17,13 @@ import {
   Row,
   Table,
 } from 'reactstrap';
+import cloneDeep from 'lodash.clonedeep';
 import CurrencyInput from 'react-currency-input';
 import { tarifsRef } from 'firebase-config/config';
 import { sortByProperty, getPriceString } from 'helpers/helpers';
 import { ActivityIndicator, Icon } from 'components/common';
 import { Icons } from 'variables/constants';
+import isEqual from 'lodash.isequal';
 
 const requiredFields = ['name', 'monthlyFee', 'tableFee', 'entryFee'];
 
@@ -36,8 +38,10 @@ class Tarifs extends Component {
     this.saveData = this.saveData.bind(this);
     this.openCategory = this.openCategory.bind(this);
 
+    this.listeners = {};
+
     this.state = {
-      tarifs: [],
+      tarifs: null,
       editId: '',
       editValues: {},
       openModal: false,
@@ -49,20 +53,39 @@ class Tarifs extends Component {
 
   componentDidMount() {
     let response = {};
-    tarifsRef.onSnapshot(querySnapshot => {
+    this.listeners.tarifsRef = tarifsRef.onSnapshot(querySnapshot => {
       response.tarifs = [];
       querySnapshot.forEach(doc => {
         response.tarifs.push({ id: doc.id, ...doc.data() });
       });
       this.setState({
-        loading: false,
         tarifs: sortByProperty(response.tarifs, 'name'),
       });
     });
   }
 
+  componentDidUpdate(prevProps, prevState, prevContext) {
+    const { state } = this;
+    if (!isEqual(prevState, state) && prevState.loading && Array.isArray(state.tarifs)) {
+      this.setState({ loading: false });
+    }
+  }
+
+  componentWillUnmount() {
+    const { listeners } = this;
+    const listenerKeys = Object.keys(listeners);
+    listenerKeys.forEach(key => {
+      if (
+        Object.prototype.hasOwnProperty.call(listeners, key) &&
+        typeof listeners[key] === 'function'
+      ) {
+        listeners[key]();
+      }
+    });
+  }
+
   editTarif(id) {
-    const tarif = JSON.parse(JSON.stringify(this.state.tarifs.filter(tarif => tarif.id === id)[0]));
+    const tarif = cloneDeep(this.state.tarifs.find(tarif => tarif.id === id));
 
     delete tarif.id;
 
