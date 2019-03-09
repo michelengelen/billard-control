@@ -67,7 +67,7 @@ class MembersList extends Component {
           </tr>
         </thead>
         <tbody>
-          {members.map((member, index) => (
+          {(members && tarifs) && members.map((member, index) => (
             <tr key={`memberTable_${index}_${member.id}`}>
               <td>{`${member.lastname}, ${member.firstname}`}</td>
               <td>{member.membernumber}</td>
@@ -130,6 +130,9 @@ class MembersList extends Component {
   render() {
     const { openCategory } = this.state;
     const { members } = this.props;
+
+    if (!members) return null;
+
     const activeMembers = members.filter(member => member.active && !member.isGuest);
     const guestMembers = members.filter(member => member.active && member.isGuest);
     const inactiveMembers = members.filter(member => !member.active);

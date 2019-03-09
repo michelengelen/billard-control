@@ -150,6 +150,7 @@ class AppRouter extends PureComponent {
           firstname: memberData.firstname || '',
           lastname: memberData.lastname || '',
           entryDate: memberData.entryDate,
+          journalRef: memberData.journalRef
         },
       },
     }));

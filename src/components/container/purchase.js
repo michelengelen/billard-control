@@ -211,11 +211,12 @@ class Purchase extends PureComponent {
   }
 
   async submitPurchase() {
+    const { memberData } = this.context;
+    console.log('purchaseContext: ', this.context)
     const { currentPurchase, currentPurchaseId } = this.state;
     if (currentPurchase.length > 0) {
       const promises = currentPurchase.map(currentItem => {
-        return purchasesRef
-          .doc(currentPurchaseId)
+        return memberData.journalRef
           .collection('journal')
           .add(currentItem)
           .then(doc => {

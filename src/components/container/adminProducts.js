@@ -301,7 +301,7 @@ class Products extends Component {
               <h5 className="m-0">Produkte</h5>
             </CardHeader>
             <ListGroup flush>
-              {categories.map(category => {
+              {(!!products && !!categories) && categories.map(category => {
                 const productsInCategory = products.filter(
                   product => product.categoryId === category.id,
                 );
@@ -518,7 +518,7 @@ class Products extends Component {
                         onChange={e => this.handleOnChange(e, 'categoryId')}
                       >
                         <option value={null}>Bitte eine Kategorie wählen</option>
-                        {categories.map(category => (
+                        {categories && categories.map(category => (
                           <option key={`select_${category.id}`} value={category.id}>
                             {category.name}
                           </option>

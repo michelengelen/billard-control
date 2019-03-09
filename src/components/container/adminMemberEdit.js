@@ -21,6 +21,8 @@ class MemberEdit extends Component {
   render() {
     const { editId, errors, handleOnChange, member, tarifs } = this.props;
 
+    if (member.entryDate) console.log('### dateString: ', member.entryDate);
+
     if (!member.contact) member.contact = {};
     if (!member.adress) member.adress = {};
     if (!member.bank) member.bank = {};
@@ -35,9 +37,7 @@ class MemberEdit extends Component {
                   <blockquote className="blockquote">
                     <p className="mb-0 mt-3">Mitglied bearbeiten</p>
                     <footer className="blockquote-footer">
-                      {`${member.firstname} ${
-                        member.lastname
-                      } // letzte Änderung: ${getDateString(
+                      {`${member.firstname} ${member.lastname} // letzte Änderung: ${getDateString(
                         member.lastChange,
                         false,
                       )}`}
@@ -62,11 +62,7 @@ class MemberEdit extends Component {
               </Col>
             </Row>
           </Col>
-          <Alert
-            color="danger"
-            isOpen={errors.length > 0}
-            toggle={this.props.clearErrors}
-          >
+          <Alert color="danger" isOpen={errors.length > 0} toggle={this.props.clearErrors}>
             {errors.map(error => (
               <div>{error}</div>
             ))}
@@ -97,13 +93,11 @@ class MemberEdit extends Component {
                         },
                         pattern: {
                           value: '^[A-Za-z-\\s]+$',
-                          errorMessage:
-                            'Bitte nur Buchstaben und "-" verwenden',
+                          errorMessage: 'Bitte nur Buchstaben und "-" verwenden',
                         },
                         minLength: {
                           value: 2,
-                          errorMessage:
-                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          errorMessage: 'Namen mit weniger als 2 Zeichen sind nicht zulässig',
                         },
                       }}
                     />
@@ -127,13 +121,11 @@ class MemberEdit extends Component {
                         },
                         pattern: {
                           value: '^[A-Za-z-\\s]+$',
-                          errorMessage:
-                            'Bitte nur Buchstaben und "-" verwenden',
+                          errorMessage: 'Bitte nur Buchstaben und "-" verwenden',
                         },
                         minLength: {
                           value: 2,
-                          errorMessage:
-                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          errorMessage: 'Namen mit weniger als 2 Zeichen sind nicht zulässig',
                         },
                       }}
                     />
@@ -151,17 +143,14 @@ class MemberEdit extends Component {
                         dateRange: {
                           start: { value: -150, units: 'years' },
                           end: { value: 0, units: 'days' },
-                          errorMessage:
-                            'Datum muss in der Vergangenheit liegen',
+                          errorMessage: 'Datum muss in der Vergangenheit liegen',
                         },
                       }}
                       max={now}
                       disabled={!!editId}
                       value={member.birthday ? member.birthday.dateString : ''}
                       className="form-control"
-                      onChange={(e, value) =>
-                        handleOnChange(e, 'birthday', value)
-                      }
+                      onChange={(e, value) => handleOnChange(e, 'birthday', value)}
                     />
                   </Col>
                 </Row>
@@ -187,8 +176,7 @@ class MemberEdit extends Component {
                           },
                           pattern: {
                             value: '^[A-Za-z.-\\s]+$',
-                            errorMessage:
-                              'Bitte nur Buchstaben, "." und  "-" verwenden',
+                            errorMessage: 'Bitte nur Buchstaben, "." und  "-" verwenden',
                           },
                           minLength: {
                             value: 2,
@@ -219,8 +207,7 @@ class MemberEdit extends Component {
                           },
                           pattern: {
                             value: '^[A-Za-z0-9]+$',
-                            errorMessage:
-                              'Bitte nur Buchstaben und Zahlen verwenden',
+                            errorMessage: 'Bitte nur Buchstaben und Zahlen verwenden',
                           },
                           minLength: {
                             value: 1,
@@ -285,13 +272,11 @@ class MemberEdit extends Component {
                         },
                         pattern: {
                           value: '^[A-Za-z.-\\s]+$',
-                          errorMessage:
-                            'Bitte nur Buchstaben, "." und  "-" verwenden',
+                          errorMessage: 'Bitte nur Buchstaben, "." und  "-" verwenden',
                         },
                         minLength: {
                           value: 2,
-                          errorMessage:
-                            'Städtenamen mit weniger als 2 Zeichen sind nicht zulässig',
+                          errorMessage: 'Städtenamen mit weniger als 2 Zeichen sind nicht zulässig',
                         },
                       }}
                     />
@@ -415,26 +400,26 @@ class MemberEdit extends Component {
                           {!editId && <span className="text-danger"> *</span>}
                         </span>
                       }
-                      validate={{
-                        required: {
-                          value: !editId,
-                          errorMessage: 'Eingabe fehlt',
-                        },
-                        dateRange: {
-                          start: { value: 0, units: 'days' },
-                          end: { value: 20, units: 'years' },
-                          errorMessage: 'Datum muss in der Zukunft liegen',
-                        },
-                      }}
-                      min={now}
+                      validate={
+                        !editId
+                          ? {
+                              required: {
+                                value: !editId,
+                                errorMessage: 'Eingabe fehlt',
+                              },
+                              dateRange: {
+                                start: { value: 0, units: 'days' },
+                                end: { value: 20, units: 'years' },
+                                errorMessage: 'Datum muss in der Zukunft liegen',
+                              },
+                            }
+                          : {}
+                      }
+                      min={!!editId ? new Date(0) : now}
                       disabled={!!editId}
-                      value={
-                        member.entryDate ? member.entryDate.dateString : ''
-                      }
+                      value={member.entryDate ? member.entryDate.dateString : ''}
                       className="form-control"
-                      onChange={(e, value) =>
-                        handleOnChange(e, 'entryDate', value)
-                      }
+                      onChange={(e, value) => handleOnChange(e, 'entryDate', value)}
                     />
                   </Col>
                   <Col xs={6}>
@@ -445,9 +430,7 @@ class MemberEdit extends Component {
                       label={
                         <span>
                           Austrittsdatum
-                          {!member.active && (
-                            <span className="text-danger"> *</span>
-                          )}
+                          {!member.active && <span className="text-danger"> *</span>}
                         </span>
                       }
                       required={!member.active}
@@ -466,9 +449,7 @@ class MemberEdit extends Component {
                       disabled={!editId || member.active}
                       value={member.exitDate ? member.exitDate.dateString : ''}
                       className="form-control"
-                      onChange={(e, value) =>
-                        handleOnChange(e, 'exitDate', value)
-                      }
+                      onChange={(e, value) => handleOnChange(e, 'exitDate', value)}
                     />
                   </Col>
                   <Col xs={12}>
@@ -502,9 +483,7 @@ class MemberEdit extends Component {
                       label={<span> aktives Mitglied</span>}
                       disabled={!editId}
                       value={member.active}
-                      onChange={() =>
-                        handleOnChange(null, 'active', !member.active)
-                      }
+                      onChange={() => handleOnChange(null, 'active', !member.active)}
                     />
                   </Col>
                   <Col xs={6}>
@@ -514,9 +493,7 @@ class MemberEdit extends Component {
                       type="checkbox"
                       label={<span> Gastkarte</span>}
                       value={member.isGuest}
-                      onChange={() =>
-                        handleOnChange(null, 'isGuest', !member.isGuest)
-                      }
+                      onChange={() => handleOnChange(null, 'isGuest', !member.isGuest)}
                     />
                   </Col>
                 </Row>
@@ -548,13 +525,11 @@ class MemberEdit extends Component {
                         },
                         pattern: {
                           value: '^[A-Za-z0-9.-\\s]+$',
-                          errorMessage:
-                            'Bitte nur Buchstaben, Zahlen, "." und  "-" verwenden',
+                          errorMessage: 'Bitte nur Buchstaben, Zahlen, "." und  "-" verwenden',
                         },
                         minLength: {
                           value: 2,
-                          errorMessage:
-                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          errorMessage: 'Namen mit weniger als 2 Zeichen sind nicht zulässig',
                         },
                       }}
                     />
@@ -583,8 +558,7 @@ class MemberEdit extends Component {
                         },
                         minLength: {
                           value: 15,
-                          errorMessage:
-                            'Die IBAN muss mindestens 15 Zeichen haben',
+                          errorMessage: 'Die IBAN muss mindestens 15 Zeichen haben',
                         },
                       }}
                     />
@@ -608,13 +582,11 @@ class MemberEdit extends Component {
                         },
                         pattern: {
                           value: '^[A-Za-z0-9.-\\s]+$',
-                          errorMessage:
-                            'Bitte nur Buchstaben und  "-" verwenden',
+                          errorMessage: 'Bitte nur Buchstaben und  "-" verwenden',
                         },
                         minLength: {
                           value: 2,
-                          errorMessage:
-                            'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          errorMessage: 'Namen mit weniger als 2 Zeichen sind nicht zulässig',
                         },
                       }}
                     />

@@ -135,7 +135,7 @@ class Tarifs extends Component {
           </tr>
         </thead>
         <tbody>
-          {tarifs.map((tarif, index) => (
+          {tarifs && tarifs.map((tarif, index) => (
             <tr key={`productTable_${index}_${tarif.id}`}>
               <td>{tarif.name || '---'}</td>
               <td className="text-center">
@@ -256,7 +256,7 @@ class Tarifs extends Component {
             <CardHeader>
               <h5 className="m-0">Tarife</h5>
             </CardHeader>
-            {tarifs.length > 0 && this.renderTable(tarifs)}
+            {(tarifs && tarifs.length > 0) && this.renderTable(tarifs)}
             <CardFooter className="align-items-end">
               <Button
                 color="primary"

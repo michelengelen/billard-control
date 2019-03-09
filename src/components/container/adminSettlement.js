@@ -11,19 +11,16 @@ import {
   ListGroup,
   ListGroupItem,
   Row,
+  Table,
 } from 'reactstrap';
 import isEqual from 'lodash.isequal';
 
 import { ActivityIndicator, Icon } from 'components/common';
+import SettlementEntry from 'components/common/settlementEntry';
 // import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 import { ClubDataContext } from 'contexts/clubDataContext';
 import { Icons } from '../../variables/constants';
-import {
-  categoriesRef,
-  settlementsRef,
-  tarifsRef,
-  unsubscribe,
-} from '../../firebase-config/config';
+import { categoriesRef, settlementsRef, tarifsRef } from '../../firebase-config/config';
 import { sortByProperty } from '../../helpers/helpers';
 
 const now = new Date();
@@ -59,11 +56,10 @@ class Settlement extends Component {
 
     this.renderSettlementYear = this.renderSettlementYear.bind(this);
     this.renderSettlementMonth = this.renderSettlementMonth.bind(this);
-    this.renderSettlementByMember = this.renderSettlementByMember.bind(this);
     this.getPurchasesByKey = this.getPurchasesByKey.bind(this);
+    this.updatePurchases = this.updatePurchases.bind(this);
     this.getSettlementPositions = this.getSettlementPositions.bind(this);
-
-    this.unsubscribe = unsubscribe.bind(this);
+    this.addTableRent = this.addTableRent.bind(this);
 
     this._years = [];
     this.currentYear = 2018;
@@ -169,11 +165,12 @@ class Settlement extends Component {
 
   renderSettlementMonth() {
     const { members } = this.context;
-    console.log('#### context: ', this.context);
-    const { settlements, openedSettlement } = this.state;
+    const { settlements, openedSettlement, categories } = this.state;
     const settlementKey = `${this.currentYear}-${
       this.currentMonth < 10 ? `0${this.currentMonth}` : this.currentMonth
     }`;
+    console.log('#### Settlements: ', settlements);
+    console.log('#### open Settlement: ', openedSettlement);
     return (
       <ListGroupItem
         key={`settlement_${settlementKey}`}
@@ -203,13 +200,39 @@ class Settlement extends Component {
         {members.length > 0 && (
           <Collapse isOpen={openedSettlement === settlementKey} className="bg-light text-dark">
             <Row className="p-0">
-              <ActivityIndicator
-                loading={!!settlements && !settlements[settlementKey]}
-                type="inline"
-              />
-              {!!settlements &&
-                settlements[settlementKey] &&
-                members.map(member => this.renderSettlementByMember(member))}
+              <Col xs={12}>
+                <ActivityIndicator
+                  loading={!!settlements && !settlements[settlementKey]}
+                  type="inline"
+                />
+                {!!settlements && settlements[settlementKey] && (
+                  <Table striped hover>
+                    <thead>
+                      <tr>
+                        <th>Mitglied</th>
+                        <th className="text-center">Getränke</th>
+                        <th className="text-center">Snacks</th>
+                        <th className="text-center">Tischmiete</th>
+                        <th className="text-center">Monatsbeitrag</th>
+                        <th className="text-center">diverses</th>
+                        <th className="text-center"> </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {members.map(member => (
+                        <SettlementEntry
+                          key={`settlement_${openedSettlement}_member_${member.id}`}
+                          member={member}
+                          categories={categories}
+                          summary={settlements[openedSettlement][member.id]}
+                          updatePurchases={this.updatePurchases}
+                          addTableRent={this.addTableRent}
+                        />
+                      ))}
+                    </tbody>
+                  </Table>
+                )}
+              </Col>
             </Row>
           </Collapse>
         )}
@@ -217,69 +240,24 @@ class Settlement extends Component {
     );
   }
 
-  renderSettlementByMember(member) {
-    const { openedSettlement, settlements } = this.state;
-    const { year, month } = getYearMonthFromKey(openedSettlement);
-    const memberPurchases = settlements[openedSettlement][member.id];
-    const { beverages, snacks, misc } = this.getSettlementPositions(
-      memberPurchases,
-      member.tarifId,
-    );
-    return (
-      <Col xs={12} key={`settlement_${openedSettlement}_member_${member.id}`}>
-        <Row form>
-          <Col xs={4}>{`${member.lastname}, ${member.firstname}`}</Col>
-          <Col xs={2}>
-            <FormGroup>
-              <Label for="name">Bezeichnung</Label>
-              <Input
-                type="text"
-                name="name"
-                id="name"
-                value={memberPurchases.tableRent ? memberPurchases.tableRent.hours : ''}
-                onChange={e => this.addTableRent(e, member.id, 'hours')}
-                placeholder="0"
-              />
-            </FormGroup>
-          </Col>
-          <Col xs={2}>
-            <FormGroup>
-              <Label for="fracture">Minuten</Label>
-              <Input
-                type="select"
-                value={memberPurchases.tableRent ? memberPurchases.tableRent.fracture : ''}
-                name="select"
-                id="fracture"
-                onChange={e => this.addTableRent(e, member.id, 'fracture')}
-              >
-                <option value={0}>0 Minuten</option>
-                <option value={0.25}>15 Minuten</option>
-                <option value={0.5}>30 Minuten</option>
-                <option value={0.75}>45 Minuten</option>
-              </Input>
-            </FormGroup>
-          </Col>
-        </Row>
-      </Col>
-    );
-  }
-
   addTableRent(event, memberId, key) {
     const { openedSettlement } = this.state;
-    console.log('##### event: ', event);
-    console.log('##### memberId: ', memberId);
-    console.log('##### key: ', key);
     if (event && typeof event.preventDefault === 'function') {
       event.preventDefault();
     }
 
     let value;
 
-    if (event && event.currentTarget && event.currentTarget.type === 'text') {
+    if (
+      event &&
+      event.currentTarget &&
+      event.currentTarget.type === 'text' &&
+      event.currentTarget.value
+    ) {
       if (!/^[0-9]+$/.test(event.currentTarget.value)) return;
     }
 
-    value = event.currentTarget.value;
+    value = !event.currentTarget.value ? '0' : event.currentTarget.value;
 
     console.log('##### new Value: ', value);
 
@@ -301,6 +279,20 @@ class Settlement extends Component {
         },
       };
     });
+  }
+
+  updatePurchases(memberId, newPurchase) {
+    const { openedSettlement } = this.state;
+    this.setState(prevState => ({
+      ...prevState,
+      settlements: {
+        ...prevState.settlements,
+        [openedSettlement]: {
+          ...prevState.settlements[openedSettlement],
+          [memberId]: newPurchase,
+        },
+      },
+    }));
   }
 
   async openSettlement(key) {
@@ -337,7 +329,7 @@ class Settlement extends Component {
     const { year, month } = getYearMonthFromKey(key);
 
     const startYear = year - (month === 0 ? 1 : 0);
-    const startMonth = month === 0 ? 11 : month;
+    const startMonth = month === 0 ? 11 : month - 1;
     const startTime = new Date(startYear, startMonth, 15, 0, 0, 0, 0);
 
     const endYear = year + (month === 11 ? 1 : 0);
@@ -366,12 +358,15 @@ class Settlement extends Component {
     return Promise.all(p);
   }
 
-  getSettlementPositions({ purchases, tableRent }, tarifId) {
-    console.log('### tarifId: ', tarifId);
-    const { categories, tarifs } = this.state;
+  async getSettlementPositions({ purchases, tableRent }, member) {
+    const { categories } = this.state;
     const { hours, fracture } = tableRent;
-    const memberTarif = tarifs.filter(tarif => tarif.id === tarifId)[0];
-    console.log('##### tarif: ', memberTarif);
+
+    let memberTarif = null;
+    await member.tarifRef.get().then(doc => (memberTarif = doc.data()));
+
+    console.log(memberTarif);
+
     const sums = {
       beverages: 0,
       snacks: 0,
@@ -380,8 +375,6 @@ class Settlement extends Component {
       monthlyFee: memberTarif.monthlyFee,
     };
 
-    console.log('##### sums: ', sums);
-    console.log('##### hours: ', parseInt(hours) + parseFloat(fracture));
     const categoryTypes = {};
     categories.forEach(cat => (categoryTypes[cat.id] = cat.categoryType));
 
