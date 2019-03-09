@@ -22,9 +22,10 @@ export const sortByProperty = (arr, prop) => {
 
 export const getPriceString = price => {
   let priceString = '0,00 €';
+  console.log('##### price: ', price);
   if (price && !isNaN(price)) {
     priceString =
-      price.toLocaleString('de', {
+      Number.prototype.toLocaleString.call(price, 'de', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }) + ' €';

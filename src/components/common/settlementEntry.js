@@ -14,6 +14,8 @@ import {
   Row,
 } from 'reactstrap';
 
+import isUndefined from 'lodash.isundefined';
+
 import { Icon } from 'components/common';
 import CurrencyInput from 'react-currency-input';
 import { Icons } from '../../variables/constants';
@@ -79,19 +81,19 @@ class SettlementEntry extends Component {
       <tr key={`settlementTable_${member.id}`}>
         <td>{`${member.lastname}, ${member.firstname}`}</td>
         <td className="text-center">
-          {sums.beverages && getPriceString(sums.beverages)}
+          {!isUndefined(sums.beverages) && getPriceString(sums.beverages)}
         </td>
         <td className="text-center">
-          {sums.snacks && getPriceString(sums.snacks)}
+          {!isUndefined(sums.snacks) && getPriceString(sums.snacks)}
         </td>
         <td className="text-center">
-          {sums.tableRents && getPriceString(sums.tableRents)}
+          {!isUndefined(sums.tableRents) && getPriceString(sums.tableRents)}
         </td>
         <td className="text-center">
-          {sums.monthlyFee && getPriceString(sums.monthlyFee)}
+          {!isUndefined(sums.monthlyFee) && getPriceString(sums.monthlyFee)}
         </td>
         <td className="text-center">
-          {sums.misc && getPriceString(sums.misc)}
+          {!isUndefined(sums.misc) && getPriceString(sums.misc)}
         </td>
         <td className="text-right">
           {this.renderControls()}
