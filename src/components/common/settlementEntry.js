@@ -11,6 +11,7 @@ import {
   Alert,
   Form,
   Input,
+  InputGroup,
   Row,
 } from 'reactstrap';
 
@@ -22,6 +23,12 @@ import { Icons } from '../../variables/constants';
 import { getPriceString } from '../../helpers/helpers';
 // import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 
+const emptyProduct = {
+  name: '',
+  price: 0,
+  public: false,
+};
+
 class SettlementEntry extends Component {
   constructor(props) {
     super(props);
@@ -32,18 +39,22 @@ class SettlementEntry extends Component {
     this.renderSummary = this.renderSummary.bind(this);
     this.renderControls = this.renderControls.bind(this);
 
+    this.addCustomProduct = this.addCustomProduct.bind(this);
+    this.removeCustomProduct = this.removeCustomProduct.bind(this);
+
     this.state = {
       loading: true,
       tarif: null,
       error: '',
-      editValues: {},
+      editValues: {
+        customProducts: [],
+      },
       isModalOpen: false,
     };
   }
 
   componentDidMount() {
     const { member } = this.props;
-    console.log('#### member: ', member);
     member.tarifRef.get().then(doc => this.setState({ tarif: doc.data(), loading: false }));
   }
 
@@ -83,21 +94,15 @@ class SettlementEntry extends Component {
         <td className="text-center">
           {!isUndefined(sums.beverages) && getPriceString(sums.beverages)}
         </td>
-        <td className="text-center">
-          {!isUndefined(sums.snacks) && getPriceString(sums.snacks)}
-        </td>
+        <td className="text-center">{!isUndefined(sums.snacks) && getPriceString(sums.snacks)}</td>
         <td className="text-center">
           {!isUndefined(sums.tableRents) && getPriceString(sums.tableRents)}
         </td>
         <td className="text-center">
           {!isUndefined(sums.monthlyFee) && getPriceString(sums.monthlyFee)}
         </td>
-        <td className="text-center">
-          {!isUndefined(sums.misc) && getPriceString(sums.misc)}
-        </td>
-        <td className="text-right">
-          {this.renderControls()}
-        </td>
+        <td className="text-center">{!isUndefined(sums.misc) && getPriceString(sums.misc)}</td>
+        <td className="text-right">{this.renderControls()}</td>
       </tr>
     );
   }
@@ -125,6 +130,13 @@ class SettlementEntry extends Component {
       e.preventDefault();
     }
 
+    let key = fieldKey;
+    let index = -1;
+    if (typeof fieldKey === 'object') {
+      key = fieldKey.key;
+      index = fieldKey.index;
+    }
+
     let newValue = 0;
     if (floatValue || floatValue === 0) {
       newValue = floatValue;
@@ -134,16 +146,54 @@ class SettlementEntry extends Component {
       newValue = e.currentTarget.value;
     }
 
+    if (index >= 0) {
+      this.setState(prevState => ({
+        editValues: {
+          ...prevState.editValues,
+          customProducts: [
+            ...prevState.editValues.customProducts.slice(0, index),
+            {
+              ...prevState.editValues.customProducts[index],
+              [key]: newValue,
+            },
+            ...prevState.editValues.customProducts.slice(index + 1),
+          ],
+        },
+      }));
+    }
+
     this.setState(prevState => ({
       editValues: {
         ...prevState.editValues,
-        [fieldKey]: newValue,
+        [key]: newValue,
       },
     }));
   }
 
+  addCustomProduct() {
+    this.setState(prevState => ({
+      editValues: {
+        ...prevState.editValues,
+        customProducts: [...prevState.editValues.customProducts, { ...emptyProduct }],
+      },
+    }));
+  }
+
+  removeCustomProduct(index) {
+    if (index >= 0) {
+      this.setState(prevState => ({
+        editValues: {
+          ...prevState.editValues,
+          customProducts: [
+            ...prevState.editValues.customProducts.slice(0, index),
+            ...prevState.editValues.customProducts.slice(index + 1),
+          ],
+        },
+      }));
+    }
+  }
+
   toggleModal() {
-    console.log('### toggled Modal call');
     this.setState(prevState => ({
       isModalOpen: !prevState.isModalOpen,
     }));
@@ -151,7 +201,7 @@ class SettlementEntry extends Component {
 
   render() {
     const { loading, editValues, isModalOpen } = this.state;
-    console.log('### indicator: ', isModalOpen);
+    const { customProducts } = editValues;
     const {
       summary: { tableRent },
       member,
@@ -205,37 +255,69 @@ class SettlementEntry extends Component {
                     </Input>
                   </FormGroup>
                 </Col>
-                <Col xs={8}>
-                  <FormGroup>
-                    <Label for="customEntry">Bezeichnung</Label>
-                    <Input
-                      type="text"
-                      name="customEntry"
-                      id="customEntry"
-                      value={editValues.customEntry || ''}
-                      onChange={e => this.handleOnChange(e, 'customEntry')}
-                      placeholder=""
-                    />
-                  </FormGroup>
-                </Col>
-                <Col xs={4}>
-                  <FormGroup>
-                    <Label for="priceExt">Gäste-Preis</Label>
-                    <CurrencyInput
-                      className="form-control"
-                      decimalSeparator=","
-                      precision="2"
-                      suffix=" €"
-                      type="text"
-                      name="priceExt"
-                      id="priceExt"
-                      value={editValues.customPrice || ''}
-                      onChange={(maskedValue, floatValue, e) => {
-                        this.handleOnChange(e, 'customPrice', maskedValue, floatValue);
-                      }}
-                      placeholder="0,00 €"
-                    />
-                  </FormGroup>
+              </Row>
+              <Row form>
+                {customProducts.length > 0 &&
+                  customProducts.map((custom, index) => (
+                    <Fragment key={`customProduct_${index}`}>
+                      <Col xs={10}>
+                        <Label for={`customProduct_${index}_name`}>Bezeichnung</Label>
+                        <InputGroup className="input-group-md">
+                          <div className="input-group-prepend">
+                            <Button
+                              color="danger"
+                              size="md"
+                              onClick={() => this.removeCustomProduct(index)}
+                            >
+                              <Icon color="#EEEEEE" size={18} icon={Icons.DELETE} />
+                            </Button>
+                          </div>
+                          <Input
+                            type="text"
+                            name={`customProduct_${index}_name`}
+                            id={`customProduct_${index}_name`}
+                            value={customProducts[index].name || ''}
+                            onChange={e => this.handleOnChange(e, { key: 'name', index })}
+                            placeholder=""
+                          />
+                        </InputGroup>
+                      </Col>
+                      <Col xs={2}>
+                        <FormGroup>
+                          <Label for={`customProduct_${index}_price`}>Preis</Label>
+                          <CurrencyInput
+                            allowNegative
+                            className="form-control"
+                            decimalSeparator=","
+                            precision="2"
+                            suffix=" €"
+                            type="text"
+                            name={`customProduct_${index}_price`}
+                            id={`customProduct_${index}_price`}
+                            value={customProducts[index].price || ''}
+                            onChange={(maskedValue, floatValue, e) => {
+                              this.handleOnChange(
+                                e,
+                                { key: 'price', index },
+                                maskedValue,
+                                floatValue,
+                              );
+                            }}
+                            placeholder="0,00 €"
+                          />
+                        </FormGroup>
+                      </Col>
+                    </Fragment>
+                  ))}
+                <Col xs={12}>
+                  <Button
+                    color="success"
+                    className="btn-block"
+                    size="sm"
+                    onClick={this.addCustomProduct}
+                  >
+                    <strong>+</strong>
+                  </Button>
                 </Col>
               </Row>
             </Form>
