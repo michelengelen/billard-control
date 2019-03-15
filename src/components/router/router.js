@@ -80,6 +80,8 @@ class AppRouter extends PureComponent {
   }
 
   componentDidMount() {
+    this.logoutUser().then(() => {});
+
     authRef.onAuthStateChanged(user => {
       if (user) {
         // User is signed in.
