@@ -9,7 +9,11 @@ import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
 import { ActivityIndicator } from 'components/common';
 
-import { clubDataRef, membersRef } from 'firebase-config/config';
+import {
+  authRef,
+  clubDataRef,
+  membersRef,
+} from 'firebase-config/config';
 
 import { UserContext } from 'contexts/userContext';
 import { PurchaseContext } from 'contexts/purchaseContext';
@@ -76,6 +80,21 @@ class AppRouter extends PureComponent {
   }
 
   componentDidMount() {
+    authRef.onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in.
+        const refinedUserData = {
+          name: user.displayName || 'Admin',
+          email: user.email,
+          isAuthenticated: true,
+          hasAdminRights: user.isAdmin || true,
+        };
+        this.signInUser(refinedUserData).then(() => {});
+      } else {
+        this.logoutUser().then(() => {});
+      }
+    });
+
     membersRef.onSnapshot(async querySnapshot => {
       const members = [];
       if (querySnapshot.size > 0) {

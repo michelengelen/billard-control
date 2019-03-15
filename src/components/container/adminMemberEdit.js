@@ -317,13 +317,10 @@ class MemberEdit extends Component {
                       value={member.contact.telephone || ''}
                       onChange={e => handleOnChange(e, 'contact.telephone')}
                       validate={{
-                        required: {
-                          value: false,
-                        },
                         pattern: {
-                          value: /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/g,
+                          value: new RegExp(/(\(?([\d \-\)\–\+\/\(]+){4,}\)?([ .\-–\/]?)([\d]+))/),
                           errorMessage:
-                            'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 4281 1234567',
+                            'Die Telefonnummer ist nicht korrekt formatiert.',
                         },
                       }}
                     />
@@ -337,13 +334,10 @@ class MemberEdit extends Component {
                       value={member.contact.mobile || ''}
                       onChange={e => handleOnChange(e, 'contact.mobile')}
                       validate={{
-                        required: {
-                          value: false,
-                        },
                         pattern: {
-                          value: /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/g,
+                          value: new RegExp(/(\(?([\d \-\)\–\+\/\(]+){4,}\)?([ .\-–\/]?)([\d]+))/),
                           errorMessage:
-                            'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 151 12345678',
+                            'Die Telefonnummer ist nicht korrekt formatiert.',
                         },
                       }}
                     />
