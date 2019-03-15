@@ -22,6 +22,9 @@ class Header extends PureComponent {
   }
 
   render() {
+    const { location } = this.props;
+    console.log('#### location: ', location);
+    if (!/purchase/g.test(location.pathname)) return null;
     return (
       <Row
         noGutters
@@ -33,11 +36,11 @@ class Header extends PureComponent {
         <Col xs="auto">
           <Icon
             padding
-            color="#EEEEEE"
+            color="#333"
             size={52}
-            icon={Icons.SETTINGS}
+            icon={Icons.HOME}
             className="bc-header__button"
-            onClick={() => this.goToRoute('/settings')}
+            onClick={() => this.goToRoute('/')}
           />
         </Col>
       </Row>

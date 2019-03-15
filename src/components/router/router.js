@@ -2,13 +2,14 @@ import React, { PureComponent } from 'react';
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 
 // import of custom components
+import Header from 'components/container/header';
 import Home from 'components/container/home';
 import Purchase from 'components/container/purchase';
 import { Admin } from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
 import { ActivityIndicator } from 'components/common';
 
-import { clubDataRef, membersRef, purchasesRef } from 'firebase-config/config';
+import { clubDataRef, membersRef } from 'firebase-config/config';
 
 import { UserContext } from 'contexts/userContext';
 import { PurchaseContext } from 'contexts/purchaseContext';
@@ -184,6 +185,7 @@ class AppRouter extends PureComponent {
             <ActivityIndicator loading={this.state.loading} />
             <Router>
               <div className="bc-viewport">
+                <Header />
                 <Switch>
                   <Route path="/" exact component={Home} />
                   <Route path="/settings" component={Settings} />

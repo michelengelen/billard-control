@@ -90,7 +90,6 @@ class LogoutTimer extends Component {
   }
 
   destroy() {
-    console.log('#### timer got destroyed ####');
     this.removeListener();
     clearInterval(this.intervalHandle);
     store.clearAll();
@@ -103,13 +102,14 @@ class LogoutTimer extends Component {
 
   render() {
     const t = this.getLastAction() + this.props.time - Date.now();
-    const secondsLeft = new Date(t).getSeconds();
+    const minutes = new Date(t).getMinutes();
+    const secondsLeft = new Date(t).getSeconds() + (minutes * 60);
     const msecondsLeft = secondsLeft * 1000;
     const counterClass = secondsLeft < 10 ? 'danger' : 'dark';
     const progressClass = secondsLeft < 10 ? 'danger' : 'primary';
     const progress = parseInt(100 * (msecondsLeft / this.props.time));
     return (
-      <Alert color={counterClass}>
+      <Alert className="text-center" color={counterClass}>
         <h1 className={`text-${counterClass}`}>{this.state.currentTime}</h1>
         <Progress color={progressClass} value={progress} />
       </Alert>

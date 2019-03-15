@@ -16,6 +16,7 @@ import {
 } from 'reactstrap';
 
 import isUndefined from 'lodash.isundefined';
+import isString from 'lodash.isstring';
 
 import { Icon } from 'components/common';
 import CurrencyInput from 'react-currency-input';
@@ -35,6 +36,7 @@ class SettlementEntry extends Component {
 
     this.getSettlementPositions = this.getSettlementPositions.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
+    this.saveData = this.saveData.bind(this);
 
     this.renderSummary = this.renderSummary.bind(this);
     this.renderControls = this.renderControls.bind(this);
@@ -46,6 +48,7 @@ class SettlementEntry extends Component {
       loading: true,
       tarif: null,
       error: '',
+      errorIndexes: [],
       editValues: {
         customProducts: [],
       },
@@ -199,8 +202,40 @@ class SettlementEntry extends Component {
     }));
   }
 
+  saveData(e) {
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+
+    const { editValues } = this.state;
+
+    let hasError = false;
+    const errorIndexes = [];
+
+    if (editValues.customProducts.length === 0) {
+      this.toggleModal();
+    } else {
+      editValues.customProducts.forEach((product, index) => {
+        if (hasError) return;
+        if (
+          (isString(product.name) && product.name === '') ||
+          (!isNaN(product.price) && product.price === 0)
+        ) {
+          errorIndexes.push(index);
+          hasError = true;
+        }
+      });
+    }
+
+    if (hasError) {
+      this.setState({ error: 'Bitte die Fehler in der Eingabe beheben!', errorIndexes });
+    } else {
+      this.toggleModal();
+    }
+  }
+
   render() {
-    const { loading, editValues, isModalOpen } = this.state;
+    const { loading, editValues, isModalOpen, error, errorIndexes } = this.state;
     const { customProducts } = editValues;
     const {
       summary: { tableRent },
@@ -208,6 +243,8 @@ class SettlementEntry extends Component {
       addTableRent,
     } = this.props;
 
+    console.log('### state - editValues: ', editValues);
+    console.log('### state - errorIndexes: ', errorIndexes);
     return (
       <Fragment>
         {!loading && this.renderSummary()}
@@ -218,10 +255,10 @@ class SettlementEntry extends Component {
           <ModalBody>
             <Alert
               color="danger"
-              isOpen={!!this.state.error}
+              isOpen={!!error}
               toggle={() => this.setState({ error: '' })}
             >
-              {this.state.error}
+              {error}
             </Alert>
             <Form>
               <Row form>
@@ -273,6 +310,7 @@ class SettlementEntry extends Component {
                             </Button>
                           </div>
                           <Input
+                            invalid={errorIndexes.findIndex(i => i === index) > -1}
                             type="text"
                             name={`customProduct_${index}_name`}
                             id={`customProduct_${index}_name`}
@@ -286,6 +324,7 @@ class SettlementEntry extends Component {
                         <FormGroup>
                           <Label for={`customProduct_${index}_price`}>Preis</Label>
                           <CurrencyInput
+                            invalid={errorIndexes.findIndex(i => i === index) > -1}
                             allowNegative
                             className="form-control"
                             decimalSeparator=","

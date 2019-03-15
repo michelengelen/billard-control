@@ -36,7 +36,7 @@ class ClubData extends Component {
 
     this.state = {
       alert: null,
-      editDoc: null,
+      editDoc: {},
       boardMembers: {},
       loading: true,
     };
@@ -44,11 +44,16 @@ class ClubData extends Component {
 
   componentDidMount() {
     this.listeners.clubDataRef = clubDataRef.onSnapshot(querySnapshot => {
-      this.setState({
-        editDoc: {
-          ...querySnapshot.data(),
-        },
-      });
+      console.log('#### query: ', querySnapshot);
+      if (querySnapshot.exists) {
+        this.setState({
+          editDoc: {
+            ...querySnapshot.data(),
+          },
+        });
+      } else {
+        this.setState({ loading: false });
+      }
     });
   }
 
@@ -250,6 +255,7 @@ class ClubData extends Component {
 
   render() {
     const { editDoc, alert } = this.state;
+    console.log('##### loading: ', this.state.loading);
     return (
       <div className="bc-content__wrapper">
         <AvForm onValidSubmit={() => this.validateAndSave()}>
@@ -261,7 +267,7 @@ class ClubData extends Component {
                   <blockquote className="blockquote">
                     <p className="mb-0 mt-3">Vereinsdaten bearbeiten</p>
                     <footer className="blockquote-footer">
-                      {`letzte Änderung: ${getDateString(editDoc.lastChange, false)}`}
+                      {`letzte Änderung: ${editDoc.lastChange ? getDateString(editDoc.lastChange, false) : '---'}`}
                     </footer>
                   </blockquote>
                 </Col>

@@ -42,8 +42,8 @@ html, body {
 
 /* Component Styling - Header */
 .bc-header {
-  background-color: #61dafb;
   flex: 0 0 52px;
+  background-color: #AAA;
 }
 
 .bc-loader {
@@ -96,13 +96,8 @@ html, body {
 }
 
 .bc-header__button {
-  background-color: darkcyan;
   transition: background-color .5s;
   cursor: pointer;
-}
-
-.bc-header__button:hover {
-  background-color: darkslategray;
 }
 
 /* Component Styling - Main-Content */

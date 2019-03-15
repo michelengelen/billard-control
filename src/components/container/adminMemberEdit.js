@@ -21,8 +21,6 @@ class MemberEdit extends Component {
   render() {
     const { editId, errors, handleOnChange, member, tarifs } = this.props;
 
-    if (member.entryDate) console.log('### dateString: ', member.entryDate);
-
     if (!member.contact) member.contact = {};
     if (!member.adress) member.adress = {};
     if (!member.bank) member.bank = {};

@@ -169,8 +169,7 @@ class Settlement extends Component {
     const settlementKey = `${this.currentYear}-${
       this.currentMonth < 10 ? `0${this.currentMonth}` : this.currentMonth
     }`;
-    console.log('#### Settlements: ', settlements);
-    console.log('#### open Settlement: ', openedSettlement);
+
     return (
       <ListGroupItem
         key={`settlement_${settlementKey}`}
@@ -259,10 +258,7 @@ class Settlement extends Component {
 
     value = !event.currentTarget.value ? '0' : event.currentTarget.value;
 
-    console.log('##### new Value: ', value);
-
     this.setState(prevState => {
-      console.log('#### prevState: ', prevState);
       return {
         settlements: {
           ...prevState.settlements,
@@ -364,8 +360,6 @@ class Settlement extends Component {
 
     let memberTarif = null;
     await member.tarifRef.get().then(doc => (memberTarif = doc.data()));
-
-    console.log(memberTarif);
 
     const sums = {
       beverages: 0,

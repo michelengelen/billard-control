@@ -103,12 +103,9 @@ class Tarifs extends Component {
       .doc(id)
       .delete()
       .then(() => {
-        console.log('Document successfully deleted!');
         this.closeModal();
       })
-      .catch(function(error) {
-        console.error('Error removing document: ', error);
-      });
+      .catch(error => console.error('Error removing document: ', error));
   }
 
   closeModal() {
@@ -245,8 +242,6 @@ class Tarifs extends Component {
 
   render() {
     const { tarifs, validated, requiredFields } = this.state;
-
-    console.log('#### requiredFields: ', requiredFields);
 
     return (
       <Row className="bc-content mr-0 pt-3">

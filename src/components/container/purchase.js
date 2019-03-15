@@ -25,7 +25,7 @@ import {
 } from 'reactstrap';
 
 import { PurchaseContext } from 'contexts/purchaseContext';
-import { categoriesRef, membersRef, productsRef, purchasesRef } from 'firebase-config/config';
+import { categoriesRef, membersRef, productsRef } from 'firebase-config/config';
 import { ActivityIndicator, Icon, LogoutTimer } from 'components/common';
 import {
   getDateString,
@@ -212,16 +212,12 @@ class Purchase extends PureComponent {
 
   async submitPurchase() {
     const { memberData } = this.context;
-    console.log('purchaseContext: ', this.context)
-    const { currentPurchase, currentPurchaseId } = this.state;
+    const { currentPurchase } = this.state;
     if (currentPurchase.length > 0) {
       const promises = currentPurchase.map(currentItem => {
         return memberData.journalRef
           .collection('journal')
           .add(currentItem)
-          .then(doc => {
-            console.log('#### submitPurchase: ', doc.id);
-          });
       });
       await Promise.all(promises).then(this.clearPurchaseList);
     } else {
@@ -258,7 +254,6 @@ class Purchase extends PureComponent {
   }
 
   removeProduct(index) {
-    console.log('remove', index);
     this.setState(prevState => ({
       currentPurchase: [
         ...prevState.currentPurchase.slice(0, index),
@@ -272,7 +267,6 @@ class Purchase extends PureComponent {
   }
 
   render() {
-    console.log('#### startTimer: ', !this.state.loading && !!this.context.memberId);
     return (
       <Row className="bc-content">
         <ActivityIndicator loading={this.state.loading} />
@@ -463,8 +457,6 @@ class Purchase extends PureComponent {
                           </Alert>
                           <ListGroup className="mb-3" flush>
                             {this.state.currentPurchase.map((item, index) => {
-                              console.log(item);
-                              console.log(index);
                               return (
                                 <ListGroupItem
                                   color="light"

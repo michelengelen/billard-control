@@ -137,12 +137,9 @@ class Products extends Component {
       .doc(id)
       .delete()
       .then(() => {
-        console.log('Document successfully deleted!');
         this.closeModal();
       })
-      .catch(function(error) {
-        console.error('Error removing document: ', error);
-      });
+      .catch(error => console.error('Error removing document: ', error));
   }
 
   closeModal() {

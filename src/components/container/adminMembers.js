@@ -116,12 +116,8 @@ class Members extends Component {
     membersRef
       .doc(id)
       .delete()
-      .then(() => {
-        console.log('Document successfully deleted!');
-      })
-      .catch(function(error) {
-        console.error('Error removing document: ', error);
-      });
+      .then(() => {})
+      .catch(error => console.error('Error removing document: ', error));
   }
 
   cancelEdit() {
@@ -210,7 +206,7 @@ class Members extends Component {
                   },
                   { merge: true },
                 )
-                .then(() => console.log('### journalRef added to member document'));
+                .then(() => {});
             });
         });
         this.cancelEdit();

@@ -37,7 +37,6 @@ class MembersList extends Component {
       .doc(id)
       .delete()
       .then(() => {
-        console.log('Document successfully deleted!');
         this.closeModal();
       })
       .catch(function(error) {

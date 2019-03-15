@@ -22,7 +22,6 @@ export const sortByProperty = (arr, prop) => {
 
 export const getPriceString = price => {
   let priceString = '0,00 €';
-  console.log('##### price: ', price);
   if (price && !isNaN(price)) {
     priceString =
       Number.prototype.toLocaleString.call(price, 'de', {
