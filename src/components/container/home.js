@@ -162,7 +162,7 @@ class Home extends PureComponent {
                     <Col xs={5}>
                       <AvField
                         type="password"
-                        name="adminEmail"
+                        name="adminPass"
                         id="adminPass"
                         onChange={e => this.handleOnChange(e, 'adminPass')}
                         placeholder="Passwort"

@@ -34,6 +34,7 @@ import {
   sortByProperty,
 } from 'helpers/helpers';
 import { Icons } from '../../variables/constants';
+import { AvField } from 'availity-reactstrap-validation';
 
 class Purchase extends PureComponent {
   constructor(props) {
@@ -276,7 +277,7 @@ class Purchase extends PureComponent {
               return (
                 <Row className="bc-content align-items-center justify-content-center">
                   <Col xs={4}>
-                    <Form onSubmit={this.checkMembernumber}>
+                    <Form onSubmit={this.checkMembernumber} autoComplete="off">
                       <Card className="text-center">
                         <CardHeader>
                           <h5 className="m-0">Buchungs-Login</h5>
@@ -292,6 +293,7 @@ class Purchase extends PureComponent {
                           <FormGroup>
                             <Label for="membernumber">Mitgliedsnummer</Label>
                             <Input
+                              autoComplete="off"
                               className="text-center"
                               type="text"
                               name="membernumber"
@@ -345,7 +347,7 @@ class Purchase extends PureComponent {
                           </CardHeader>
                           <CardBody className="text-center">
                             <LogoutTimer
-                              callback={ctxt.unsetMember}
+                              callback={() => this.submitPurchase().then(ctxt.unsetMember)}
                               startTimer={!this.state.loading && !!ctxt.memberId}
                               interval={250}
                               storeKey={'lastAction'}

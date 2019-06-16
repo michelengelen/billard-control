@@ -173,7 +173,7 @@ class MemberEdit extends Component {
                             errorMessage: 'Eingabe fehlt',
                           },
                           pattern: {
-                            value: '^[A-Za-z.-\\s]+$',
+                            value: '^[A-Za-zäöüÄÖÜß.-\\s]+$',
                             errorMessage: 'Bitte nur Buchstaben, "." und  "-" verwenden',
                           },
                           minLength: {
@@ -269,7 +269,7 @@ class MemberEdit extends Component {
                           errorMessage: 'Eingabe fehlt',
                         },
                         pattern: {
-                          value: '^[A-Za-z.-\\s]+$',
+                          value: '^[A-Za-zäöüÄÖÜß.-\\s]+$',
                           errorMessage: 'Bitte nur Buchstaben, "." und  "-" verwenden',
                         },
                         minLength: {
