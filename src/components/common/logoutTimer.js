@@ -40,7 +40,6 @@ class LogoutTimer extends Component {
     clearInterval(this.intervalHandle);
     this.removeListener();
     store.clearAll();
-    this.props.callback();
   }
 
   getLastAction() {
