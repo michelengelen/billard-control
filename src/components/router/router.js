@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 import Header from 'components/container/header';
 import Home from 'components/container/home';
 import Purchase from 'components/container/purchase';
-import { Admin } from 'components/container/admin';
+import Admin from 'components/container/admin';
 import { NoMatch } from 'components/container/nomatch';
 import { ActivityIndicator } from 'components/common';
 
