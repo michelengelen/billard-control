@@ -22,6 +22,7 @@ import { ClubDataContext } from 'contexts/clubDataContext';
 import { Icons } from '../../variables/constants';
 import { categoriesRef, settlementsRef, tarifsRef } from '../../firebase-config/config';
 import { sortByProperty } from '../../helpers/helpers';
+import { _ } from '../../helpers/utils';
 
 const now = new Date();
 const bigBang = new Date(1544828400000);
@@ -57,7 +58,7 @@ class Settlement extends Component {
     this.renderSettlementYear = this.renderSettlementYear.bind(this);
     this.renderSettlementMonth = this.renderSettlementMonth.bind(this);
     this.getPurchasesByKey = this.getPurchasesByKey.bind(this);
-    this.updatePurchases = this.updatePurchases.bind(this);
+    this.updateCustoms = this.updateCustoms.bind(this);
     this.addTableRent = this.addTableRent.bind(this);
 
     this._years = [];
@@ -225,7 +226,7 @@ class Settlement extends Component {
                               member={member}
                               categories={categories}
                               summary={settlements[openedSettlement][member.id]}
-                              updatePurchases={this.updatePurchases}
+                              updateCustoms={this.updateCustoms}
                               addTableRent={this.addTableRent}
                             />
                           )
@@ -263,39 +264,33 @@ class Settlement extends Component {
     value = !event.currentTarget.value ? '0' : event.currentTarget.value;
 
     this.setState(prevState => {
-      return {
-        settlements: {
-          ...prevState.settlements,
-          [openedSettlement]: {
-            ...prevState.settlements[openedSettlement],
-            [memberId]: {
-              ...prevState.settlements[openedSettlement][memberId],
-              tableRent: {
-                ...prevState.settlements[openedSettlement][memberId].tableRent,
-                [key]: value,
-              },
-            },
-          },
-        },
-      };
+      const newState = _.cloneDeep(prevState);
+      _.set(
+        newState,
+        `settlements[${openedSettlement}][${memberId}].tableRent[${key}]`,
+        value,
+      );
+
+      return newState;
     });
   }
 
-  updatePurchases(memberId, newPurchase) {
+  updateCustoms(memberId, newCustoms) {
+    if (!Array.isArray(newCustoms)) return;
+
     const { openedSettlement } = this.state;
-    this.setState(prevState => ({
-      ...prevState,
-      settlements: {
-        ...prevState.settlements,
-        [openedSettlement]: {
-          ...prevState.settlements[openedSettlement],
-          [memberId]: [
-            ...prevState.settlements[openedSettlement][memberId],
-            ...newPurchase,
-          ],
-        },
-      },
-    }));
+
+    this.setState(prevState => {
+      const newState = _.cloneDeep(prevState);
+
+      _.set(
+        newState,
+        `settlements[${openedSettlement}][${memberId}].customs`,
+        newCustoms,
+      );
+
+      return newState;
+    });
   }
 
   async openSettlement(key) {
@@ -305,11 +300,17 @@ class Settlement extends Component {
       this.getPurchasesByKey(key).then(resp => {
         const response = {};
         resp.forEach(doc => {
-          response[doc.memberId] = doc;
-          response[doc.memberId].tableRent = {
-            hours: 0,
-            fracture: 0,
-          };
+          response[doc.memberId] = _.cloneDeep(doc);
+          _.set(
+            response[doc.memberId],
+            'tableRent',
+            doc.tableRent || { hours: 0, fracture: 0 },
+          );
+          _.set(
+            response[doc.memberId],
+            'customs',
+            doc.customs || [],
+          );
         });
         this.setState(prevState => ({
           openedSettlement: key,

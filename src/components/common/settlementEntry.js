@@ -22,6 +22,7 @@ import { Icon } from 'components/common';
 import CurrencyInput from 'react-currency-input';
 import { Icons } from '../../variables/constants';
 import { getPriceString } from '../../helpers/helpers';
+import { _ } from '../../helpers/utils';
 // import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 
 const emptyProduct = {
@@ -51,9 +52,6 @@ class SettlementEntry extends Component {
       tarif: null,
       error: '',
       errorIndexes: [],
-      editValues: {
-        customProducts: [],
-      },
       isModalOpen: false,
     };
   }
@@ -158,49 +156,51 @@ class SettlementEntry extends Component {
     }
 
     if (index >= 0) {
+      const {
+        member: { id },
+        summary: { customs },
+        updateCustoms,
+      } = this.props;
+      const newCustoms = _.cloneDeep(customs);
+      _.set(
+        newCustoms,
+        `[${index}][${key}]`,
+        newValue,
+      );
+      updateCustoms(id, newCustoms);
+    } else {
       this.setState(prevState => ({
         editValues: {
           ...prevState.editValues,
-          customProducts: [
-            ...prevState.editValues.customProducts.slice(0, index),
-            {
-              ...prevState.editValues.customProducts[index],
-              [key]: newValue,
-            },
-            ...prevState.editValues.customProducts.slice(index + 1),
-          ],
+          [key]: newValue,
         },
       }));
     }
-
-    this.setState(prevState => ({
-      editValues: {
-        ...prevState.editValues,
-        [key]: newValue,
-      },
-    }));
   }
 
   addCustomProduct() {
-    this.setState(prevState => ({
-      editValues: {
-        ...prevState.editValues,
-        customProducts: [...prevState.editValues.customProducts, { ...emptyProduct }],
-      },
-    }));
+    const {
+      member: { id },
+      summary: { customs = [] },
+      updateCustoms,
+    } = this.props;
+    const newCustoms = _.cloneDeep(customs);
+    newCustoms.push(emptyProduct);
+    updateCustoms(id, newCustoms);
   }
 
   removeCustomProduct(index) {
     if (index >= 0) {
-      this.setState(prevState => ({
-        editValues: {
-          ...prevState.editValues,
-          customProducts: [
-            ...prevState.editValues.customProducts.slice(0, index),
-            ...prevState.editValues.customProducts.slice(index + 1),
-          ],
-        },
-      }));
+      const {
+        member: { id },
+        summary: { customs = [] },
+        updateCustoms,
+      } = this.props;
+      const newCustoms = _.cloneDeep(customs);
+      updateCustoms(
+        id,
+        [ ...newCustoms.slice(0, index), ...newCustoms.slice(index + 1) ],
+      );
     }
   }
 
@@ -215,19 +215,19 @@ class SettlementEntry extends Component {
       e.preventDefault();
     }
 
-    const { editValues } = this.state;
+    const { summary: { customs = [] } } = this.props;
 
     let hasError = false;
     const errorIndexes = [];
 
-    if (editValues.customProducts.length === 0) {
+    if (customs.length === 0) {
       this.toggleModal();
     } else {
-      editValues.customProducts.forEach((product, index) => {
+      customs.forEach((custom, index) => {
         if (hasError) return;
         if (
-          (isString(product.name) && product.name === '') ||
-          (!isNaN(product.price) && product.price === 0)
+          (isString(custom.name) && custom.name === '') ||
+          (!isNaN(custom.price) && custom.price === 0)
         ) {
           errorIndexes.push(index);
           hasError = true;
@@ -244,11 +244,11 @@ class SettlementEntry extends Component {
 
   render() {
     const { loading, editValues, isModalOpen, error, errorIndexes } = this.state;
-    const { customProducts } = editValues;
     const {
-      summary: { tableRent },
+      summary: { tableRent, customs },
       member,
       addTableRent,
+      addCustom,
     } = this.props;
 
     return (
@@ -300,60 +300,62 @@ class SettlementEntry extends Component {
                 </Col>
               </Row>
               <Row form>
-                {customProducts.length > 0 &&
-                  customProducts.map((custom, index) => (
-                    <Fragment key={`customProduct_${index}`}>
-                      <Col xs={10}>
-                        <Label for={`customProduct_${index}_name`}>Bezeichnung</Label>
-                        <InputGroup className="input-group-md">
-                          <div className="input-group-prepend">
-                            <Button
-                              color="danger"
-                              size="md"
-                              onClick={() => this.removeCustomProduct(index)}
-                            >
-                              <Icon color="#EEEEEE" size={18} icon={Icons.DELETE} />
-                            </Button>
-                          </div>
-                          <Input
-                            invalid={errorIndexes.findIndex(i => i === index) > -1}
-                            type="text"
-                            name={`customProduct_${index}_name`}
-                            id={`customProduct_${index}_name`}
-                            value={customProducts[index].name || ''}
-                            onChange={e => this.handleOnChange(e, { key: 'name', index })}
-                            placeholder=""
-                          />
-                        </InputGroup>
-                      </Col>
-                      <Col xs={2}>
-                        <FormGroup>
-                          <Label for={`customProduct_${index}_price`}>Preis</Label>
-                          <CurrencyInput
-                            invalid={errorIndexes.findIndex(i => i === index) > -1}
-                            allowNegative
-                            className="form-control"
-                            decimalSeparator=","
-                            precision="2"
-                            suffix=" €"
-                            type="text"
-                            name={`customProduct_${index}_price`}
-                            id={`customProduct_${index}_price`}
-                            value={customProducts[index].price || ''}
-                            onChange={(maskedValue, floatValue, e) => {
-                              this.handleOnChange(
-                                e,
-                                { key: 'price', index },
-                                maskedValue,
-                                floatValue,
-                              );
-                            }}
-                            placeholder=""
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Fragment>
-                  ))}
+                {Array.isArray(customs) && customs.length > 0
+                  ? customs.map((custom, index) => (
+                      <Fragment key={`customProduct_${index}`}>
+                        <Col xs={10}>
+                          <Label for={`customProduct_${index}_name`}>Bezeichnung</Label>
+                          <InputGroup className="input-group-md">
+                            <div className="input-group-prepend">
+                              <Button
+                                color="danger"
+                                size="md"
+                                onClick={() => this.removeCustomProduct(index)}
+                              >
+                                <Icon color="#EEEEEE" size={18} icon={Icons.DELETE} />
+                              </Button>
+                            </div>
+                            <Input
+                              invalid={errorIndexes.findIndex(i => i === index) > -1}
+                              type="text"
+                              name={`customProduct_${index}_name`}
+                              id={`customProduct_${index}_name`}
+                              value={customs[index].name || ''}
+                              onChange={e => this.handleOnChange(e, { key: 'name', index })}
+                              placeholder=""
+                            />
+                          </InputGroup>
+                        </Col>
+                        <Col xs={2}>
+                          <FormGroup>
+                            <Label for={`customProduct_${index}_price`}>Preis</Label>
+                            <CurrencyInput
+                              invalid={errorIndexes.findIndex(i => i === index) > -1}
+                              allowNegative
+                              className="form-control"
+                              decimalSeparator=","
+                              precision="2"
+                              suffix=" €"
+                              type="text"
+                              name={`customProduct_${index}_price`}
+                              id={`customProduct_${index}_price`}
+                              value={customs[index].price || ''}
+                              onChange={(maskedValue, floatValue, e) => {
+                                this.handleOnChange(
+                                  e,
+                                  { key: 'price', index },
+                                  maskedValue,
+                                  floatValue,
+                                );
+                              }}
+                              placeholder=""
+                            />
+                          </FormGroup>
+                        </Col>
+                      </Fragment>
+                    ))
+                    : null
+                  }
                 <Col xs={12}>
                   <Button
                     color="link"
@@ -362,16 +364,6 @@ class SettlementEntry extends Component {
                     onClick={this.addCustomProduct}
                   >
                     <strong>+ freier Artikel</strong>
-                  </Button>
-                </Col>
-                <Col xs={12}>
-                  <Button
-                    color="success"
-                    className="btn-block"
-                    size="sm"
-                    onClick={this.props.updatePurchases(member.id, this.state.summary)}
-                  >
-                    <strong>Speichern</strong>
                   </Button>
                 </Col>
               </Row>
