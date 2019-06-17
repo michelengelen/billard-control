@@ -27,6 +27,8 @@ import { getPriceString } from '../../helpers/helpers';
 const emptyProduct = {
   name: '',
   price: 0,
+  amount: 1,
+  category: 'custom',
   public: false,
 };
 
@@ -66,6 +68,7 @@ class SettlementEntry extends Component {
     const {
       purchases,
       tableRent: { hours, fracture },
+      customs,
     } = summary;
     const { tarif } = this.state;
 
@@ -85,11 +88,16 @@ class SettlementEntry extends Component {
       sums[categoryTypes[categoryId]] += purch.price * purch.amount;
     });
 
+    if (Array.isArray(customs) && customs.length > 0) {
+      customs.forEach(custom => sums.misc += custom.price);
+    }
+
     return sums;
   }
 
   renderSummary() {
     const { member } = this.props;
+    console.log('#### member: ', member);
     const sums = this.getSettlementPositions();
     return (
       <tr key={`settlementTable_${member.id}`}>
@@ -243,8 +251,6 @@ class SettlementEntry extends Component {
       addTableRent,
     } = this.props;
 
-    console.log('### state - editValues: ', editValues);
-    console.log('### state - errorIndexes: ', errorIndexes);
     return (
       <Fragment>
         {!loading && this.renderSummary()}
@@ -342,7 +348,7 @@ class SettlementEntry extends Component {
                                 floatValue,
                               );
                             }}
-                            placeholder="0,00 €"
+                            placeholder=""
                           />
                         </FormGroup>
                       </Col>
@@ -350,12 +356,22 @@ class SettlementEntry extends Component {
                   ))}
                 <Col xs={12}>
                   <Button
-                    color="success"
+                    color="link"
                     className="btn-block"
                     size="sm"
                     onClick={this.addCustomProduct}
                   >
-                    <strong>+</strong>
+                    <strong>+ freier Artikel</strong>
+                  </Button>
+                </Col>
+                <Col xs={12}>
+                  <Button
+                    color="success"
+                    className="btn-block"
+                    size="sm"
+                    onClick={this.props.updatePurchases(member.id, this.state.summary)}
+                  >
+                    <strong>Speichern</strong>
                   </Button>
                 </Col>
               </Row>

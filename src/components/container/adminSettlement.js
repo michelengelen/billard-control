@@ -58,7 +58,6 @@ class Settlement extends Component {
     this.renderSettlementMonth = this.renderSettlementMonth.bind(this);
     this.getPurchasesByKey = this.getPurchasesByKey.bind(this);
     this.updatePurchases = this.updatePurchases.bind(this);
-    this.getSettlementPositions = this.getSettlementPositions.bind(this);
     this.addTableRent = this.addTableRent.bind(this);
 
     this._years = [];
@@ -218,16 +217,21 @@ class Settlement extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {members.map(member => (
-                        <SettlementEntry
-                          key={`settlement_${openedSettlement}_member_${member.id}`}
-                          member={member}
-                          categories={categories}
-                          summary={settlements[openedSettlement][member.id]}
-                          updatePurchases={this.updatePurchases}
-                          addTableRent={this.addTableRent}
-                        />
-                      ))}
+                      {members.map(member => {
+                        if (member.active) {
+                          return (
+                            <SettlementEntry
+                              key={`settlement_${openedSettlement}_member_${member.id}`}
+                              member={member}
+                              categories={categories}
+                              summary={settlements[openedSettlement][member.id]}
+                              updatePurchases={this.updatePurchases}
+                              addTableRent={this.addTableRent}
+                            />
+                          )
+                        }
+                        return null;
+                      })}
                     </tbody>
                   </Table>
                 )}
@@ -285,7 +289,10 @@ class Settlement extends Component {
         ...prevState.settlements,
         [openedSettlement]: {
           ...prevState.settlements[openedSettlement],
-          [memberId]: newPurchase,
+          [memberId]: [
+            ...prevState.settlements[openedSettlement][memberId],
+            ...newPurchase,
+          ],
         },
       },
     }));
@@ -354,33 +361,8 @@ class Settlement extends Component {
     return Promise.all(p);
   }
 
-  async getSettlementPositions({ purchases, tableRent }, member) {
-    const { categories } = this.state;
-    const { hours, fracture } = tableRent;
-
-    let memberTarif = null;
-    await member.tarifRef.get().then(doc => (memberTarif = doc.data()));
-
-    const sums = {
-      beverages: 0,
-      snacks: 0,
-      misc: 0,
-      tableRents: (parseInt(hours) + parseFloat(fracture)) * memberTarif.tableFee,
-      monthlyFee: memberTarif.monthlyFee,
-    };
-
-    const categoryTypes = {};
-    categories.forEach(cat => (categoryTypes[cat.id] = cat.categoryType));
-
-    purchases.forEach(purch => {
-      const { categoryId } = purch;
-      sums[categoryTypes[categoryId]] += purch.price * purch.amount;
-    });
-
-    return sums;
-  }
-
   render() {
+    console.log('#### settlements: ', this.state);
     return (
       <Row className="bc-content mr-0 pt-3">
         <ActivityIndicator loading={this.state.loading} />
