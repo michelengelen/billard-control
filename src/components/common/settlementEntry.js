@@ -125,7 +125,10 @@ class SettlementEntry extends Component {
           size="sm"
           onClick={() => this.setState(prevState => ({ locked: !prevState.locked }))}
         >
-          <Icon color="#EEEEEE" size={16} icon={Icons.COIN} />
+          <Icon color="#EEEEEE" size={16} icon={locked ? Icons.LOCKED : Icons.UNLOCKED} />
+        </Button>
+        <Button color="success" size="sm" onClick={() => console.log('#### generate memeber settlement PDF ####')}>
+          <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />
         </Button>
         <Button color="primary" size="sm" disabled={locked} onClick={this.toggleModal}>
           <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
@@ -215,14 +218,15 @@ class SettlementEntry extends Component {
       e.preventDefault();
     }
 
-    const { summary: { customs = [] } } = this.props;
+    const {
+      summary: { customs = [] },
+      saveSettlement,
+    } = this.props;
 
     let hasError = false;
     const errorIndexes = [];
 
-    if (customs.length === 0) {
-      this.toggleModal();
-    } else {
+    if (Array.isArray(customs) && customs.length > 0) {
       customs.forEach((custom, index) => {
         if (hasError) return;
         if (
@@ -238,17 +242,16 @@ class SettlementEntry extends Component {
     if (hasError) {
       this.setState({ error: 'Bitte die Fehler in der Eingabe beheben!', errorIndexes });
     } else {
-      this.toggleModal();
+      saveSettlement().then(this.toggleModal);
     }
   }
 
   render() {
-    const { loading, editValues, isModalOpen, error, errorIndexes } = this.state;
+    const { loading, isModalOpen, error, errorIndexes } = this.state;
     const {
       summary: { tableRent, customs },
       member,
       addTableRent,
-      addCustom,
     } = this.props;
 
     return (

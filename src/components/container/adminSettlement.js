@@ -59,6 +59,7 @@ class Settlement extends Component {
     this.renderSettlementMonth = this.renderSettlementMonth.bind(this);
     this.getPurchasesByKey = this.getPurchasesByKey.bind(this);
     this.updateCustoms = this.updateCustoms.bind(this);
+    this.saveSettlement = this.saveSettlement.bind(this);
     this.addTableRent = this.addTableRent.bind(this);
 
     this._years = [];
@@ -219,7 +220,7 @@ class Settlement extends Component {
                     </thead>
                     <tbody>
                       {members.map(member => {
-                        if (member.active) {
+                        if (member.active && settlements[openedSettlement]) {
                           return (
                             <SettlementEntry
                               key={`settlement_${openedSettlement}_member_${member.id}`}
@@ -228,6 +229,7 @@ class Settlement extends Component {
                               summary={settlements[openedSettlement][member.id]}
                               updateCustoms={this.updateCustoms}
                               addTableRent={this.addTableRent}
+                              saveSettlement={() => this.saveSettlement(openedSettlement)}
                             />
                           )
                         }
@@ -291,6 +293,15 @@ class Settlement extends Component {
 
       return newState;
     });
+  }
+
+  saveSettlement(openedSettlement) {
+    return settlementsRef
+      .doc(openedSettlement)
+      .set(this.state.settlements[openedSettlement])
+      .then(() => {
+        console.log(`### Settlement ${openedSettlement} succesfully saved`);
+      });
   }
 
   async openSettlement(key) {
