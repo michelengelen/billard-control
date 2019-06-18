@@ -117,20 +117,21 @@ class SettlementEntry extends Component {
   }
 
   renderControls() {
-    const { locked } = this.state;
+    const { editable, finishSettlementEntry } = this.props;
+    console.log('##### editable? ', editable);
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
           color="secondary"
           size="sm"
-          onClick={() => this.setState(prevState => ({ locked: !prevState.locked }))}
+          onClick={finishSettlementEntry}
         >
-          <Icon color="#EEEEEE" size={16} icon={locked ? Icons.LOCKED : Icons.UNLOCKED} />
+          <Icon color="#EEEEEE" size={16} disabled={!editable} icon={editable ? Icons.UNLOCKED : Icons.LOCKED} />
         </Button>
         <Button color="success" size="sm" onClick={() => console.log('#### generate memeber settlement PDF ####')}>
           <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />
         </Button>
-        <Button color="primary" size="sm" disabled={locked} onClick={this.toggleModal}>
+        <Button color="primary" size="sm" disabled={!editable} onClick={this.toggleModal}>
           <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
         </Button>
       </div>

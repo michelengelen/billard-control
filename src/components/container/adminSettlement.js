@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   Button,
   Card,
@@ -59,6 +59,8 @@ class Settlement extends Component {
     this.renderSettlementMonth = this.renderSettlementMonth.bind(this);
     this.getPurchasesByKey = this.getPurchasesByKey.bind(this);
     this.updateCustoms = this.updateCustoms.bind(this);
+    this.finishSettlement = this.finishSettlement.bind(this);
+    this.finishSettlementEntry = this.finishSettlementEntry.bind(this);
     this.saveSettlement = this.saveSettlement.bind(this);
     this.addTableRent = this.addTableRent.bind(this);
 
@@ -109,6 +111,7 @@ class Settlement extends Component {
       querySnapshot.forEach(doc => {
         settlements[doc.id] = doc.data();
       });
+      console.warn('####### on settlement Snapshot call ########');
       this.setState({
         settlements,
       });
@@ -215,7 +218,7 @@ class Settlement extends Component {
                         <th className="text-center">Tischmiete</th>
                         <th className="text-center">Monatsbeitrag</th>
                         <th className="text-center">diverses</th>
-                        <th className="text-center"> </th>
+                        <th className="text-right">{this.renderControls(settlements[settlementKey])}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -227,8 +230,10 @@ class Settlement extends Component {
                               member={member}
                               categories={categories}
                               summary={settlements[openedSettlement][member.id]}
+                              editable={!settlements[settlementKey][member.id].finished}
                               updateCustoms={this.updateCustoms}
                               addTableRent={this.addTableRent}
+                              finishSettlementEntry={() => this.finishSettlementEntry(member.id)}
                               saveSettlement={() => this.saveSettlement(openedSettlement)}
                             />
                           )
@@ -244,6 +249,42 @@ class Settlement extends Component {
         )}
       </ListGroupItem>
     );
+  }
+
+  renderControls(settlement) {
+    const { finished } = settlement;
+    const isLockable = this.isLockable(settlement);
+    console.log('isLockable?: ', isLockable);
+    return (
+      <Fragment>
+        <Button
+          color="success"
+          size="sm"
+          disabled={!!finished || !isLockable}
+          onClick={this.finishSettlement}
+        >
+          <Icon className="d-inline" color="#EEEEEE" size={16} icon={finished ? Icons.LOCKED : Icons.UNLOCKED} /> Abschließen
+        </Button>
+        <Button
+          color="success"
+          size="sm"
+          disabled={!finished}
+          onClick={() => console.log('#### generate months settlement PDF ####')}
+        >
+          <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
+        </Button>
+      </Fragment>
+    );
+  }
+
+  isLockable(settlement) {
+    let isLockable = true;
+    Object.keys(settlement).forEach(memberId => {
+      if (isLockable && typeof settlement[memberId] === 'object' && Object.prototype.hasOwnProperty.call(settlement, memberId)) {
+        isLockable = !!settlement[memberId].finished;
+      }
+    });
+    return isLockable;
   }
 
   addTableRent(event, memberId, key) {
@@ -293,6 +334,27 @@ class Settlement extends Component {
 
       return newState;
     });
+  }
+
+  finishSettlement() {
+    const { settlements, openedSettlement } = this.state;
+    if (settlements[openedSettlement].finished) return;
+
+    this.setState(prevState => {
+      const newState = _.cloneDeep(prevState);
+      newState.settlements[openedSettlement].finished = true;
+      return newState;
+    }, () => this.saveSettlement(openedSettlement));
+  }
+
+  finishSettlementEntry(memberId) {
+    const { settlements, openedSettlement } = this.state;
+    if (settlements[openedSettlement][memberId].finished) return;
+    this.setState(prevState => {
+      const newState = _.cloneDeep(prevState);
+      newState.settlements[openedSettlement][memberId].finished = true;
+      return newState;
+    }, () => this.saveSettlement(openedSettlement));
   }
 
   saveSettlement(openedSettlement) {
