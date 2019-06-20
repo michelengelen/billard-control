@@ -14,7 +14,6 @@ Prepare Node Modules:
     paths:
       - node_modules/
       - package-lock.json
-      - .npmrc
     policy: push
 
 PROD:
@@ -41,7 +40,6 @@ PROD:
     paths:
       - node_modules/
       - package-lock.json
-      - .npmrc
     policy: pull
   only:
     - master
@@ -70,7 +68,6 @@ DEV:
     paths:
       - node_modules/
       - package-lock.json
-      - .npmrc
     policy: pull
   only:
     - develop
