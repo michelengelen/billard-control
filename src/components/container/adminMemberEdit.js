@@ -316,13 +316,6 @@ class MemberEdit extends Component {
                       label={<span>Telefon</span>}
                       value={member.contact.telephone || ''}
                       onChange={e => handleOnChange(e, 'contact.telephone')}
-                      validate={{
-                        pattern: {
-                          value: new RegExp(/(\(?([\d \-)–+\/(]+){4,}\)?([ .\-–\/]?)([\d]+))/),
-                          errorMessage:
-                            'Die Telefonnummer ist nicht korrekt formatiert.',
-                        },
-                      }}
                     />
                   </Col>
                   <Col xs={12}>
@@ -333,13 +326,6 @@ class MemberEdit extends Component {
                       label={<span>Mobil</span>}
                       value={member.contact.mobile || ''}
                       onChange={e => handleOnChange(e, 'contact.mobile')}
-                      validate={{
-                        pattern: {
-                          value: new RegExp(/(\(?([\d \-)–+\/(]+){4,}\)?([ .\-–\/]?)([\d]+))/),
-                          errorMessage:
-                            'Die Telefonnummer ist nicht korrekt formatiert.',
-                        },
-                      }}
                     />
                   </Col>
                 </Row>
