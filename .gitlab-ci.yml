@@ -9,7 +9,6 @@ Prepare Node Modules:
     - node -v
     - npm -v
     - npm install
-    - cat src/variables/constants/config.js
   cache:
     key: billard-control-${CI_PIPELINE_ID}
     paths:
