@@ -9,11 +9,11 @@ Create DEV-Config:
   image: node:10-alpine
   variables:
     FIREBASE_APIKEY: ${FIREBASE_APIKEY_DEV}
-    AZURE_PASSWORD: ${AZ_DFUN_GIT_PW}
   script:
     - node -v
     - npm -v
     - npm i -g firebase-ci # install firebase-ci
+    - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
   cache:
     key: billard-control-${CI_PIPELINE_ID}
     paths:
@@ -28,12 +28,12 @@ Create PROD-Config:
   stage: prepare
   image: node:10-alpine
   variables:
-    FIREBASE_APIKEY: ${FIREBASE_APIKEY_DEV}
-    AZURE_PASSWORD: ${AZ_DFUN_GIT_PW}
+    FIREBASE_APIKEY: ${FIREBASE_APIKEY_PROD}
   script:
     - node -v
     - npm -v
     - npm i -g firebase-ci # install firebase-ci
+    - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
   cache:
     key: billard-control-${CI_PIPELINE_ID}
     paths:
@@ -80,7 +80,6 @@ Build Application:
   dependencies:
     - Prepare Node Modules
   script:
-    - npm run set-next-version ${CI_PIPELINE_ID}
     - npm run build
   cache:
     key: billard-control-${CI_PIPELINE_ID}

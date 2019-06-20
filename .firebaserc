@@ -1,5 +1,34 @@
 {
   "projects": {
-    "staging": "billard-control"
+    "dev": "billard-control-dev",
+    "prod": "billard-control"
+  },
+  "ci": {
+    "createConfig": {
+      "dev": {
+        "version": "${npm_package_version}",
+        "env": "development",
+        "firebase": {
+          "apiKey": "${FIREBASE_APIKEY}",
+          "authDomain": "billard-control-dev.firebaseapp.com",
+          "databaseURL": "https://billard-control-dev.firebaseio.com",
+          "projectId": "billard-control-dev",
+          "storageBucket": "billard-control-dev.appspot.com",
+          "messagingSenderId": "467779580394",
+        }
+      },
+      "prod": {
+        "version": "${npm_package_version}",
+        "env": "production",
+        "firebase": {
+          "apiKey": "${FIREBASE_APIKEY}",
+          "authDomain": "billard-control.firebaseapp.com",
+          "databaseURL": "https://billard-control.firebaseio.com",
+          "projectId": "billard-control",
+          "storageBucket": "billard-control.appspot.com"
+          "messagingSenderId": "714247009107",
+        }
+      }
+    }
   }
 }

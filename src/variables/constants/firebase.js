@@ -1,4 +1,4 @@
-export const FIREBASECONFIG = {
+export const firebase = {
   development: {
     apiKey: 'AIzaSyCAdNp6k1tH4LzBEPpRaD1Qz4SfkexCCJg',
     authDomain: 'billard-control-dev.firebaseapp.com',
