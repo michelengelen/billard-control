@@ -14,7 +14,7 @@
           "databaseURL": "https://billard-control-dev.firebaseio.com",
           "projectId": "billard-control-dev",
           "storageBucket": "billard-control-dev.appspot.com",
-          "messagingSenderId": "467779580394",
+          "messagingSenderId": "467779580394"
         }
       },
       "prod": {
@@ -26,7 +26,7 @@
           "databaseURL": "https://billard-control.firebaseio.com",
           "projectId": "billard-control",
           "storageBucket": "billard-control.appspot.com"
-          "messagingSenderId": "714247009107",
+          "messagingSenderId": "714247009107"
         }
       }
     }
