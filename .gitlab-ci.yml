@@ -14,6 +14,7 @@ Create DEV-Config:
     - npm -v
     - npm i -g firebase-ci # install firebase-ci
     - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
+    - cat src/variables/constants/config.js
   only:
     - develop
 
@@ -37,6 +38,7 @@ Prepare Node Modules:
     - node -v
     - npm -v
     - npm install
+    - cat src/variables/constants/config.js
   cache:
     key: billard-control-${CI_PIPELINE_ID}
     paths:
