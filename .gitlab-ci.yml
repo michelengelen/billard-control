@@ -34,7 +34,7 @@ DEV:
     - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
     - CI=false
     - npm run build
-    - firebase use --token $FIREBASE_DEPLOY_KEY billard-control-dev
+    - firebase use billard-control-dev --token $FIREBASE_TOKEN
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
   cache:
     key: billard-control-${CI_PIPELINE_ID}
@@ -63,7 +63,7 @@ PROD:
     - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
     - CI=false
     - npm run build
-    - firebase use --token $FIREBASE_DEPLOY_KEY billard-control
+    - firebase use billard-control --token $FIREBASE_TOKEN
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
   cache:
     key: billard-control-${CI_PIPELINE_ID}
