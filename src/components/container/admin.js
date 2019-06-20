@@ -14,10 +14,6 @@ import ClubData from 'components/container/adminClubData';
 import { UserContext } from 'contexts/userContext';
 
 class Admin extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
-
   componentWillUnmount() {
     const { logoutUser } = this.context;
     logoutUser();

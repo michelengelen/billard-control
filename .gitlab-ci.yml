@@ -14,13 +14,6 @@ Create DEV-Config:
     - npm -v
     - npm i -g firebase-ci # install firebase-ci
     - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
-  cache:
-    key: billard-control-${CI_PIPELINE_ID}
-    paths:
-      - node_modules/
-      - package-lock.json
-      - .npmrc
-    policy: pull
   only:
     - develop
 
@@ -34,13 +27,6 @@ Create PROD-Config:
     - npm -v
     - npm i -g firebase-ci # install firebase-ci
     - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
-  cache:
-    key: billard-control-${CI_PIPELINE_ID}
-    paths:
-      - node_modules/
-      - package-lock.json
-      - .npmrc
-    policy: pull
   only:
     - master
 

@@ -34,7 +34,6 @@ import {
   sortByProperty,
 } from 'helpers/helpers';
 import { Icons } from '../../variables/constants';
-import { AvField } from 'availity-reactstrap-validation';
 
 class Purchase extends PureComponent {
   constructor(props) {

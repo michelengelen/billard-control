@@ -318,7 +318,7 @@ class MemberEdit extends Component {
                       onChange={e => handleOnChange(e, 'contact.telephone')}
                       validate={{
                         pattern: {
-                          value: new RegExp(/(\(?([\d \-\)\–\+\/\(]+){4,}\)?([ .\-–\/]?)([\d]+))/),
+                          value: new RegExp(/(\(?([\d \-]+){4,}\)?([ .\-–\/]?)([\d]+))/),
                           errorMessage:
                             'Die Telefonnummer ist nicht korrekt formatiert.',
                         },
@@ -335,7 +335,7 @@ class MemberEdit extends Component {
                       onChange={e => handleOnChange(e, 'contact.mobile')}
                       validate={{
                         pattern: {
-                          value: new RegExp(/(\(?([\d \-\)\–\+\/\(]+){4,}\)?([ .\-–\/]?)([\d]+))/),
+                          value: new RegExp(/(\(?([\d \-]+){4,}\)?([ .\-–\/]?)([\d]+))/),
                           errorMessage:
                             'Die Telefonnummer ist nicht korrekt formatiert.',
                         },
