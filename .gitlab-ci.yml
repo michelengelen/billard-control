@@ -16,35 +16,6 @@ Prepare Node Modules:
       - package-lock.json
     policy: push
 
-PROD:
-  stage: deploy
-  image: node:10-alpine
-  dependencies:
-    - Prepare Node Modules
-  environment:
-    name: PROD
-    url: https://billard-control.web.app
-  variables:
-    FIREBASE_APIKEY: ${FIREBASE_APIKEY_DEV}
-  before_script:
-    - node -v
-    - npm -v
-    - npm install -g firebase-tools firebase-ci
-  script:
-    - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
-    - CI=false
-    - npm run build
-    - firebase use --token $FIREBASE_DEPLOY_KEY billard-control
-    - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
-  cache:
-    key: billard-control-${CI_PIPELINE_ID}
-    paths:
-      - node_modules/
-      - package-lock.json
-    policy: pull
-  only:
-    - master
-
 DEV:
   stage: deploy
   image: node:10-alpine
@@ -60,7 +31,7 @@ DEV:
     - npm -v
     - npm install -g firebase-tools firebase-ci
   script:
-    - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
+    - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
     - CI=false
     - npm run build
     - firebase use --token $FIREBASE_DEPLOY_KEY billard-control-dev
@@ -73,3 +44,32 @@ DEV:
     policy: pull
   only:
     - develop
+
+PROD:
+  stage: deploy
+  image: node:10-alpine
+  dependencies:
+    - Prepare Node Modules
+  environment:
+    name: PROD
+    url: https://billard-control.web.app
+  variables:
+    FIREBASE_APIKEY: ${FIREBASE_APIKEY_DEV}
+  before_script:
+    - node -v
+    - npm -v
+    - npm install -g firebase-tools firebase-ci
+  script:
+    - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
+    - CI=false
+    - npm run build
+    - firebase use --token $FIREBASE_DEPLOY_KEY billard-control
+    - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
+  cache:
+    key: billard-control-${CI_PIPELINE_ID}
+    paths:
+      - node_modules/
+      - package-lock.json
+    policy: pull
+  only:
+    - master
