@@ -347,7 +347,14 @@ class Purchase extends PureComponent {
                           </CardHeader>
                           <CardBody className="text-center">
                             <LogoutTimer
-                              callback={() => this.submitPurchase().then(ctxt.unsetMember)}
+                              callback={() => {
+                                const { currentPurchase } = this.state;
+                                if (currentPurchase.length > 0) {
+                                  this.submitPurchase().then(ctxt.unsetMember);
+                                } else {
+                                  ctxt.unsetMember();
+                                }
+                              }}
                               startTimer={!this.state.loading && !!ctxt.memberId}
                               interval={250}
                               storeKey={'lastAction'}
