@@ -22,7 +22,7 @@ PROD:
   stage: deploy
   image: node:10-alpine
   dependencies:
-    - Build Application
+    - Prepare Node Modules
   environment:
     name: PROD
     url: https://billard-control.web.app
@@ -51,7 +51,7 @@ DEV:
   stage: deploy
   image: node:10-alpine
   dependencies:
-    - Build Application
+    - Prepare Node Modules
   environment:
     name: DEV
     url: https://billard-control-dev.web.app
