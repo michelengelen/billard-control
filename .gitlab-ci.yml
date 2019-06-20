@@ -1,35 +1,6 @@
 stages:
   - prepare
-  - test
-  - build
   - deploy
-
-Create DEV-Config:
-  stage: prepare
-  image: node:10-alpine
-  variables:
-    FIREBASE_APIKEY: ${FIREBASE_APIKEY_DEV}
-  script:
-    - node -v
-    - npm -v
-    - npm i -g firebase-ci # install firebase-ci
-    - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
-    - cat src/variables/constants/config.js
-  only:
-    - develop
-
-Create PROD-Config:
-  stage: prepare
-  image: node:10-alpine
-  variables:
-    FIREBASE_APIKEY: ${FIREBASE_APIKEY_PROD}
-  script:
-    - node -v
-    - npm -v
-    - npm i -g firebase-ci # install firebase-ci
-    - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
-  only:
-    - master
 
 Prepare Node Modules:
   stage: prepare
@@ -47,39 +18,6 @@ Prepare Node Modules:
       - .npmrc
     policy: push
 
-Audit:
-  stage: test
-  allow_failure: true
-  image: node:10-alpine
-  dependencies:
-    - Prepare Node Modules
-  script:
-    - npm audit
-  cache:
-    key: billard-control-${CI_PIPELINE_ID}
-    paths:
-      - node_modules/
-      - package-lock.json
-    policy: pull
-
-Build Application:
-  stage: build
-  image: node:10-alpine
-  dependencies:
-    - Prepare Node Modules
-  script:
-    - npm install --progress=false
-    - npm run build
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - dist
-  cache:
-    key: billard-control-${CI_PIPELINE_ID}
-    paths:
-      - node_modules/
-    policy: pull
-
 PROD:
   stage: deploy
   image: node:10-alpine
@@ -88,13 +26,24 @@ PROD:
   environment:
     name: PROD
     url: https://billard-control.web.app
+  variables:
+    FIREBASE_APIKEY: ${FIREBASE_APIKEY_DEV}
   before_script:
     - node -v
     - npm -v
     - npm install -g firebase-tools
+    - npm i -g firebase-ci # install firebase-ci
+    - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
   script:
     - firebase use --token $FIREBASE_DEPLOY_KEY billard-control
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
+  cache:
+    key: billard-control-${CI_PIPELINE_ID}
+    paths:
+      - node_modules/
+      - package-lock.json
+      - .npmrc
+    policy: pull
   only:
     - master
 
@@ -106,12 +55,23 @@ DEV:
   environment:
     name: DEV
     url: https://billard-control-dev.web.app
+  variables:
+    FIREBASE_APIKEY: ${FIREBASE_APIKEY_PROD}
   before_script:
     - node -v
     - npm -v
     - npm install -g firebase-tools
+    - npm i -g firebase-ci # install firebase-ci
+    - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
   script:
     - firebase use --token $FIREBASE_DEPLOY_KEY billard-control-dev
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
+  cache:
+    key: billard-control-${CI_PIPELINE_ID}
+    paths:
+      - node_modules/
+      - package-lock.json
+      - .npmrc
+    policy: pull
   only:
     - develop
