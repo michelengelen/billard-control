@@ -31,9 +31,9 @@ PROD:
     - node -v
     - npm -v
     - npm install -g firebase-tools firebase-ci
-    - npm run build
   script:
     - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
+    - npm run build
     - firebase use --token $FIREBASE_DEPLOY_KEY billard-control
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
   cache:
@@ -60,9 +60,9 @@ DEV:
     - node -v
     - npm -v
     - npm install -g firebase-tools firebase-ci
-    - npm run build
   script:
     - firebase-ci createConfig --project "prod" --path "src/variables/constants/config.js"
+    - npm run build
     - firebase use --token $FIREBASE_DEPLOY_KEY billard-control-dev
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token $FIREBASE_DEPLOY_KEY
   cache:
