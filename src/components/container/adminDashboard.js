@@ -12,7 +12,10 @@ class Dashboard extends PureComponent {
         <Col xs={12}>
           <Jumbotron>
             <h1 className="display-3">Admin-Dashboard</h1>
-            <p className="lead">Here should the overview of products, members etc. be displayed in an easy way.</p>
+            <p className="lead">
+              Here should the overview of products,
+              members etc. be displayed in an easy way.
+            </p>
             <hr className="my-2" />
             <p>Just some dummy-text</p>
           </Jumbotron>

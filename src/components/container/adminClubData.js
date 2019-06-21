@@ -265,7 +265,11 @@ class ClubData extends Component {
                   <blockquote className="blockquote">
                     <p className="mb-0 mt-3">Vereinsdaten bearbeiten</p>
                     <footer className="blockquote-footer">
-                      {`letzte Änderung: ${editDoc.lastChange ? getDateString(editDoc.lastChange, false) : '---'}`}
+                      {`letzte Änderung: ${
+                        editDoc.lastChange
+                          ? getDateString(editDoc.lastChange, false)
+                          : '---'}`
+                      }
                     </footer>
                   </blockquote>
                 </Col>
@@ -521,17 +525,6 @@ class ClubData extends Component {
                               : ''
                           }
                           onChange={e => this.handleOnChange(e, 'info', 'contact.telephone')}
-                          validate={{
-                            required: {
-                              value: true,
-                              errorMessage: 'Eingabe fehlt',
-                            },
-                            pattern: {
-                              value: /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/,
-                              errorMessage:
-                                'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 4281 1234567',
-                            },
-                          }}
                         />
                       </Col>
                     </Row>

@@ -46,45 +46,6 @@ html, body {
   background-color: #AAA;
 }
 
-.bc-loader {
-  display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  background-color: #1d2124;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  z-index:100;
-  opacity: 1;
-  transition: all .3s ease-in-out;
-}
-
-.bc-loader.hidden {
-  opacity: 0;
-  z-index: -1;
-}
-
-.bc-loader.inline {
-  flex: 1;
-  height: 80px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  display: inline-flex;
-  background-color: rgba(255, 255, 255, .5);
-}
-
-.bc-loader.inline.hidden {
-  flex: 0;
-  height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  display: inline-flex;
-  background-color: transparent;
-}
-
 .bc-loader svg {
   flex: 0 1 auto;
 }
