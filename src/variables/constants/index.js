@@ -1,14 +1,4 @@
-import { firebase } from './config';
-import { firebaseLocal } from './localConfig';
-
-console.log('ENV variable: ', process.env);
-
-let CONFIG = firebaseLocal;
-if (firebaseLocal && process.env.REACT_APP_ENV === 'local') {
-  CONFIG = firebaseLocal;
-} else {
-  CONFIG = firebase;
-}
+import { firebase as CONFIG } from './config';
 
 export { CONFIG };
 
