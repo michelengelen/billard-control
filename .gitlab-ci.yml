@@ -31,7 +31,8 @@ DEV:
     - npm -v
     - npm install -g firebase-tools firebase-ci
   script:
-    - firebase-ci createConfig --project "dev" --path "src/variables/constants/config.js"
+    - pwd
+    - firebase-ci createConfig --project "dev" --path "./src/variables/constants/config.js"
     - CI=false
     - npm run build
     - firebase use billard-control-dev --token $FIREBASE_TOKEN
