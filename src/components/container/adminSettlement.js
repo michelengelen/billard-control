@@ -225,6 +225,7 @@ class Settlement extends Component {
                             <SettlementEntry
                               key={`settlement_${openedSettlement}_member_${member.id}`}
                               member={member}
+                              date={getYearMonthFromKey(settlementKey)}
                               categories={categories}
                               summary={settlements[openedSettlement][member.id]}
                               editable={!settlements[settlementKey][member.id].finished}

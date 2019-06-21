@@ -23,7 +23,7 @@ import CurrencyInput from 'react-currency-input';
 import { Icons } from '../../variables/constants';
 import { getPriceString } from '../../helpers/helpers';
 import { _ } from '../../helpers/utils';
-// import { SettlementDocDownload } from 'components/common/settlementDocDownload';
+import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 
 const emptyProduct = {
   name: '',
@@ -117,8 +117,7 @@ class SettlementEntry extends Component {
   }
 
   renderControls() {
-    const { editable, finishSettlementEntry } = this.props;
-    console.log('##### editable? ', editable);
+    const { member, editable, finishSettlementEntry, date } = this.props;
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
@@ -134,6 +133,9 @@ class SettlementEntry extends Component {
         <Button color="primary" size="sm" disabled={!editable} onClick={this.toggleModal}>
           <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
         </Button>
+        <SettlementDocDownload
+          title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
+        />
       </div>
     );
   }
