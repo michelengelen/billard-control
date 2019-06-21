@@ -95,7 +95,6 @@ class SettlementEntry extends Component {
 
   renderSummary() {
     const { member } = this.props;
-    console.log('#### member: ', member);
     const sums = this.getSettlementPositions();
     return (
       <tr key={`settlementTable_${member.id}`}>

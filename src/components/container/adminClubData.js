@@ -44,7 +44,6 @@ class ClubData extends Component {
 
   componentDidMount() {
     this.listeners.clubDataRef = clubDataRef.onSnapshot(querySnapshot => {
-      console.log('#### query: ', querySnapshot);
       if (querySnapshot.exists) {
         this.setState({
           editDoc: {
@@ -255,7 +254,6 @@ class ClubData extends Component {
 
   render() {
     const { editDoc, alert } = this.state;
-    console.log('##### loading: ', this.state.loading);
     return (
       <div className="bc-content__wrapper">
         <AvForm onValidSubmit={() => this.validateAndSave()}>

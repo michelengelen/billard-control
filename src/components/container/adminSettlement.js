@@ -252,7 +252,6 @@ class Settlement extends Component {
   renderControls(settlement) {
     const { finished } = settlement;
     const isLockable = this.isLockable(settlement);
-    console.log('isLockable?: ', isLockable);
     return (
       <Fragment>
         <Button
@@ -434,7 +433,6 @@ class Settlement extends Component {
   }
 
   render() {
-    console.log('#### settlements: ', this.state);
     return (
       <Row className="bc-content mr-0 pt-3">
         <ActivityIndicator loading={this.state.loading} />
