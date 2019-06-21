@@ -21,6 +21,7 @@ import { getDateString } from 'helpers/helpers';
 import { Icons } from 'variables/constants';
 import { ClubDataContext } from 'contexts/clubDataContext';
 import isEqual from 'lodash.isequal';
+import { _ } from 'helpers/utils';
 
 class ClubData extends Component {
   constructor(props) {
@@ -173,10 +174,9 @@ class ClubData extends Component {
 
   renderBoardMember(title, position, required) {
     const { editDoc, openPosition, boardMembers } = this.state;
-    const positionFilled =
-      editDoc.board && editDoc.board[position] && editDoc.board[position].firstname;
-    const hasError =
-      editDoc.board && !editDoc.board[position] && !editDoc.board[position].firstname;
+
+    const positionFilled = _.get(editDoc, `board[${position}].firstname`, false);
+    const hasError = !!_.get(editDoc, `board[${position}].firstname`, true);
 
     return (
       <ListGroupItem active={position === openPosition} className="p-0">
