@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import {
   Button,
   Col,
@@ -34,6 +35,18 @@ const emptyProduct = {
 };
 
 class SettlementEntry extends Component {
+  static propTypes = {
+    member: PropTypes.object.isRequired,
+    date: PropTypes.object.isRequired,
+    categories: PropTypes.array.isRequired,
+    summary: PropTypes.object.isRequired,
+    editable: PropTypes.bool.isRequired,
+    updateCustoms: PropTypes.func.isRequired,
+    addTableRent: PropTypes.func.isRequired,
+    finishSettlementEntry: PropTypes.func.isRequired,
+    saveSettlement: PropTypes.func.isRequired,
+  }
+
   constructor(props) {
     super(props);
 
@@ -116,25 +129,29 @@ class SettlementEntry extends Component {
   }
 
   renderControls() {
-    const { member, editable, finishSettlementEntry, date } = this.props;
+    const { member, editable, finishSettlementEntry, date, summary } = this.props;
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
           color="secondary"
           size="sm"
           onClick={finishSettlementEntry}
+          disabled={!editable}
         >
-          <Icon color="#EEEEEE" size={16} disabled={!editable} icon={editable ? Icons.UNLOCKED : Icons.LOCKED} />
+          <Icon
+            color="#EEEEEE"
+            size={16}
+            icon={editable ? Icons.UNLOCKED : Icons.LOCKED}
+          />
         </Button>
-        <Button color="success" size="sm" onClick={() => console.log('#### generate memeber settlement PDF ####')}>
-          <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />
-        </Button>
-        <Button color="primary" size="sm" disabled={!editable} onClick={this.toggleModal}>
+        <Button
+          color="primary"
+          size="sm"
+          disabled={!editable}
+          onClick={this.toggleModal}
+        >
           <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
         </Button>
-        <SettlementDocDownload
-          title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
-        />
       </div>
     );
   }
@@ -251,14 +268,24 @@ class SettlementEntry extends Component {
   render() {
     const { loading, isModalOpen, error, errorIndexes } = this.state;
     const {
-      summary: { tableRent, customs },
+      summary: { tableRent, customs, purchases },
       member,
       addTableRent,
+      date,
     } = this.props;
 
     return (
       <Fragment>
         {!loading && this.renderSummary()}
+        <SettlementDocDownload
+          title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
+          text={{
+            loading: <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />,
+            finished: <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />,
+          }}
+          summary={{ tableRent, purchases, customs }}
+          color="success"
+        />
         <Modal isOpen={isModalOpen} toggle={this.toggleModal}>
           <ModalHeader toggle={this.toggleModal}>
             {`${member.lastname}, ${member.firstname}`}

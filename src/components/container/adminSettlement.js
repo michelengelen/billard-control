@@ -220,6 +220,7 @@ class Settlement extends Component {
                     </thead>
                     <tbody>
                       {members.map(member => {
+                        console.log('##### settlement: ', settlements[settlementKey][member.id]);
                         if (member.active && settlements[openedSettlement]) {
                           return (
                             <SettlementEntry

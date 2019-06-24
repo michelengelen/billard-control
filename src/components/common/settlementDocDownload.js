@@ -4,20 +4,44 @@ import { ClubDataContext } from 'contexts/clubDataContext';
 
 import { SettlementDoc } from './settlementDoc';
 
-export const SettlementDocDownload = ({ title }) => (
-  <div>
+export const SettlementDocDownload = props => {
+  const {
+    title,
+    summary,
+    text: {
+      isLoading = 'Lädt ...',
+      isFinished = 'Download',
+    },
+    color = 'primary',
+  } = props;
+
+  console.log('##### summary: ', summary);
+
+  return (
     <ClubDataContext.Consumer>
       {ctxt => {
         return (
-          <ReactPDF.PDFDownloadLink
-            className="btn btn-primary"
-            document={<SettlementDoc clubData={ctxt} />}
-            fileName={`${title}.pdf`}
-          >
-            {({ blob, url, loading }) => (loading ? 'Loading document...' : 'Download now!')}
-          </ReactPDF.PDFDownloadLink>
-        );
+          <ReactPDF.PDFViewer>
+            <SettlementDoc clubData={ctxt} summary={summary}/>
+          </ReactPDF.PDFViewer>
+        )
       }}
     </ClubDataContext.Consumer>
-  </div>
-);
+  )
+
+  // return (
+  //   <ClubDataContext.Consumer>
+  //     {ctxt => {
+  //       return (
+  //         <ReactPDF.PDFDowloadLink
+  //           className={`btn btn-sm btn-${color}`}
+  //           document={<SettlementDoc clubData={ctxt} summary={summary}/>}
+  //           fileName={`${title}.pdf`}
+  //         >
+  //           {({ blob, url, loading }) => (loading ? isLoading : isFinished)}
+  //         </ReactPDF.PDFDowloadLink>
+  //       );
+  //     }}
+  //   </ClubDataContext.Consumer>
+  // );
+}
