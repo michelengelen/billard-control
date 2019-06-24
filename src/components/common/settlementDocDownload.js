@@ -9,8 +9,8 @@ export const SettlementDocDownload = props => {
     title,
     summary,
     text: {
-      isLoading = 'Lädt ...',
-      isFinished = 'Download',
+      isLoading,
+      isFinished,
     },
     color = 'primary',
   } = props;

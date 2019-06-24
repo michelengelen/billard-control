@@ -1,3 +1,4 @@
+// Icons taken from https://icomoon.io/app/#/select
 /* eslint-disable max-len */
 export const Icons = {
   BOOK: [
