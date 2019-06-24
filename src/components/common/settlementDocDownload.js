@@ -19,29 +19,15 @@ export const SettlementDocDownload = props => {
 
   return (
     <ClubDataContext.Consumer>
-      {ctxt => {
-        return (
-          <ReactPDF.PDFViewer>
-            <SettlementDoc clubData={ctxt} summary={summary}/>
-          </ReactPDF.PDFViewer>
-        )
-      }}
+      {ctxt => (
+        <ReactPDF.PDFDownloadLink
+          className={`btn btn-sm btn-${color}`}
+          document={<SettlementDoc clubData={ctxt} summary={summary}/>}
+          fileName={`${title}.pdf`}
+        >
+          {({ blob, url, loading }) => (loading ? isLoading : isFinished)}
+        </ReactPDF.PDFDownloadLink>
+      )}
     </ClubDataContext.Consumer>
-  )
-
-  // return (
-  //   <ClubDataContext.Consumer>
-  //     {ctxt => {
-  //       return (
-  //         <ReactPDF.PDFDowloadLink
-  //           className={`btn btn-sm btn-${color}`}
-  //           document={<SettlementDoc clubData={ctxt} summary={summary}/>}
-  //           fileName={`${title}.pdf`}
-  //         >
-  //           {({ blob, url, loading }) => (loading ? isLoading : isFinished)}
-  //         </ReactPDF.PDFDowloadLink>
-  //       );
-  //     }}
-  //   </ClubDataContext.Consumer>
-  // );
-}
+  );
+};

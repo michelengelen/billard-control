@@ -25,6 +25,7 @@ import { Icons } from '../../variables/constants';
 import { getPriceString } from '../../helpers/helpers';
 import { _ } from '../../helpers/utils';
 import { SettlementDocDownload } from 'components/common/settlementDocDownload';
+import { MiniLoader } from 'components/common';
 
 const emptyProduct = {
   name: '',
@@ -45,7 +46,7 @@ class SettlementEntry extends Component {
     addTableRent: PropTypes.func.isRequired,
     finishSettlementEntry: PropTypes.func.isRequired,
     saveSettlement: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -66,6 +67,7 @@ class SettlementEntry extends Component {
       error: '',
       errorIndexes: [],
       isModalOpen: false,
+      renderPDF: false,
     };
   }
 
@@ -130,6 +132,7 @@ class SettlementEntry extends Component {
 
   renderControls() {
     const { member, editable, finishSettlementEntry, date, summary } = this.props;
+    const { renderPDF } = this.state;
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
@@ -152,6 +155,29 @@ class SettlementEntry extends Component {
         >
           <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
         </Button>
+        {!renderPDF
+          ? (
+            <Button
+              color="primary"
+              size="sm"
+              disabled={editable}
+              onClick={() => this.setState({ renderPDF: true })}
+            >
+              <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />
+            </Button>
+          )
+          : (
+            <SettlementDocDownload
+              title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
+              text={{
+                loading: <MiniLoader />,
+                finished: <Icon color="#EEEEEE" size={16} icon={Icons.DOWNLOAD} />,
+              }}
+              summary={summary}
+              color="success"
+            />
+          )
+        }
       </div>
     );
   }
@@ -277,15 +303,6 @@ class SettlementEntry extends Component {
     return (
       <Fragment>
         {!loading && this.renderSummary()}
-        <SettlementDocDownload
-          title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
-          text={{
-            loading: <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />,
-            finished: <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />,
-          }}
-          summary={{ tableRent, purchases, customs }}
-          color="success"
-        />
         <Modal isOpen={isModalOpen} toggle={this.toggleModal}>
           <ModalHeader toggle={this.toggleModal}>
             {`${member.lastname}, ${member.firstname}`}

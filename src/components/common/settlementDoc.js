@@ -4,27 +4,64 @@ import { Document, Page, StyleSheet, Text, View, Font } from '@react-pdf/rendere
 import { positionList } from 'variables/constants';
 import { getPriceString } from '../../helpers/helpers';
 
-// Font.register({
-//   family: 'Roboto',
-//   fonts: [
-//     { src: '../../assets/fonts/Roboto-Thin.ttf', fontWeight: 100 },
-//     { src: '../../assets/fonts/Roboto-ThinItalic.ttf', fontStyle: 'italic', fontWeight: 100 },
-//     { src: '../../assets/fonts/Roboto-Light.ttf', fontWeight: 300 },
-//     { src: '../../assets/fonts/Roboto-LightItalic.ttf', fontStyle: 'italic', fontWeight: 300 },
-//     { src: '../../assets/fonts/Roboto-Regular.ttf', fontWeight: 400 },
-//     { src: '../../assets/fonts/Roboto-Italic.ttf', fontStyle: 'italic', fontWeight: 400  },
-//     { src: '../../assets/fonts/Roboto-Medium.ttf', fontWeight: 500 },
-//     { src: '../../assets/fonts/Roboto-MediumItalic.ttf', fontStyle: 'italic', fontWeight: 500 },
-//     { src: '../../assets/fonts/Roboto-Bold.ttf', fontWeight: 700 },
-//     { src: '../../assets/fonts/Roboto-BoldItalic.ttf', fontStyle: 'italic', fontWeight: 700 },
-//     { src: '../../assets/fonts/Roboto-Black.ttf', fontWeight: 900 },
-//     { src: '../../assets/fonts/Roboto-BlackItalic.ttf', fontStyle: 'italic', fontWeight: 900  },
-//   ],
-// });
-
 Font.register({
-  family: 'Oswald',
-  src: 'https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf'
+  family: 'Roboto',
+  fonts: [
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOkCnqEu92Fr1MmgWxPKTM1K9nz.ttf',
+      fontWeight: 100,
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOiCnqEu92Fr1Mu51QrIzcXLsnzjYk.ttf',
+      fontWeight: 100,
+      fontStyle: 'italic',
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmSU5vAx05IsDqlA.ttf',
+      fontWeight: 300,
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51TjARc9AMX6lJBP.ttf',
+      fontWeight: 300,
+      fontStyle: 'italic',
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf',
+      fontWeight: 400,
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOkCnqEu92Fr1Mu52xPKTM1K9nz.ttf',
+      fontWeight: 400,
+      fontStyle: 'italic',
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmEU9vAx05IsDqlA.ttf',
+      fontWeight: 500,
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51S7ABc9AMX6lJBP.ttf',
+      fontWeight: 500,
+      fontStyle: 'italic',
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmWUlvAx05IsDqlA.ttf',
+      fontWeight: 700,
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51TzBhc9AMX6lJBP.ttf',
+      fontWeight: 700,
+      fontStyle: 'italic',
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmYUtvAx05IsDqlA.ttf',
+      fontWeight: 900,
+    },
+    {
+      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51TLBBc9AMX6lJBP.ttf',
+      fontWeight: 900,
+      fontStyle: 'italic',
+    },
+  ],
 });
 
 const tableStyles = StyleSheet.create({
@@ -89,14 +126,13 @@ const styles = StyleSheet.create({
       color: '#999999',
       fontSize: 7,
       marginBottom: 2,
-      fontFamily: 'Oswald',
+      fontFamily: 'Roboto',
       fontWeight: 700,
     },
     text: {
       color: '#333333',
       fontSize: 9,
       marginBottom: 1,
-      fontWeight: 400,
     },
   },
   col6_6: {
@@ -174,17 +210,14 @@ const styles = StyleSheet.create({
   text: {
     marginBottom: 2,
     fontSize: 11,
-    fontWeight: 400,
   },
   tdText: {
     margin: 0,
     fontSize: 7,
-    fontWeight: 700,
   },
   thText: {
     margin: 0,
     fontSize: 7,
-    fontWeight: 700,
   },
 });
 
@@ -236,7 +269,7 @@ export const SettlementDoc = props => {
             const mod = index % 2 === 0 ? 'even' : 'odd';
             const rowStyle = { ...tableStyles.tr, ...tableStyles.tr[mod]};
             return (
-              <View style={rowStyle}>
+              <View style={rowStyle} key={`purchases_${index}_${p.ean}`}>
                 <View style={{ ...tableStyles.td, ...styles.col2_6 }}>
                   <Text style={styles.tdText}>
                     {p.name}
@@ -270,7 +303,7 @@ export const SettlementDoc = props => {
           {positionList.map(position => {
             if (board[position.key] && board[position.key].firstname) {
               return (
-                <View style={styles[colSize]}>
+                <View style={styles[colSize]} key={`board_${position}`}>
                   <Text style={styles.footer.headline}>{position.title}</Text>
                   <Text style={styles.footer.text}>
                     {`${board[position.key].firstname} ${board[position.key].lastname}`}
