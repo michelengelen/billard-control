@@ -8,14 +8,9 @@ export const SettlementDocDownload = props => {
   const {
     title,
     summary,
-    text: {
-      isLoading,
-      isFinished,
-    },
+    buttonText,
     color = 'primary',
   } = props;
-
-  console.log('##### summary: ', summary);
 
   return (
     <ClubDataContext.Consumer>
@@ -25,7 +20,7 @@ export const SettlementDocDownload = props => {
           document={<SettlementDoc clubData={ctxt} summary={summary}/>}
           fileName={`${title}.pdf`}
         >
-          {({ blob, url, loading }) => (loading ? isLoading : isFinished)}
+          {({ blob, url, loading }) => (loading ? '...' : buttonText)}
         </ReactPDF.PDFDownloadLink>
       )}
     </ClubDataContext.Consumer>

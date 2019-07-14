@@ -254,9 +254,9 @@ class Settlement extends Component {
     const { finished } = settlement;
     const isLockable = this.isLockable(settlement);
     return (
-      <Fragment>
+      <div className="btn-group" role="group" aria-label="Basic example">
         <Button
-          color="success"
+          color="secondary"
           size="sm"
           disabled={!!finished || !isLockable}
           onClick={this.finishSettlement}
@@ -271,7 +271,7 @@ class Settlement extends Component {
         >
           <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
         </Button>
-      </Fragment>
+      </div>
     );
   }
 

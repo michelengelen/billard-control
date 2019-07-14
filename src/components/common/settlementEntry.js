@@ -158,7 +158,7 @@ class SettlementEntry extends Component {
         {!renderPDF
           ? (
             <Button
-              color="primary"
+              color="success"
               size="sm"
               disabled={editable}
               onClick={() => this.setState({ renderPDF: true })}
@@ -169,10 +169,7 @@ class SettlementEntry extends Component {
           : (
             <SettlementDocDownload
               title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
-              text={{
-                loading: <MiniLoader />,
-                finished: <Icon color="#EEEEEE" size={16} icon={Icons.DOWNLOAD} />,
-              }}
+              buttonText={<Icon color="#EEEEEE" size={16} icon={Icons.DOWNLOAD} />}
               summary={summary}
               color="success"
             />
