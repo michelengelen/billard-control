@@ -12,7 +12,11 @@ import {
 } from 'reactstrap';
 import isEqual from 'lodash.isequal';
 
-import { ActivityIndicator, Icon } from 'components/common';
+import {
+  ActivityIndicator,
+  Icon,
+  SettlementDocDownload,
+} from 'components/common';
 import SettlementEntry from 'components/common/settlementEntry';
 // import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 import { ClubDataContext } from 'contexts/clubDataContext';
@@ -81,6 +85,7 @@ class Settlement extends Component {
       categories: null,
       tarifs: null,
       settlements: null,
+      renderPDF: false,
     };
   }
 
@@ -215,7 +220,7 @@ class Settlement extends Component {
                         <th className="text-center">Tischmiete</th>
                         <th className="text-center">Monatsbeitrag</th>
                         <th className="text-center">diverses</th>
-                        <th className="text-right">{this.renderControls(settlements[settlementKey])}</th>
+                        <th className="text-right">{this.renderControls(settlements[settlementKey], settlementKey)}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -250,9 +255,13 @@ class Settlement extends Component {
     );
   }
 
-  renderControls(settlement) {
+  renderControls(settlement, key) {
+    const { members } = this.context;
+    const { renderPDF } = this.state;
     const { finished } = settlement;
+    const date = getYearMonthFromKey(key);
     const isLockable = this.isLockable(settlement);
+    console.log('#### from Controls: ', settlement);
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
@@ -263,14 +272,24 @@ class Settlement extends Component {
         >
           <Icon className="d-inline" color="#EEEEEE" size={16} icon={finished ? Icons.LOCKED : Icons.UNLOCKED} /> Abschließen
         </Button>
-        <Button
-          color="success"
-          size="sm"
-          disabled={!finished}
-          onClick={() => console.log('#### generate months settlement PDF ####')}
-        >
-          <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
-        </Button>
+        {!renderPDF ? (
+          <Button
+            color="success"
+            size="sm"
+            disabled={!finished}
+            onClick={() => this.setState({ renderPDF: true })}
+          >
+            <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
+          </Button>
+        ) : (
+          <SettlementDocDownload
+            members={members}
+            title={`Abrechnung_${date.year}-${date.month}`}
+            buttonText={<Icon color="#EEEEEE" size={16} icon={Icons.DOWNLOAD} />}
+            summary={settlement}
+            color="success"
+          />
+        )}
       </div>
     );
   }

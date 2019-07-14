@@ -221,10 +221,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const SettlementDoc = props => {
+export const SingleSettlementDoc = props => {
   const {
     summary,
-    members,
     clubData: {
       board,
       info,

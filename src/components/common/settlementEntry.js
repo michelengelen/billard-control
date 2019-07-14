@@ -168,6 +168,7 @@ class SettlementEntry extends Component {
           )
           : (
             <SettlementDocDownload
+              singleSettlement
               title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
               buttonText={<Icon color="#EEEEEE" size={16} icon={Icons.DOWNLOAD} />}
               summary={summary}
