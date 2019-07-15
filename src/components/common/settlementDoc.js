@@ -234,7 +234,7 @@ const getRefinedSummary = (summary, members) => members
       },
     };
     return entry;
-  });
+  }).sort((a, b) => a.data.number > b.data.number);
 
 export const SettlementDoc = props => {
   const {
@@ -250,8 +250,6 @@ export const SettlementDoc = props => {
   const colSize = `col1_${boardSize}`;
 
   const refinedSummary = getRefinedSummary(summary, members);
-
-  console.log('### refined summary: ', refinedSummary);
 
   return (
     <Document>
@@ -287,6 +285,38 @@ export const SettlementDoc = props => {
               </Text>
             </View>
           </View>
+          {Array.isArray(refinedSummary) && refinedSummary.map((s, index) => {
+            const { data, sums } = s;
+            const sumNames = ['beverages', 'snacks', 'monthlyFee', 'tableRent', 'misc'];
+            const mod = index % 2 === 0 ? 'even' : 'odd';
+            const rowStyle = { ...tableStyles.tr, ...tableStyles.tr[mod]};
+            return (
+              <View style={rowStyle} key={`purchases_${index}_${data.number}`}>
+                <View style={{ ...tableStyles.td, ...styles.col2_6 }}>
+                  <Text style={styles.thText}>
+                    {`${data.name},
+                    ${data.number}`}
+                  </Text>
+                </View>
+                <View style={{ ...tableStyles.tr, ...styles.col6_6 }}>
+                  {sumNames.map(name => (
+                    <View style={styles.col6_6} key={`purchases_${index}_${data.number}_${name}`}>
+                      <View style={{ ...tableStyles.td, ...styles.col2_5 }}>
+                        <Text style={styles.tdText}>
+                          {name}
+                        </Text>
+                      </View>
+                      <View style={{ ...tableStyles.td, ...styles.col2_5, ...tableStyles.tRight }}>
+                        <Text style={styles.tdText}>
+                          {getPriceString(sums[name])}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+          )}
         </View>
         <View fixed style={{ ...styles.box, ...styles.footer }}>
           {positionList.map(position => {
