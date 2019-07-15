@@ -305,7 +305,7 @@ export const SingleSettlementDoc = props => {
           {positionList.map(position => {
             if (board[position.key] && board[position.key].firstname) {
               return (
-                <View style={styles[colSize]} key={`board_${position}`}>
+                <View style={styles[colSize]} key={`board_${position.key}`}>
                   <Text style={styles.footer.headline}>{position.title}</Text>
                   <Text style={styles.footer.text}>
                     {`${board[position.key].firstname} ${board[position.key].lastname}`}
