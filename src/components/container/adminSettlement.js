@@ -237,7 +237,7 @@ class Settlement extends Component {
                               editable={!settlements[settlementKey][member.id].finished}
                               updateCustoms={this.updateCustoms}
                               addTableRent={this.addTableRent}
-                              finishSettlementEntry={() => this.finishSettlementEntry(member.id)}
+                              finishSettlementEntry={sums => this.finishSettlementEntry(member.id, sums)}
                               saveSettlement={() => this.saveSettlement(openedSettlement)}
                             />
                           )
@@ -364,12 +364,13 @@ class Settlement extends Component {
     }, () => this.saveSettlement(openedSettlement));
   }
 
-  finishSettlementEntry(memberId) {
+  finishSettlementEntry(memberId, sums) {
     const { settlements, openedSettlement } = this.state;
     if (settlements[openedSettlement][memberId].finished) return;
     this.setState(prevState => {
       const newState = _.cloneDeep(prevState);
-      newState.settlements[openedSettlement][memberId].finished = true;
+      _.set(newState, `settlements[${openedSettlement}][${memberId}].sums`, sums);
+      _.set(newState, `settlements[${openedSettlement}][${memberId}].finished`, true);
       return newState;
     }, () => this.saveSettlement(openedSettlement));
   }

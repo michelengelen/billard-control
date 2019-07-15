@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View, Font } from '@react-pdf/renderer';
+import isUndefined from 'lodash.isundefined';
 
 import { positionList } from 'variables/constants';
 import { getPriceString } from '../../helpers/helpers';
@@ -221,6 +222,19 @@ const styles = StyleSheet.create({
   },
 });
 
+const getRefinedSummary = (summary, members) => {
+  const keys = Object.keys(summary);
+  const refined = keys
+    .filter(key => !isUndefined(members[key]) && !isUndefined(summary[key]))
+    .map(key => {
+      const memberData = members[key];
+      const memberSummary = summary[key];
+      const entry = {
+        tarif: summary
+      };
+    });
+};
+
 export const SettlementDoc = props => {
   const {
     summary,
@@ -233,6 +247,8 @@ export const SettlementDoc = props => {
 
   const boardSize = Object.keys(board).length;
   const colSize = `col1_${boardSize}`;
+
+  const refinedSummary = getRefinedSummary(summary, members);
 
   return (
     <Document>

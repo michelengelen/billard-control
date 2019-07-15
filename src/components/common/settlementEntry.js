@@ -133,12 +133,13 @@ class SettlementEntry extends Component {
   renderControls() {
     const { member, editable, finishSettlementEntry, date, summary } = this.props;
     const { renderPDF } = this.state;
+    const sums = this.getSettlementPositions();
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
           color="secondary"
           size="sm"
-          onClick={finishSettlementEntry}
+          onClick={() => finishSettlementEntry(sums)}
           disabled={!editable}
         >
           <Icon
