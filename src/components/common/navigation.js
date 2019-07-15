@@ -30,6 +30,9 @@ class Navigation extends PureComponent {
 
   render() {
     const { history, location } = this.props;
+    const logoutTime = process.env.REACT_APP_ENV === 'local'
+      ? 3000000
+      : 300000;
     return (
       <Nav vertical className="bc-nav">
         <UserContext.Consumer>
@@ -44,7 +47,7 @@ class Navigation extends PureComponent {
                   startTimer={!!ctxt.user && ctxt.user.isAuthenticated}
                   interval={250}
                   storeKey={'lastAdminAction'}
-                  time={300000}
+                  time={logoutTime}
                 />
                 <Button
                   type="button"

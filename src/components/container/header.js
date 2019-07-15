@@ -23,7 +23,6 @@ class Header extends PureComponent {
 
   render() {
     const { location } = this.props;
-    console.log('#### location: ', location);
     if (!/purchase/g.test(location.pathname)) return null;
     return (
       <Row

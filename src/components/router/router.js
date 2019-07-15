@@ -119,9 +119,7 @@ class AppRouter extends PureComponent {
       this.setState(prevState => ({
         clubDataContext: {
           ...prevState.clubDataContext,
-          board: {
-            ...querySnapshot.data(),
-          },
+          ...querySnapshot.data(),
         },
       }));
     });

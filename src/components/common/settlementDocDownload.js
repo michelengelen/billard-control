@@ -3,21 +3,31 @@ import ReactPDF from '@react-pdf/renderer';
 import { ClubDataContext } from 'contexts/clubDataContext';
 
 import { SettlementDoc } from './settlementDoc';
+import { SingleSettlementDoc } from './singleSettlementDoc';
 
-export const SettlementDocDownload = ({ title }) => (
-  <div>
+export const SettlementDocDownload = props => {
+  const {
+    members = null,
+    singleSettlement = false,
+    title,
+    summary,
+    buttonText,
+    color = 'primary',
+  } = props;
+
+  const Doc = singleSettlement ? SingleSettlementDoc : SettlementDoc;
+
+  return (
     <ClubDataContext.Consumer>
-      {ctxt => {
-        return (
-          <ReactPDF.PDFDownloadLink
-            className="btn btn-primary"
-            document={<SettlementDoc clubData={ctxt} />}
-            fileName={`${title}.pdf`}
-          >
-            {({ blob, url, loading }) => (loading ? 'Loading document...' : 'Download now!')}
-          </ReactPDF.PDFDownloadLink>
-        );
-      }}
+      {ctxt => (
+        <ReactPDF.PDFDownloadLink
+          className={`btn btn-sm btn-${color}`}
+          document={<Doc clubData={ctxt} summary={summary} members={members} />}
+          fileName={`${title}.pdf`}
+        >
+          {({ blob, url, loading }) => (loading ? '...' : buttonText)}
+        </ReactPDF.PDFDownloadLink>
+      )}
     </ClubDataContext.Consumer>
-  </div>
-);
+  );
+};

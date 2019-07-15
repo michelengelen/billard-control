@@ -21,6 +21,7 @@ import { getDateString } from 'helpers/helpers';
 import { Icons } from 'variables/constants';
 import { ClubDataContext } from 'contexts/clubDataContext';
 import isEqual from 'lodash.isequal';
+import { _ } from 'helpers/utils';
 
 class ClubData extends Component {
   constructor(props) {
@@ -44,7 +45,6 @@ class ClubData extends Component {
 
   componentDidMount() {
     this.listeners.clubDataRef = clubDataRef.onSnapshot(querySnapshot => {
-      console.log('#### query: ', querySnapshot);
       if (querySnapshot.exists) {
         this.setState({
           editDoc: {
@@ -174,10 +174,9 @@ class ClubData extends Component {
 
   renderBoardMember(title, position, required) {
     const { editDoc, openPosition, boardMembers } = this.state;
-    const positionFilled =
-      editDoc.board && editDoc.board[position] && editDoc.board[position].firstname;
-    const hasError =
-      editDoc.board && !editDoc.board[position] && !editDoc.board[position].firstname;
+
+    const positionFilled = _.get(editDoc, `board[${position}].firstname`, false);
+    const hasError = !!_.get(editDoc, `board[${position}].firstname`, true);
 
     return (
       <ListGroupItem active={position === openPosition} className="p-0">
@@ -255,7 +254,6 @@ class ClubData extends Component {
 
   render() {
     const { editDoc, alert } = this.state;
-    console.log('##### loading: ', this.state.loading);
     return (
       <div className="bc-content__wrapper">
         <AvForm onValidSubmit={() => this.validateAndSave()}>
@@ -267,7 +265,11 @@ class ClubData extends Component {
                   <blockquote className="blockquote">
                     <p className="mb-0 mt-3">Vereinsdaten bearbeiten</p>
                     <footer className="blockquote-footer">
-                      {`letzte Änderung: ${editDoc.lastChange ? getDateString(editDoc.lastChange, false) : '---'}`}
+                      {`letzte Änderung: ${
+                        editDoc.lastChange
+                          ? getDateString(editDoc.lastChange, false)
+                          : '---'}`
+                      }
                     </footer>
                   </blockquote>
                 </Col>
@@ -523,17 +525,6 @@ class ClubData extends Component {
                               : ''
                           }
                           onChange={e => this.handleOnChange(e, 'info', 'contact.telephone')}
-                          validate={{
-                            required: {
-                              value: true,
-                              errorMessage: 'Eingabe fehlt',
-                            },
-                            pattern: {
-                              value: /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/,
-                              errorMessage:
-                                'Die Telefonnummer ist nicht korreekt formatiert. Beispiel: +49 4281 1234567',
-                            },
-                          }}
                         />
                       </Col>
                     </Row>

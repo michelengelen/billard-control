@@ -12,7 +12,11 @@ import {
 } from 'reactstrap';
 import isEqual from 'lodash.isequal';
 
-import { ActivityIndicator, Icon } from 'components/common';
+import {
+  ActivityIndicator,
+  Icon,
+  SettlementDocDownload,
+} from 'components/common';
 import SettlementEntry from 'components/common/settlementEntry';
 // import { SettlementDocDownload } from 'components/common/settlementDocDownload';
 import { ClubDataContext } from 'contexts/clubDataContext';
@@ -81,6 +85,7 @@ class Settlement extends Component {
       categories: null,
       tarifs: null,
       settlements: null,
+      renderPDF: false,
     };
   }
 
@@ -215,22 +220,24 @@ class Settlement extends Component {
                         <th className="text-center">Tischmiete</th>
                         <th className="text-center">Monatsbeitrag</th>
                         <th className="text-center">diverses</th>
-                        <th className="text-right">{this.renderControls(settlements[settlementKey])}</th>
+                        <th className="text-right">{this.renderControls(settlements[settlementKey], settlementKey)}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {members.map(member => {
+                        console.log('##### settlement: ', settlements[settlementKey][member.id]);
                         if (member.active && settlements[openedSettlement]) {
                           return (
                             <SettlementEntry
                               key={`settlement_${openedSettlement}_member_${member.id}`}
                               member={member}
+                              date={getYearMonthFromKey(settlementKey)}
                               categories={categories}
                               summary={settlements[openedSettlement][member.id]}
                               editable={!settlements[settlementKey][member.id].finished}
                               updateCustoms={this.updateCustoms}
                               addTableRent={this.addTableRent}
-                              finishSettlementEntry={() => this.finishSettlementEntry(member.id)}
+                              finishSettlementEntry={sums => this.finishSettlementEntry(member.id, sums)}
                               saveSettlement={() => this.saveSettlement(openedSettlement)}
                             />
                           )
@@ -248,29 +255,42 @@ class Settlement extends Component {
     );
   }
 
-  renderControls(settlement) {
+  renderControls(settlement, key) {
+    const { members } = this.context;
+    const { renderPDF } = this.state;
     const { finished } = settlement;
+    const date = getYearMonthFromKey(key);
     const isLockable = this.isLockable(settlement);
-    console.log('isLockable?: ', isLockable);
+    console.log('#### from Controls: ', settlement);
     return (
-      <Fragment>
+      <div className="btn-group" role="group" aria-label="Basic example">
         <Button
-          color="success"
+          color="secondary"
           size="sm"
           disabled={!!finished || !isLockable}
           onClick={this.finishSettlement}
         >
           <Icon className="d-inline" color="#EEEEEE" size={16} icon={finished ? Icons.LOCKED : Icons.UNLOCKED} /> Abschließen
         </Button>
-        <Button
-          color="success"
-          size="sm"
-          disabled={!finished}
-          onClick={() => console.log('#### generate months settlement PDF ####')}
-        >
-          <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
-        </Button>
-      </Fragment>
+        {!renderPDF ? (
+          <Button
+            color="success"
+            size="sm"
+            disabled={!finished}
+            onClick={() => this.setState({ renderPDF: true })}
+          >
+            <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
+          </Button>
+        ) : (
+          <SettlementDocDownload
+            members={members}
+            title={`Abrechnung_${date.year}-${date.month}`}
+            buttonText={<Icon color="#EEEEEE" size={16} icon={Icons.DOWNLOAD} />}
+            summary={settlement}
+            color="success"
+          />
+        )}
+      </div>
     );
   }
 
@@ -344,12 +364,13 @@ class Settlement extends Component {
     }, () => this.saveSettlement(openedSettlement));
   }
 
-  finishSettlementEntry(memberId) {
+  finishSettlementEntry(memberId, sums) {
     const { settlements, openedSettlement } = this.state;
     if (settlements[openedSettlement][memberId].finished) return;
     this.setState(prevState => {
       const newState = _.cloneDeep(prevState);
-      newState.settlements[openedSettlement][memberId].finished = true;
+      _.set(newState, `settlements[${openedSettlement}][${memberId}].sums`, sums);
+      _.set(newState, `settlements[${openedSettlement}][${memberId}].finished`, true);
       return newState;
     }, () => this.saveSettlement(openedSettlement));
   }
@@ -433,7 +454,6 @@ class Settlement extends Component {
   }
 
   render() {
-    console.log('#### settlements: ', this.state);
     return (
       <Row className="bc-content mr-0 pt-3">
         <ActivityIndicator loading={this.state.loading} />

@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
 import {
   Button,
   Col,
@@ -23,7 +24,8 @@ import CurrencyInput from 'react-currency-input';
 import { Icons } from '../../variables/constants';
 import { getPriceString } from '../../helpers/helpers';
 import { _ } from '../../helpers/utils';
-// import { SettlementDocDownload } from 'components/common/settlementDocDownload';
+import { SettlementDocDownload } from 'components/common/settlementDocDownload';
+import { MiniLoader } from 'components/common';
 
 const emptyProduct = {
   name: '',
@@ -34,6 +36,18 @@ const emptyProduct = {
 };
 
 class SettlementEntry extends Component {
+  static propTypes = {
+    member: PropTypes.object.isRequired,
+    date: PropTypes.object.isRequired,
+    categories: PropTypes.array.isRequired,
+    summary: PropTypes.object.isRequired,
+    editable: PropTypes.bool.isRequired,
+    updateCustoms: PropTypes.func.isRequired,
+    addTableRent: PropTypes.func.isRequired,
+    finishSettlementEntry: PropTypes.func.isRequired,
+    saveSettlement: PropTypes.func.isRequired,
+  };
+
   constructor(props) {
     super(props);
 
@@ -53,6 +67,7 @@ class SettlementEntry extends Component {
       error: '',
       errorIndexes: [],
       isModalOpen: false,
+      renderPDF: false,
     };
   }
 
@@ -95,7 +110,6 @@ class SettlementEntry extends Component {
 
   renderSummary() {
     const { member } = this.props;
-    console.log('#### member: ', member);
     const sums = this.getSettlementPositions();
     return (
       <tr key={`settlementTable_${member.id}`}>
@@ -117,23 +131,52 @@ class SettlementEntry extends Component {
   }
 
   renderControls() {
-    const { editable, finishSettlementEntry } = this.props;
-    console.log('##### editable? ', editable);
+    const { member, editable, finishSettlementEntry, date, summary } = this.props;
+    const { renderPDF } = this.state;
+    const sums = this.getSettlementPositions();
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
           color="secondary"
           size="sm"
-          onClick={finishSettlementEntry}
+          onClick={() => finishSettlementEntry(sums)}
+          disabled={!editable}
         >
-          <Icon color="#EEEEEE" size={16} disabled={!editable} icon={editable ? Icons.UNLOCKED : Icons.LOCKED} />
+          <Icon
+            color="#EEEEEE"
+            size={16}
+            icon={editable ? Icons.UNLOCKED : Icons.LOCKED}
+          />
         </Button>
-        <Button color="success" size="sm" onClick={() => console.log('#### generate memeber settlement PDF ####')}>
-          <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />
-        </Button>
-        <Button color="primary" size="sm" disabled={!editable} onClick={this.toggleModal}>
+        <Button
+          color="primary"
+          size="sm"
+          disabled={!editable}
+          onClick={this.toggleModal}
+        >
           <Icon color="#EEEEEE" size={16} icon={Icons.PENCIL} />
         </Button>
+        {!renderPDF
+          ? (
+            <Button
+              color="success"
+              size="sm"
+              disabled={editable}
+              onClick={() => this.setState({ renderPDF: true })}
+            >
+              <Icon color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} />
+            </Button>
+          )
+          : (
+            <SettlementDocDownload
+              singleSettlement
+              title={`${member.lastname}_${member.id}_${date.year}-${date.month}`}
+              buttonText={<Icon color="#EEEEEE" size={16} icon={Icons.DOWNLOAD} />}
+              summary={summary}
+              color="success"
+            />
+          )
+        }
       </div>
     );
   }
@@ -250,9 +293,10 @@ class SettlementEntry extends Component {
   render() {
     const { loading, isModalOpen, error, errorIndexes } = this.state;
     const {
-      summary: { tableRent, customs },
+      summary: { tableRent, customs, purchases },
       member,
       addTableRent,
+      date,
     } = this.props;
 
     return (
