@@ -85,7 +85,7 @@ class Settlement extends Component {
       categories: null,
       tarifs: null,
       settlements: null,
-      renderPDF: false,
+      renderPDF: '',
     };
   }
 
@@ -113,7 +113,6 @@ class Settlement extends Component {
       querySnapshot.forEach(doc => {
         settlements[doc.id] = doc.data();
       });
-      console.warn('####### on settlement Snapshot call ########');
       this.setState({
         settlements,
       });
@@ -225,7 +224,6 @@ class Settlement extends Component {
                     </thead>
                     <tbody>
                       {members.map(member => {
-                        console.log('##### settlement: ', settlements[settlementKey][member.id]);
                         if (member.active && settlements[openedSettlement]) {
                           return (
                             <SettlementEntry
@@ -261,7 +259,7 @@ class Settlement extends Component {
     const { finished } = settlement;
     const date = getYearMonthFromKey(key);
     const isLockable = this.isLockable(settlement);
-    console.log('#### from Controls: ', settlement);
+
     return (
       <div className="btn-group" role="group" aria-label="Basic example">
         <Button
@@ -272,16 +270,7 @@ class Settlement extends Component {
         >
           <Icon className="d-inline" color="#EEEEEE" size={16} icon={finished ? Icons.LOCKED : Icons.UNLOCKED} /> Abschließen
         </Button>
-        {!renderPDF ? (
-          <Button
-            color="success"
-            size="sm"
-            disabled={!finished}
-            onClick={() => this.setState({ renderPDF: true })}
-          >
-            <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
-          </Button>
-        ) : (
+        {renderPDF === key ? (
           <SettlementDocDownload
             members={members}
             title={`Abrechnung_${date.year}-${date.month}`}
@@ -289,6 +278,15 @@ class Settlement extends Component {
             summary={settlement}
             color="success"
           />
+        ) : (
+          <Button
+            color="success"
+            size="sm"
+            disabled={!finished}
+            onClick={() => this.setState({ renderPDF: key })}
+          >
+            <Icon className="d-inline" color="#EEEEEE" size={16} icon={Icons.FILE_TEXT} /> PDF generieren
+          </Button>
         )}
       </div>
     );

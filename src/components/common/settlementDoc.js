@@ -136,6 +136,12 @@ const styles = StyleSheet.create({
       marginBottom: 1,
     },
   },
+  dFlex: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   col6_6: {
     flex: 1,
     flexBasis: '100%',
@@ -222,18 +228,25 @@ const styles = StyleSheet.create({
   },
 });
 
-const getRefinedSummary = (summary, members) => {
-  const keys = Object.keys(summary);
-  const refined = keys
-    .filter(key => !isUndefined(members[key]) && !isUndefined(summary[key]))
-    .map(key => {
-      const memberData = members[key];
-      const memberSummary = summary[key];
-      const entry = {
-        tarif: summary
-      };
-    });
-};
+const getRefinedSummary = (summary, members) => members
+  .filter(member => !isUndefined(member) && !isUndefined(summary[member.id]))
+  .map(member => {
+    const memberSums = summary[member.id].sums;
+    const keys = Object.keys(memberSums);
+    let total = 0;
+    keys.forEach(key => total += memberSums[key]);
+    const entry = {
+      sums: {
+        ...memberSums,
+        total,
+      },
+      data: {
+        name: `${member.lastname}, ${member.firstname}`,
+        number: member.membernumber,
+      },
+    };
+    return entry;
+  }).sort((a, b) => a.data.number > b.data.number);
 
 export const SettlementDoc = props => {
   const {
@@ -260,59 +273,59 @@ export const SettlementDoc = props => {
           <View style={{ ...tableStyles.tr, borderBottom: 1, borderColor: '#DDD' }}>
             <View style={{ ...tableStyles.td, ...styles.col2_6 }}>
               <Text style={styles.thText}>
-                Position
+                Mitglied
               </Text>
             </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tCenter }}>
-              <Text style={styles.thText}>
-                EAN
-              </Text>
-            </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tCenter }}>
-              <Text style={styles.thText}>
-                Preis
-              </Text>
-            </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tCenter }}>
-              <Text style={styles.thText}>
-                Menge
-              </Text>
-            </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tRight }}>
-              <Text style={styles.thText}>
-                Summe
-              </Text>
+            <View style={{ ...tableStyles.td, ...styles.col4_6 }}>
+              <View style={{ ...styles.dFlex, ...styles.col6_6 }}>
+                <View style={{ ...tableStyles.td, ...styles.col2_3 }}>
+                  <Text style={styles.thText}>
+                    Position
+                  </Text>
+                </View>
+                <View style={{ ...tableStyles.td, ...styles.col1_3 , ...tableStyles.tRight }}>
+                  <Text style={styles.thText}>
+                    Summe
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
-          {Array.isArray(summary.purchases) && summary.purchases.map((p, index) => {
+          {Array.isArray(refinedSummary) && refinedSummary.map((s, index) => {
+            const { data, sums } = s;
+            const sumNames = {
+              beverages: 'Getränke',
+              snacks: 'Snacks',
+              monthlyFee: 'Monatsbeitrag',
+              tableRent: 'Tischmiete',
+              misc: 'Sonstiges',
+              total: 'Gesamt',
+            };
             const mod = index % 2 === 0 ? 'even' : 'odd';
             const rowStyle = { ...tableStyles.tr, ...tableStyles.tr[mod]};
             return (
-              <View style={rowStyle} key={`purchases_${index}_${p.ean}`}>
+              <View style={rowStyle} key={`purchases_${index}_${data.number}`}>
                 <View style={{ ...tableStyles.td, ...styles.col2_6 }}>
-                  <Text style={styles.tdText}>
-                    {p.name}
-                  </Text>
-                </View>
-                <View style={{ ...tableStyles.td, ...styles.col1_6, ...tableStyles.tCenter }}>
-                  <Text style={styles.tdText}>
-                    {p.ean}
-                  </Text>
-                </View>
-                <View style={{ ...tableStyles.td, ...styles.col1_6, ...tableStyles.tCenter }}>
-                  <Text style={styles.tdText}>
-                    {getPriceString(p.price)}
-                  </Text>
-                </View>
-                <View style={{ ...tableStyles.td, ...styles.col1_6, ...tableStyles.tCenter }}>
-                  <Text style={styles.tdText}>
-                    {p.amount}
-                  </Text>
-                </View>
-                <View style={{ ...tableStyles.td, ...styles.col1_6, ...tableStyles.tRight }}>
                   <Text style={styles.thText}>
-                    {getPriceString(p.price * p.amount)}
+                    {`${data.name},
+                    ${data.number}`}
                   </Text>
+                </View>
+                <View style={{ ...tableStyles.td, ...styles.col4_6 }}>
+                  {Object.keys(sumNames).map((key, i) => (
+                    <View style={{ ...styles.dFlex, ...styles.col6_6 }} key={`purchases_${index}_${data.number}_${key}`}>
+                      <View style={{ ...tableStyles.td, ...styles.col2_3 }}>
+                        <Text style={Object.keys(sumNames).length === i - 1 ? styles.thText : styles.tdText}>
+                          {sumNames[key]}
+                        </Text>
+                      </View>
+                      <View style={{ ...tableStyles.td, ...styles.col1_3, ...tableStyles.tRight }}>
+                        <Text style={Object.keys(sumNames).length === i - 1 ? styles.thText : styles.tdText}>
+                          {getPriceString(sums[key])}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
                 </View>
               </View>
             )}
@@ -322,7 +335,7 @@ export const SettlementDoc = props => {
           {positionList.map(position => {
             if (board[position.key] && board[position.key].firstname) {
               return (
-                <View style={styles[colSize]} key={`board_${position}`}>
+                <View style={styles[colSize]} key={`board_${position.key}`}>
                   <Text style={styles.footer.headline}>{position.title}</Text>
                   <Text style={styles.footer.text}>
                     {`${board[position.key].firstname} ${board[position.key].lastname}`}
