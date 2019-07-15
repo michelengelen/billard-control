@@ -136,6 +136,12 @@ const styles = StyleSheet.create({
       marginBottom: 1,
     },
   },
+  dFlex: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
   col6_6: {
     flex: 1,
     flexBasis: '100%',
@@ -226,8 +232,14 @@ const getRefinedSummary = (summary, members) => members
   .filter(member => !isUndefined(member) && !isUndefined(summary[member.id]))
   .map(member => {
     const memberSums = summary[member.id].sums;
+    const keys = Object.keys(memberSums);
+    let total = 0;
+    keys.forEach(key => total += memberSums[key]);
     const entry = {
-      sums: memberSums,
+      sums: {
+        ...memberSums,
+        total,
+      },
       data: {
         name: `${member.lastname}, ${member.firstname}`,
         number: member.membernumber,
@@ -261,33 +273,34 @@ export const SettlementDoc = props => {
           <View style={{ ...tableStyles.tr, borderBottom: 1, borderColor: '#DDD' }}>
             <View style={{ ...tableStyles.td, ...styles.col2_6 }}>
               <Text style={styles.thText}>
-                Position
+                Mitglied
               </Text>
             </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tCenter }}>
-              <Text style={styles.thText}>
-                EAN
-              </Text>
-            </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tCenter }}>
-              <Text style={styles.thText}>
-                Preis
-              </Text>
-            </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tCenter }}>
-              <Text style={styles.thText}>
-                Menge
-              </Text>
-            </View>
-            <View style={{ ...tableStyles.td, ...styles.col1_6 , ...tableStyles.tRight }}>
-              <Text style={styles.thText}>
-                Summe
-              </Text>
+            <View style={{ ...tableStyles.td, ...styles.col4_6 }}>
+              <View style={{ ...styles.dFlex, ...styles.col6_6 }}>
+                <View style={{ ...tableStyles.td, ...styles.col2_3 }}>
+                  <Text style={styles.thText}>
+                    Position
+                  </Text>
+                </View>
+                <View style={{ ...tableStyles.td, ...styles.col1_3 , ...tableStyles.tRight }}>
+                  <Text style={styles.thText}>
+                    Summe
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
           {Array.isArray(refinedSummary) && refinedSummary.map((s, index) => {
             const { data, sums } = s;
-            const sumNames = ['beverages', 'snacks', 'monthlyFee', 'tableRent', 'misc'];
+            const sumNames = {
+              beverages: 'Getränke',
+              snacks: 'Snacks',
+              monthlyFee: 'Monatsbeitrag',
+              tableRent: 'Tischmiete',
+              misc: 'Sonstiges',
+              total: 'Gesamt',
+            };
             const mod = index % 2 === 0 ? 'even' : 'odd';
             const rowStyle = { ...tableStyles.tr, ...tableStyles.tr[mod]};
             return (
@@ -298,17 +311,17 @@ export const SettlementDoc = props => {
                     ${data.number}`}
                   </Text>
                 </View>
-                <View style={{ ...tableStyles.tr, ...styles.col6_6 }}>
-                  {sumNames.map(name => (
-                    <View style={styles.col6_6} key={`purchases_${index}_${data.number}_${name}`}>
-                      <View style={{ ...tableStyles.td, ...styles.col2_5 }}>
-                        <Text style={styles.tdText}>
-                          {name}
+                <View style={{ ...tableStyles.td, ...styles.col4_6 }}>
+                  {Object.keys(sumNames).map((key, i) => (
+                    <View style={{ ...styles.dFlex, ...styles.col6_6 }} key={`purchases_${index}_${data.number}_${key}`}>
+                      <View style={{ ...tableStyles.td, ...styles.col2_3 }}>
+                        <Text style={Object.keys(sumNames).length === i - 1 ? styles.thText : styles.tdText}>
+                          {sumNames[key]}
                         </Text>
                       </View>
-                      <View style={{ ...tableStyles.td, ...styles.col2_5, ...tableStyles.tRight }}>
-                        <Text style={styles.tdText}>
-                          {getPriceString(sums[name])}
+                      <View style={{ ...tableStyles.td, ...styles.col1_3, ...tableStyles.tRight }}>
+                        <Text style={Object.keys(sumNames).length === i - 1 ? styles.thText : styles.tdText}>
+                          {getPriceString(sums[key])}
                         </Text>
                       </View>
                     </View>
