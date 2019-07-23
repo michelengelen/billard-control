@@ -127,7 +127,7 @@ class AppRouter extends PureComponent {
 
   componentDidUpdate(prevProps, prevState, prevContext) {
     const { clubDataContext } = this.state;
-    if (prevState.loading && !!clubDataContext.members && !!clubDataContext.board) {
+    if (prevState.loading && !!clubDataContext.members) {
       this.setState({ loading: false });
     }
   }
