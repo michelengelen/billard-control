@@ -24,7 +24,9 @@ export const Icon = props => {
     if (callback) callback();
   };
 
-  const svgSize = props.padding ? `${props.size - 20}px` : `${props.size}px`;
+  const svgSize = props.padding
+    ? `${props.size - 20}px`
+    : `${props.size}px`;
 
   return (
     <div style={styles.wrapper} className={props.className || ''}>
