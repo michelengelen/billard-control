@@ -272,6 +272,7 @@ class Purchase extends PureComponent {
         <ActivityIndicator loading={this.state.loading} />
         <PurchaseContext.Consumer>
           {ctxt => {
+            console.log('### memberData: ', ctxt.memberData);
             if (ctxt.membernumber < 0) {
               return (
                 <Row className="bc-content align-items-center justify-content-center">
@@ -357,7 +358,7 @@ class Purchase extends PureComponent {
                               startTimer={!this.state.loading && !!ctxt.memberId}
                               interval={250}
                               storeKey={'lastAction'}
-                              time={30000}
+                              time={process.env.NODE_ENV === 'development' ? 300000 : 30000}
                             />
                             <Button
                               type="button"
