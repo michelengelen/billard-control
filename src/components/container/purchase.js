@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PinInput from 'react-pin-input';
 import { withRouter } from 'react-router-dom';
 import { Row } from 'reactstrap';
 
@@ -40,8 +41,10 @@ class Purchase extends PureComponent {
     super(props);
 
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnPinChange = this.handleOnPinChange.bind(this);
     this.checkMembernumber = this.checkMembernumber.bind(this);
     this.setError = this.setError.bind(this);
+    this.clearError = this.clearError.bind(this);
     this.addProduct = this.addProduct.bind(this);
     this.submitPurchase = this.submitPurchase.bind(this);
     this.changeAmount = this.changeAmount.bind(this);
@@ -113,6 +116,12 @@ class Purchase extends PureComponent {
     }
   }
 
+  handleOnPinChange(value) {
+    this.setState({
+      membernumber: value,
+    });
+  }
+
   checkMembernumber(e) {
     e.preventDefault();
     this.setState({ loading: true });
@@ -130,7 +139,7 @@ class Purchase extends PureComponent {
               memberdata.journalRef
                 .collection('journal')
                 .orderBy('date', 'desc')
-                .limit(10)
+                .limit(5)
                 .onSnapshot(journalSnap => {
                   const journal = [];
                   journalSnap.forEach(journalDoc => journal.push({ ...journalDoc.data() }));
@@ -263,7 +272,15 @@ class Purchase extends PureComponent {
   }
 
   setError(error) {
-    this.setState({ error, loading: false });
+    this.setState({ error, loading: false },
+      () => setTimeout(this.clearError, 5000)
+    );
+  }
+
+  clearError() {
+    this.setState({
+      error: '',
+    })
   }
 
   render() {
@@ -272,6 +289,7 @@ class Purchase extends PureComponent {
         <ActivityIndicator loading={this.state.loading} />
         <PurchaseContext.Consumer>
           {ctxt => {
+            console.log('### memberData: ', ctxt.memberData);
             if (ctxt.membernumber < 0) {
               return (
                 <Row className="bc-content align-items-center justify-content-center">
@@ -284,6 +302,7 @@ class Purchase extends PureComponent {
                         <CardBody>
                           <Alert
                             color="danger"
+                            fade={false}
                             isOpen={!!this.state.error}
                             toggle={() => this.setState({ error: '' })}
                           >
@@ -291,17 +310,18 @@ class Purchase extends PureComponent {
                           </Alert>
                           <FormGroup>
                             <Label for="membernumber">Mitgliedsnummer</Label>
-                            <Input
-                              autoComplete="off"
-                              className="text-center"
-                              type="text"
-                              name="membernumber"
-                              id="membernumber"
-                              value={this.state.membernumber}
-                              innerRef={input => (this.focussedInput = input)}
-                              onChange={e => this.handleOnChange(e, 'membernumber')}
-                              placeholder="******"
-                            />
+                            <PinInput length={6} onChange={this.handleOnPinChange} type="numeric" focus secret />
+                            {/*<Input*/}
+                            {/*  autoComplete="off"*/}
+                            {/*  className="text-center"*/}
+                            {/*  type="text"*/}
+                            {/*  name="membernumber"*/}
+                            {/*  id="membernumber"*/}
+                            {/*  value={this.state.membernumber}*/}
+                            {/*  innerRef={input => (this.focussedInput = input)}*/}
+                            {/*  onChange={e => this.handleOnChange(e, 'membernumber')}*/}
+                            {/*  placeholder="******"*/}
+                            {/*/>*/}
                           </FormGroup>
                         </CardBody>
                         <CardFooter>
@@ -357,7 +377,7 @@ class Purchase extends PureComponent {
                               startTimer={!this.state.loading && !!ctxt.memberId}
                               interval={250}
                               storeKey={'lastAction'}
-                              time={30000}
+                              time={process.env.NODE_ENV === 'development' ? 300000 : 50000}
                             />
                             <Button
                               type="button"
@@ -432,7 +452,7 @@ class Purchase extends PureComponent {
                               </Table>
                             </Row>
                           )}
-                          {this.state.activeTab === 'categories' && <h1>Produktübersicht!</h1>}
+                          {/*{this.state.activeTab === 'categories' && <h1>Produktübersicht!</h1>}*/}
                         </CardBody>
                       </Card>
                     </Col>
@@ -444,10 +464,27 @@ class Purchase extends PureComponent {
                               <h5 className="m-0">aktuelle Buchung</h5>
                             </Col>
                             <Col xs={6} className="text-right">
+                              {ctxt.memberData.isGuest && (
+                                <Button
+                                  type="button"
+                                  color="info"
+                                  className="mr-3"
+                                  onClick={() => console.log('### abbrechnung ausdrucken ###')}
+                                >
+                                  Gastkonto abrechnen
+                                </Button>
+                              )}
                               <Button
                                 type="button"
                                 color="success"
-                                onClick={() => this.submitPurchase().then(ctxt.unsetMember)}
+                                onClick={() => {
+                                  const { currentPurchase } = this.state;
+                                  this.submitPurchase().then(() => {
+                                    if (currentPurchase.length > 0) {
+                                      ctxt.unsetMember();
+                                    }
+                                  });
+                                }}
                               >
                                 Buchung abschicken
                               </Button>
@@ -458,6 +495,7 @@ class Purchase extends PureComponent {
                           <Alert
                             color="danger"
                             className="m-3"
+                            fade={false}
                             isOpen={!!this.state.error}
                             toggle={() => this.setState({ error: '' })}
                           >
