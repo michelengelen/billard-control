@@ -42,6 +42,7 @@ class Purchase extends PureComponent {
     this.handleOnChange = this.handleOnChange.bind(this);
     this.checkMembernumber = this.checkMembernumber.bind(this);
     this.setError = this.setError.bind(this);
+    this.clearError = this.clearError.bind(this);
     this.addProduct = this.addProduct.bind(this);
     this.submitPurchase = this.submitPurchase.bind(this);
     this.changeAmount = this.changeAmount.bind(this);
@@ -263,7 +264,15 @@ class Purchase extends PureComponent {
   }
 
   setError(error) {
-    this.setState({ error, loading: false });
+    this.setState({ error, loading: false },
+      () => setTimeout(this.clearError, 5000)
+    );
+  }
+
+  clearError() {
+    this.setState({
+      error: '',
+    })
   }
 
   render() {
@@ -285,6 +294,7 @@ class Purchase extends PureComponent {
                         <CardBody>
                           <Alert
                             color="danger"
+                            fade={false}
                             isOpen={!!this.state.error}
                             toggle={() => this.setState({ error: '' })}
                           >
@@ -445,10 +455,27 @@ class Purchase extends PureComponent {
                               <h5 className="m-0">aktuelle Buchung</h5>
                             </Col>
                             <Col xs={6} className="text-right">
+                              {ctxt.memberData.isGuest && (
+                                <Button
+                                  type="button"
+                                  color="info"
+                                  className="mr-3"
+                                  onClick={() => console.log('### abbrechnung ausdrucken ###')}
+                                >
+                                  Gastkonto abrechnen
+                                </Button>
+                              )}
                               <Button
                                 type="button"
                                 color="success"
-                                onClick={() => this.submitPurchase().then(ctxt.unsetMember)}
+                                onClick={() => {
+                                  const { currentPurchase } = this.state;
+                                  this.submitPurchase().then(() => {
+                                    if (currentPurchase.length > 0) {
+                                      ctxt.unsetMember();
+                                    }
+                                  });
+                                }}
                               >
                                 Buchung abschicken
                               </Button>
@@ -459,6 +486,7 @@ class Purchase extends PureComponent {
                           <Alert
                             color="danger"
                             className="m-3"
+                            fade={false}
                             isOpen={!!this.state.error}
                             toggle={() => this.setState({ error: '' })}
                           >

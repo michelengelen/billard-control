@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   Alert,
   Button,
@@ -20,6 +20,7 @@ const now = new Date().toJSON().split('T')[0];
 class MemberEdit extends Component {
   render() {
     const { editId, errors, handleOnChange, member, tarifs } = this.props;
+    const { isGuest } = member;
 
     if (!member.contact) member.contact = {};
     if (!member.adress) member.adress = {};
@@ -72,14 +73,14 @@ class MemberEdit extends Component {
               </CardHeader>
               <CardBody>
                 <Row form>
-                  <Col xs={6}>
+                  <Col xs={isGuest ? 12 : 6}>
                     <AvField
                       type="text"
                       name="firstname"
                       id="firstname"
                       label={
                         <span>
-                          Vorname <span className="text-danger"> *</span>
+                            {isGuest ? 'Name der Gastkarte' : 'Vorname'} <span className="text-danger"> *</span>
                         </span>
                       }
                       value={member.firstname || ''}
@@ -100,34 +101,37 @@ class MemberEdit extends Component {
                       }}
                     />
                   </Col>
-                  <Col xs={6}>
-                    <AvField
-                      type="text"
-                      name="lastname"
-                      id="lastname"
-                      label={
-                        <span>
-                          Nachname <span className="text-danger"> *</span>
-                        </span>
-                      }
-                      value={member.lastname || ''}
-                      onChange={e => handleOnChange(e, 'lastname')}
-                      validate={{
-                        required: {
-                          value: true,
-                          errorMessage: 'Eingabe fehlt',
-                        },
-                        pattern: {
-                          value: '^[A-Za-z-\\s]+$',
-                          errorMessage: 'Bitte nur Buchstaben und "-" verwenden',
-                        },
-                        minLength: {
-                          value: 2,
-                          errorMessage: 'Namen mit weniger als 2 Zeichen sind nicht zulässig',
-                        },
-                      }}
-                    />
-                  </Col>
+                  {!isGuest && (
+                    <Col xs={6}>
+                      <AvField
+                        disabled={isGuest}
+                        type="text"
+                        name="lastname"
+                        id="lastname"
+                        label={
+                          <span>
+                            Nachname <span className="text-danger"> *</span>
+                          </span>
+                        }
+                        value={member.lastname || ''}
+                        onChange={e => handleOnChange(e, 'lastname')}
+                        validate={{
+                          required: {
+                            value: true,
+                            errorMessage: 'Eingabe fehlt',
+                          },
+                          pattern: {
+                            value: '^[A-Za-z-\\s]+$',
+                            errorMessage: 'Bitte nur Buchstaben und "-" verwenden',
+                          },
+                          minLength: {
+                            value: 2,
+                            errorMessage: 'Namen mit weniger als 2 Zeichen sind nicht zulässig',
+                          },
+                        }}
+                      />
+                    </Col>
+                  )}
                 </Row>
                 <hr />
                 <Row form>
@@ -138,6 +142,10 @@ class MemberEdit extends Component {
                       id="birthday"
                       label={<span>Geburtstag</span>}
                       validate={{
+                        required: {
+                          value: !isGuest,
+                          errorMessage: 'Eingabe fehlt',
+                        },
                         dateRange: {
                           start: { value: -150, units: 'years' },
                           end: { value: 0, units: 'days' },
@@ -145,8 +153,8 @@ class MemberEdit extends Component {
                         },
                       }}
                       max={now}
-                      disabled={!!editId}
-                      value={member.birthday ? member.birthday.dateString : ''}
+                      disabled={isGuest || !!editId}
+                      value={!isGuest && member.birthday ? member.birthday.dateString : ''}
                       className="form-control"
                       onChange={(e, value) => handleOnChange(e, 'birthday', value)}
                     />
@@ -165,11 +173,11 @@ class MemberEdit extends Component {
                             Strasse <span className="text-danger"> *</span>
                           </span>
                         }
-                        value={member.adress.street || ''}
+                        value={!isGuest && member.adress.street ? member.adress.street : ''}
                         onChange={e => handleOnChange(e, 'adress.street')}
                         validate={{
                           required: {
-                            value: true,
+                            value: !isGuest,
                             errorMessage: 'Eingabe fehlt',
                           },
                           pattern: {
@@ -182,6 +190,7 @@ class MemberEdit extends Component {
                               'Strassennamen mit weniger als 2 Zeichen sind nicht zulässig',
                           },
                         }}
+                        disabled={isGuest}
                       />
                     </FormGroup>
                   </Col>
@@ -196,11 +205,11 @@ class MemberEdit extends Component {
                             Nummer <span className="text-danger"> *</span>
                           </span>
                         }
-                        value={member.adress.number || ''}
+                        value={!isGuest && member.adress.number ? member.adress.number : ''}
                         onChange={e => handleOnChange(e, 'adress.number')}
                         validate={{
                           required: {
-                            value: true,
+                            value: !isGuest,
                             errorMessage: 'Eingabe fehlt',
                           },
                           pattern: {
@@ -212,6 +221,7 @@ class MemberEdit extends Component {
                             errorMessage: 'Eingabe ungültig',
                           },
                         }}
+                        disabled={isGuest}
                       />
                     </FormGroup>
                   </Col>
@@ -228,11 +238,11 @@ class MemberEdit extends Component {
                             PLZ <span className="text-danger"> *</span>
                           </span>
                         }
-                        value={member.adress.zip || ''}
+                        value={!isGuest && member.adress.zip ? member.adress.zip : ''}
                         onChange={e => handleOnChange(e, 'adress.zip')}
                         validate={{
                           required: {
-                            value: true,
+                            value: !isGuest,
                             errorMessage: 'Eingabe fehlt',
                           },
                           pattern: {
@@ -248,6 +258,7 @@ class MemberEdit extends Component {
                             errorMessage: 'Eingabe ungültig',
                           },
                         }}
+                        disabled={isGuest}
                       />
                     </FormGroup>
                   </Col>
@@ -261,11 +272,11 @@ class MemberEdit extends Component {
                           Ort <span className="text-danger"> *</span>
                         </span>
                       }
-                      value={member.adress.city || ''}
+                      value={!isGuest && member.adress.city ? member.adress.city : ''}
                       onChange={e => handleOnChange(e, 'adress.city')}
                       validate={{
                         required: {
-                          value: true,
+                          value: !isGuest,
                           errorMessage: 'Eingabe fehlt',
                         },
                         pattern: {
@@ -277,6 +288,7 @@ class MemberEdit extends Component {
                           errorMessage: 'Städtenamen mit weniger als 2 Zeichen sind nicht zulässig',
                         },
                       }}
+                      disabled={isGuest}
                     />
                   </Col>
                 </Row>
@@ -295,17 +307,18 @@ class MemberEdit extends Component {
                       name="contact.email"
                       id="contact.email"
                       label={<span>E-Mail</span>}
-                      value={member.contact.email || ''}
+                      value={!isGuest && member.contact.email ? member.contact.email : ''}
                       onChange={e => handleOnChange(e, 'contact.email')}
                       validate={{
                         required: {
-                          value: false,
+                          value: !isGuest,
                         },
                         email: {
                           value: true,
                           errorMessage: 'E-Mail nicht im korrekten Format',
                         },
                       }}
+                      disabled={isGuest}
                     />
                   </Col>
                   <Col xs={12}>
@@ -314,7 +327,7 @@ class MemberEdit extends Component {
                       name="contact.telephone"
                       id="contact.telephone"
                       label={<span>Telefon</span>}
-                      value={member.contact.telephone || ''}
+                      value={!isGuest && member.contact.telephone ? member.contact.telephone :''}
                       onChange={e => handleOnChange(e, 'contact.telephone')}
                       validate={{
                         pattern: {
@@ -323,6 +336,7 @@ class MemberEdit extends Component {
                             'Die Telefonnummer ist nicht korrekt formatiert.',
                         },
                       }}
+                      disabled={isGuest}
                     />
                   </Col>
                   <Col xs={12}>
@@ -331,7 +345,7 @@ class MemberEdit extends Component {
                       name="contact.mobile"
                       id="contact.mobile"
                       label={<span>Mobil</span>}
-                      value={member.contact.mobile || ''}
+                      value={!isGuest && member.contact.mobile ? member.contact.mobile : ''}
                       onChange={e => handleOnChange(e, 'contact.mobile')}
                       validate={{
                         pattern: {
@@ -340,6 +354,7 @@ class MemberEdit extends Component {
                             'Die Telefonnummer ist nicht korrekt formatiert.',
                         },
                       }}
+                      disabled={isGuest}
                     />
                   </Col>
                 </Row>
@@ -438,7 +453,7 @@ class MemberEdit extends Component {
                         },
                       }}
                       min={now}
-                      disabled={!editId || member.active}
+                      disabled={isGuest || !editId || member.active}
                       value={member.exitDate ? member.exitDate.dateString : ''}
                       className="form-control"
                       onChange={(e, value) => handleOnChange(e, 'exitDate', value)}
@@ -456,15 +471,21 @@ class MemberEdit extends Component {
                           Tarif<span className="text-danger"> *</span>
                         </span>
                       }
-                      value={member.tarifId || ''}
+                      value={!isGuest && member.tarifId ? member.tarifId : ''}
                       onChange={e => handleOnChange(e, 'tarifId')}
                     >
-                      <option value={null}>Bitte einen Tarif wählen</option>
-                      {Object.keys(tarifs).map(tarifKey => (
-                        <option key={`select_${tarifKey}`} value={tarifKey}>
-                          {tarifs[tarifKey].name}
-                        </option>
-                      ))}
+                      {isGuest ? (
+                        <option value={null}>Gastkarte</option>
+                      ) : (
+                        <Fragment>
+                          <option value={null}>Bitte einen Tarif wählen</option>
+                          {Object.keys(tarifs).map(tarifKey => (
+                            <option key={`select_${tarifKey}`} value={tarifKey}>
+                              {tarifs[tarifKey].name}
+                            </option>
+                          ))}
+                        </Fragment>
+                      )}
                     </AvField>
                   </Col>
                   <Col xs={6}>
