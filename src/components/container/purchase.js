@@ -293,7 +293,7 @@ class Purchase extends PureComponent {
             if (ctxt.membernumber < 0) {
               return (
                 <Row className="bc-content align-items-center justify-content-center">
-                  <Col xs={4}>
+                  <Col xs={6}>
                     <Form onSubmit={this.checkMembernumber} autoComplete="off">
                       <Card className="text-center">
                         <CardHeader>
@@ -389,72 +389,72 @@ class Purchase extends PureComponent {
                           </CardBody>
                         </Card>
                       </div>
-                      <Card>
-                        <CardHeader>
-                          <Nav tabs className="card-header-tabs">
-                            <NavItem>
-                              <NavLink
-                                active={this.state.activeTab === 'lastPurchase'}
-                                onClick={() => this.setState({ activeTab: 'lastPurchase' })}
-                              >
-                                letzte Buchungen
-                              </NavLink>
-                            </NavItem>
-                            <NavItem>
-                              <NavLink
-                                active={this.state.activeTab === 'categories'}
-                                onClick={() => this.setState({ activeTab: 'categories' })}
-                              >
-                                Produktübersicht
-                              </NavLink>
-                            </NavItem>
-                          </Nav>
-                        </CardHeader>
-                        <CardBody className="py-0">
-                          {this.state.activeTab === 'lastPurchase' && (
-                            <Row className="mx-neg-3">
-                              <Table striped hover>
-                                <tbody>
-                                  {ctxt.journal.map((item, index) => {
-                                    if (item.public) {
-                                      return (
-                                        <tr key={`journalTable${index}_${item.id}`}>
-                                          <td className="align-middle">{item.name || '---'}</td>
-                                          <td className="text-center align-middle">
-                                            {item.price ? getPriceString(item.price) : '---'}
-                                          </td>
-                                          <td className="text-center align-middle">
-                                            {item.amount}
-                                          </td>
-                                          <td className="text-center align-middle">
-                                            {getPriceString(item.amount * item.price)}
-                                          </td>
-                                          <td className="text-right">
-                                            <Button
-                                              color="success"
-                                              size="sm"
-                                              className="p-1"
-                                              onClick={e => this.directlyAddProduct(e, item.id)}
-                                            >
-                                              <Icon
-                                                color="#EEEEEE"
-                                                size={20}
-                                                icon={Icons.CHEVRON.RIGHT}
-                                              />
-                                            </Button>
-                                          </td>
-                                        </tr>
-                                      );
-                                    }
-                                    return null;
-                                  })}
-                                </tbody>
-                              </Table>
-                            </Row>
-                          )}
-                          {/*{this.state.activeTab === 'categories' && <h1>Produktübersicht!</h1>}*/}
-                        </CardBody>
-                      </Card>
+                      {/*<Card>*/}
+                      {/*  <CardHeader>*/}
+                      {/*    <Nav tabs className="card-header-tabs">*/}
+                      {/*      <NavItem>*/}
+                      {/*        <NavLink*/}
+                      {/*          active={this.state.activeTab === 'lastPurchase'}*/}
+                      {/*          onClick={() => this.setState({ activeTab: 'lastPurchase' })}*/}
+                      {/*        >*/}
+                      {/*          letzte Buchungen*/}
+                      {/*        </NavLink>*/}
+                      {/*      </NavItem>*/}
+                      {/*      <NavItem>*/}
+                      {/*        <NavLink*/}
+                      {/*          active={this.state.activeTab === 'categories'}*/}
+                      {/*          onClick={() => this.setState({ activeTab: 'categories' })}*/}
+                      {/*        >*/}
+                      {/*          Produktübersicht*/}
+                      {/*        </NavLink>*/}
+                      {/*      </NavItem>*/}
+                      {/*    </Nav>*/}
+                      {/*  </CardHeader>*/}
+                      {/*  <CardBody className="py-0">*/}
+                      {/*    {this.state.activeTab === 'lastPurchase' && (*/}
+                      {/*      <Row className="mx-neg-3">*/}
+                      {/*        <Table striped hover>*/}
+                      {/*          <tbody>*/}
+                      {/*            {ctxt.journal.map((item, index) => {*/}
+                      {/*              if (item.public) {*/}
+                      {/*                return (*/}
+                      {/*                  <tr key={`journalTable${index}_${item.id}`}>*/}
+                      {/*                    <td className="align-middle">{item.name || '---'}</td>*/}
+                      {/*                    <td className="text-center align-middle">*/}
+                      {/*                      {item.price ? getPriceString(item.price) : '---'}*/}
+                      {/*                    </td>*/}
+                      {/*                    <td className="text-center align-middle">*/}
+                      {/*                      {item.amount}*/}
+                      {/*                    </td>*/}
+                      {/*                    <td className="text-center align-middle">*/}
+                      {/*                      {getPriceString(item.amount * item.price)}*/}
+                      {/*                    </td>*/}
+                      {/*                    <td className="text-right">*/}
+                      {/*                      <Button*/}
+                      {/*                        color="success"*/}
+                      {/*                        size="sm"*/}
+                      {/*                        className="p-1"*/}
+                      {/*                        onClick={e => this.directlyAddProduct(e, item.id)}*/}
+                      {/*                      >*/}
+                      {/*                        <Icon*/}
+                      {/*                          color="#EEEEEE"*/}
+                      {/*                          size={20}*/}
+                      {/*                          icon={Icons.CHEVRON.RIGHT}*/}
+                      {/*                        />*/}
+                      {/*                      </Button>*/}
+                      {/*                    </td>*/}
+                      {/*                  </tr>*/}
+                      {/*                );*/}
+                      {/*              }*/}
+                      {/*              return null;*/}
+                      {/*            })}*/}
+                      {/*          </tbody>*/}
+                      {/*        </Table>*/}
+                      {/*      </Row>*/}
+                      {/*    )}*/}
+                      {/*    /!*{this.state.activeTab === 'categories' && <h1>Produktübersicht!</h1>}*!/*/}
+                      {/*  </CardBody>*/}
+                      {/*</Card>*/}
                     </Col>
                     <Col xs={6}>
                       <Card className="h-100">
