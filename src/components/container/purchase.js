@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import PinInput from 'react-pin-input';
 import { withRouter } from 'react-router-dom';
 import { Row } from 'reactstrap';
 
@@ -41,7 +40,6 @@ class Purchase extends PureComponent {
     super(props);
 
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.handleOnPinChange = this.handleOnPinChange.bind(this);
     this.checkMembernumber = this.checkMembernumber.bind(this);
     this.setError = this.setError.bind(this);
     this.clearError = this.clearError.bind(this);
@@ -116,12 +114,6 @@ class Purchase extends PureComponent {
     }
   }
 
-  handleOnPinChange(value) {
-    this.setState({
-      membernumber: value,
-    });
-  }
-
   checkMembernumber(e) {
     e.preventDefault();
     this.setState({ loading: true });
@@ -139,7 +131,7 @@ class Purchase extends PureComponent {
               memberdata.journalRef
                 .collection('journal')
                 .orderBy('date', 'desc')
-                .limit(5)
+                .limit(10)
                 .onSnapshot(journalSnap => {
                   const journal = [];
                   journalSnap.forEach(journalDoc => journal.push({ ...journalDoc.data() }));
@@ -310,18 +302,17 @@ class Purchase extends PureComponent {
                           </Alert>
                           <FormGroup>
                             <Label for="membernumber">Mitgliedsnummer</Label>
-                            <PinInput length={6} onChange={this.handleOnPinChange} type="numeric" focus secret />
-                            {/*<Input*/}
-                            {/*  autoComplete="off"*/}
-                            {/*  className="text-center"*/}
-                            {/*  type="text"*/}
-                            {/*  name="membernumber"*/}
-                            {/*  id="membernumber"*/}
-                            {/*  value={this.state.membernumber}*/}
-                            {/*  innerRef={input => (this.focussedInput = input)}*/}
-                            {/*  onChange={e => this.handleOnChange(e, 'membernumber')}*/}
-                            {/*  placeholder="******"*/}
-                            {/*/>*/}
+                            <Input
+                              autoComplete="off"
+                              className="text-center"
+                              type="text"
+                              name="membernumber"
+                              id="membernumber"
+                              value={this.state.membernumber}
+                              innerRef={input => (this.focussedInput = input)}
+                              onChange={e => this.handleOnChange(e, 'membernumber')}
+                              placeholder="******"
+                            />
                           </FormGroup>
                         </CardBody>
                         <CardFooter>
@@ -377,7 +368,7 @@ class Purchase extends PureComponent {
                               startTimer={!this.state.loading && !!ctxt.memberId}
                               interval={250}
                               storeKey={'lastAction'}
-                              time={process.env.NODE_ENV === 'development' ? 300000 : 50000}
+                              time={process.env.NODE_ENV === 'development' ? 300000 : 30000}
                             />
                             <Button
                               type="button"
