@@ -176,7 +176,7 @@ class ClubData extends Component {
     const { editDoc, openPosition, boardMembers } = this.state;
 
     const positionFilled = _.get(editDoc, `board[${position}].firstname`, false);
-    const hasError = !!_.get(editDoc, `board[${position}].firstname`, true);
+    const hasError = !!_.get(editDoc, `board[${position}].firstname`, false);
 
     return (
       <ListGroupItem active={position === openPosition} className="p-0">
