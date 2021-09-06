@@ -59,6 +59,8 @@ PROD:
   before_script:
     - node -v
     - npm -v
+    - npm config set user 0
+    - npm config set unsafe-perm true
     - npm install -g firebase-tools firebase-ci
   script:
     - pwd
