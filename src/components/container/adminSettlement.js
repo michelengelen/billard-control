@@ -148,7 +148,7 @@ class Settlement extends Component {
   renderSettlementYear(year) {
     this.currentYear = year;
     const monthsInYear = [];
-    let m = now.getMonth() - (now.getDate() < 14 ? 1 : 0);
+    let m = now.getFullYear() > year ? 11 : now.getMonth() - (now.getDate() < 14 ? 1 : 0);
     for (let i = 0; i <= m; i++) {
       monthsInYear.push(i);
     }
@@ -224,19 +224,19 @@ class Settlement extends Component {
                     </thead>
                     <tbody>
                       {members.map(member => {
-                        if (member.active && settlements[openedSettlement]) {
+                        if (member.active && settlements[settlementKey][member.id]) {
                           return (
                             <SettlementEntry
-                              key={`settlement_${openedSettlement}_member_${member.id}`}
+                              key={`settlement_${settlementKey}_member_${member.id}`}
                               member={member}
                               date={getYearMonthFromKey(settlementKey)}
                               categories={categories}
-                              summary={settlements[openedSettlement][member.id]}
-                              editable={!settlements[settlementKey][member.id].finished}
+                              summary={settlements[settlementKey][member.id]}
+                              editable={settlements[settlementKey][member.id] && !settlements[settlementKey][member.id].finished}
                               updateCustoms={this.updateCustoms}
                               addTableRent={this.addTableRent}
                               finishSettlementEntry={sums => this.finishSettlementEntry(member.id, sums)}
-                              saveSettlement={() => this.saveSettlement(openedSettlement)}
+                              saveSettlement={() => this.saveSettlement(settlementKey)}
                             />
                           )
                         }
