@@ -20,7 +20,6 @@ export const Icon = props => {
   };
 
   const handleClick = (event, callback) => {
-    event.preventDefault();
     if (callback) callback();
   };
 

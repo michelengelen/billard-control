@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, Page, StyleSheet, Text, View, Font } from '@react-pdf/renderer';
 
+import * as Roboto from '../../fonts/Roboto'
 import { positionList } from 'variables/constants';
 import { getPriceString } from '../../helpers/helpers';
 
@@ -8,56 +9,56 @@ Font.register({
   family: 'Roboto',
   fonts: [
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOkCnqEu92Fr1MmgWxPKTM1K9nz.ttf',
+      src: Roboto.thin,
       fontWeight: 100,
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOiCnqEu92Fr1Mu51QrIzcXLsnzjYk.ttf',
+      src: Roboto.thinItalic,
       fontWeight: 100,
       fontStyle: 'italic',
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmSU5vAx05IsDqlA.ttf',
+      src: Roboto.light,
       fontWeight: 300,
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51TjARc9AMX6lJBP.ttf',
+      src: Roboto.lightItalic,
       fontWeight: 300,
       fontStyle: 'italic',
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf',
+      src: Roboto.regular,
       fontWeight: 400,
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOkCnqEu92Fr1Mu52xPKTM1K9nz.ttf',
+      src: Roboto.italic,
       fontWeight: 400,
       fontStyle: 'italic',
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmEU9vAx05IsDqlA.ttf',
+      src: Roboto.medium,
       fontWeight: 500,
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51S7ABc9AMX6lJBP.ttf',
+      src: Roboto.mediumItalic,
       fontWeight: 500,
       fontStyle: 'italic',
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmWUlvAx05IsDqlA.ttf',
+      src: Roboto.bold,
       fontWeight: 700,
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51TzBhc9AMX6lJBP.ttf',
+      src: Roboto.boldItalic,
       fontWeight: 700,
       fontStyle: 'italic',
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOlCnqEu92Fr1MmYUtvAx05IsDqlA.ttf',
+      src: Roboto.black,
       fontWeight: 900,
     },
     {
-      src: 'http://fonts.gstatic.com/s/roboto/v19/KFOjCnqEu92Fr1Mu51TLBBc9AMX6lJBP.ttf',
+      src: Roboto.blackItalic,
       fontWeight: 900,
       fontStyle: 'italic',
     },
