@@ -4,7 +4,7 @@ stages:
 
 Prepare Node Modules:
   stage: prepare
-  image: node:8-alpine
+  image: node:10
   script:
     - node -v
     - npm -v
@@ -18,7 +18,7 @@ Prepare Node Modules:
 
 DEV:
   stage: deploy
-  image: node:8-alpine
+  image: node:10
   dependencies:
     - Prepare Node Modules
   environment:
@@ -48,7 +48,7 @@ DEV:
 
 PROD:
   stage: deploy
-  image: node:8-alpine
+  image: node:10
   dependencies:
     - Prepare Node Modules
   environment:
